@@ -1,0 +1,4 @@
+/apps/*
+  X-Robots-Tag: noindex
+/assets/*
+  Cache-Control: public, max-age=604800

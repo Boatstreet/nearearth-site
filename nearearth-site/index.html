@@ -3,195 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Solar, Overhead, Asteroids &amp; Meteors and Sky: Android apps for what is happening above you.">
-<title>Near Space Apps</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<title>Near Space: Space Weather, ISS, Asteroid &amp; Sky Apps</title>
+<meta name="description" content="Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.">
+<link rel="canonical" href="https://nearspace.app/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0b0f1f">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Near Space">
+<meta property="og:title" content="Near Space: Space Weather, ISS, Asteroid &amp; Sky Apps">
+<meta property="og:description" content="Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.">
+<meta property="og:url" content="https://nearspace.app/">
+<meta property="og:image" content="https://nearspace.app/assets/og-home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Near Space: Space Weather, ISS, Asteroid &amp; Sky Apps">
+<meta name="twitter:description" content="Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.">
+<meta name="twitter:image" content="https://nearspace.app/assets/og-home.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
-<style>
-/* Layout: deep-sky single page; one live sky canvas up top, then three app "bays" alternating text/phone, closing with shared promises + data sources. Deliberately dark only. */
-:root{
-  --sky:#0b0f1f;          /* page ground: night navy */
-  --sky-2:#121831;        /* raised surface */
-  --line:#262e52;         /* hairlines */
-  --ink:#e9ecf7;          /* main text */
-  --mute:#9aa3c7;         /* secondary text, blue-biased grey */
-  --sun:#ffa94d;          /* Solar */
-  --sun-2:#ff6b3d;
-  --orbit:#5cb8ff;        /* Overhead */
-  --orbit-2:#2d7dff;
-  --rock:#b9a0ff;         /* Asteroids & Meteors */
-  --rock-2:#7f5cff;
-  --seti:#4fe0d2;          /* Sky */
-  --seti-2:#139e9a;
-  --ok:#5fd9a0;
-  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
-  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-data:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{background:var(--sky);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sky)}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--orbit);outline-offset:3px;border-radius:6px}
-.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.12;text-wrap:balance;margin:0}
-p{margin:0}
-.label{font-family:var(--f-data);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-
-/* Nav */
-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--sky) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:600;font-size:15px;text-decoration:none;letter-spacing:.02em}
-.brand-mark{width:26px;height:26px;flex:none}
-nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex-wrap:wrap;justify-content:flex-end}
-nav ul a{display:block;text-decoration:none;font-size:14px;color:var(--mute);padding:6px 10px;border-radius:999px;transition:color .2s,background .2s}
-nav ul a:hover{color:var(--ink);background:var(--sky-2)}
-@media (max-width:640px){nav ul li.opt{display:none}nav ul a{padding:6px 7px;font-size:13px}nav ul{gap:2px}}
-@media (max-width:420px){.brand span.bt{display:none}}
-
-/* Hero */
-.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
-#sky{position:absolute;inset:0;width:100%;height:100%;display:block}
-.hero .wrap{position:relative;padding-block:clamp(72px,12vw,140px) clamp(64px,10vw,120px)}
-.hero h1{font-size:clamp(34px,6.4vw,72px);font-weight:700;max-width:13ch;letter-spacing:-.01em}
-.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--sun),var(--orbit) 55%,var(--rock));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p.lede{margin-top:22px;max-width:52ch;font-size:clamp(17px,1.6vw,20px);color:var(--mute)}
-.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
-.chip{display:inline-flex;align-items:center;gap:10px;text-decoration:none;padding:9px 16px 9px 9px;border-radius:999px;background:var(--sky-2);border:1px solid var(--line);font-weight:500;transition:border-color .2s,transform .2s}
-.chip:hover{transform:translateY(-2px)}
-.chip.k:hover{border-color:var(--seti)} .chip.s:hover{border-color:var(--sun)} .chip.o:hover{border-color:var(--orbit)} .chip.a:hover{border-color:var(--rock)}
-.readout{margin-top:40px;display:flex;flex-wrap:wrap;gap:8px 26px;font-family:var(--f-data);font-size:13px;color:var(--mute)}
-.readout b{color:var(--ink);font-weight:500}
-
-/* Glossy badge (the apps' tab-icon look) */
-.badge{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.35)}
-.badge::after{content:"";position:absolute;inset:3px 6px auto;height:40%;border-radius:50%;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0))}
-.badge svg{width:16px;height:16px;position:relative;z-index:1}
-.b-sun{background:radial-gradient(circle at 35% 30%,var(--sun),var(--sun-2))}
-.b-orbit{background:radial-gradient(circle at 35% 30%,var(--orbit),var(--orbit-2))}
-.b-rock{background:radial-gradient(circle at 35% 30%,var(--rock),var(--rock-2))}
-.b-seti{background:radial-gradient(circle at 35% 30%,var(--seti),var(--seti-2))}
-
-/* App bays */
-.app{padding-block:clamp(72px,9vw,120px);border-bottom:1px solid var(--line);position:relative}
-.app .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(36px,6vw,80px);align-items:center}
-.app.flip .copy{order:2}
-@media (max-width:860px){.app .wrap{grid-template-columns:1fr}.app.flip .copy{order:0}}
-.app .copy{min-width:0;display:flex;flex-direction:column;gap:22px}
-.app-head{display:flex;align-items:center;gap:14px}
-.app-head .badge{width:52px;height:52px}
-.app-head .badge svg{width:26px;height:26px}
-.app h2{font-size:clamp(30px,4.2vw,46px)}
-.storetitle{font-family:var(--f-data);font-size:13px;color:var(--mute);margin-top:4px}
-.pitch{font-size:clamp(18px,1.7vw,21px);max-width:46ch}
-.feats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px}
-@media (max-width:520px){.feats{grid-template-columns:1fr}}
-.feats li{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start}
-.feats li::before{content:"";width:8px;height:8px;border-radius:50%;margin-top:9px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
-.feats b{font-weight:600;display:block}
-.feats span{color:var(--mute);font-size:15px;grid-column:2}
-.feats li > div{min-width:0}
-.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:6px}
-.pill{font-family:var(--f-data);font-size:12px;letter-spacing:.06em;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
-.pill.soon{color:var(--sky);background:var(--acc);border-color:transparent;font-weight:500}
-.sources{font-size:14px;color:var(--mute)}
-.sources b{color:var(--ink);font-weight:500}
-.s-app{--acc:var(--sun)} .o-app{--acc:var(--orbit)} .a-app{--acc:var(--rock)} .k-app{--acc:var(--seti)}
-.app::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(600px 380px at var(--gx,80%) 50%,color-mix(in srgb,var(--acc) 9%,transparent),transparent 70%)}
-.app.flip::before{--gx:20%}
-@media (max-width:860px){.app::before{--gx:50%}}
-
-/* Live phones: each app runs in a 412×915 frame scaled to fit the screen */
-.phone-col{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0}
-.phone{width:min(312px,100%);max-width:100%;border-radius:46px;padding:11px;background:linear-gradient(160deg,#3a4064,#14182c 40%,#2a3050);box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 0 1px #3b4370,inset 0 0 0 2px rgba(255,255,255,.04)}
-.screen{position:relative;width:100%;aspect-ratio:412/951;border-radius:36px;background:#04060d;overflow:hidden;isolation:isolate}
-.screen iframe{position:absolute;left:0;top:calc(36px * var(--k,.7));width:412px;height:915px;border:0;transform-origin:0 0;transform:scale(var(--k,.7));background:#04060d;display:block}
-.sbar{position:absolute;left:0;right:0;top:0;height:calc(36px * var(--k,.7));display:flex;align-items:center;justify-content:space-between;padding:0 calc(26px * var(--k,.7));font:500 calc(13px * var(--k,.7))/1 var(--f-body);color:#e9ecf7;z-index:2;background:#04060d}
-.sbar i{display:inline-flex;gap:calc(5px * var(--k,.7));align-items:center}
-.sbar svg{height:calc(12px * var(--k,.7));width:auto;fill:#e9ecf7}
-.screen::after{content:"";position:absolute;left:50%;top:calc(8px * var(--k,.7));width:calc(22px * var(--k,.7));height:calc(22px * var(--k,.7));transform:translateX(-50%);border-radius:50%;background:#000;box-shadow:0 0 0 2px #10131f;z-index:3;pointer-events:none}
-.boot{position:absolute;inset:0;display:grid;place-items:center;z-index:1;transition:opacity .4s}
-.boot span{width:34px;height:34px;border-radius:50%;border:3px solid color-mix(in srgb,var(--acc) 30%,transparent);border-top-color:var(--acc);animation:spin 1s linear infinite}
-.screen.live .boot{opacity:0;pointer-events:none}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.boot span{animation:none}}
-.caption{font-size:12px;color:var(--mute);font-family:var(--f-data);text-align:center}
-
-/* Shared promises */
-.promise{padding-block:clamp(72px,9vw,110px);border-bottom:1px solid var(--line)}
-.promise h2{font-size:clamp(26px,3.4vw,38px);max-width:22ch}
-.promise .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;margin-top:44px}
-@media (max-width:900px){.promise .grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:480px){.promise .grid{grid-template-columns:1fr}}
-.promise .grid > div{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:18px;min-width:0}
-.promise h3{font-family:var(--f-body);font-weight:600;font-size:18px}
-.promise p{color:var(--mute);font-size:15px}
-
-/* Data table */
-.data{padding-block:clamp(72px,9vw,110px);border-bottom:1px solid var(--line)}
-.data h2{font-size:clamp(26px,3.4vw,38px)}
-.data .intro{color:var(--mute);margin-top:14px;max-width:60ch}
-.tbl{overflow-x:auto;margin-top:34px;border:1px solid var(--line);border-radius:16px}
-table{border-collapse:collapse;width:100%;min-width:640px;font-size:15px}
-th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--line);vertical-align:top}
-tr:last-child td{border-bottom:0}
-th{font-family:var(--f-data);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:500;background:var(--sky-2)}
-td:first-child{font-weight:600;white-space:nowrap}
-td .dots{display:flex;gap:6px}
-td .dots i{width:10px;height:10px;border-radius:50%}
-.d-k{background:var(--seti)} .d-s{background:var(--sun)} .d-o{background:var(--orbit)} .d-a{background:var(--rock)}
-
-/* Contact + footer */
-.contact{padding-block:clamp(64px,8vw,100px)}
-.contact .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end}
-@media (max-width:700px){.contact .wrap{grid-template-columns:1fr}}
-.contact h2{font-size:clamp(26px,3.4vw,38px)}
-.contact p{color:var(--mute);margin-top:12px;max-width:52ch}
-.mail{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.mail code{font-family:var(--f-data);font-size:15px;background:var(--sky-2);border:1px solid var(--line);padding:10px 14px;border-radius:10px;user-select:all}
-.mail button{font:inherit;font-size:14px;font-weight:600;color:var(--sky);background:var(--ink);border:0;border-radius:10px;padding:11px 16px;cursor:pointer}
-.mail button:hover{background:var(--orbit)}
-footer{border-top:1px solid var(--line)}
-footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-block:26px;font-size:13px;color:var(--mute)}
-</style>
-<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="/assets/site.css?v=20261026">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://nearspace.app/#org","name":"Near Space","url":"https://nearspace.app/","logo":"https://nearspace.app/icon-512.png","email":"hello@nearspace.app"},{"@type":"WebSite","@id":"https://nearspace.app/#website","name":"Near Space","url":"https://nearspace.app/","publisher":{"@id":"https://nearspace.app/#org"},"inLanguage":"en"},{"@type":"WebPage","@id":"https://nearspace.app/#page","url":"https://nearspace.app/","name":"Near Space: Space Weather, ISS, Asteroid & Sky Apps","isPartOf":{"@id":"https://nearspace.app/#website"},"about":[{"@id":"https://nearspace.app/solar/#app"},{"@id":"https://nearspace.app/overhead/#app"},{"@id":"https://nearspace.app/asteroids-meteors/#app"},{"@id":"https://nearspace.app/sky/#app"}]},{"@type":"ItemList","name":"Near Space apps","itemListElement":[{"@type":"ListItem","position":1,"url":"https://nearspace.app/solar/","name":"Solar"},{"@type":"ListItem","position":2,"url":"https://nearspace.app/overhead/","name":"Overhead"},{"@type":"ListItem","position":3,"url":"https://nearspace.app/asteroids-meteors/","name":"Asteroids & Meteors"},{"@type":"ListItem","position":4,"url":"https://nearspace.app/sky/","name":"Sky"}]},{"@type":"MobileApplication","@id":"https://nearspace.app/solar/#app","name":"Solar","alternateName":"Solar: Sun, Aurora & Eclipse","operatingSystem":"Android","applicationCategory":"WeatherApplication","description":"Live Sun with numbered sunspots, solar flare and CME alerts, the Kp index, an aurora forecast and eclipses for your location. Free Android app, no account.","url":"https://nearspace.app/solar/","image":"https://nearspace.app/assets/og-solar.jpg","publisher":{"@id":"https://nearspace.app/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"isAccessibleForFree":true},{"@type":"MobileApplication","@id":"https://nearspace.app/overhead/#app","name":"Overhead","alternateName":"ISS & satellite passes","operatingSystem":"Android","applicationCategory":"ReferenceApplication","description":"Predicts every visible ISS and satellite pass over you, rates how good each will look and shows where to look. Free Android ISS tracker, no account.","url":"https://nearspace.app/overhead/","image":"https://nearspace.app/assets/og-overhead.jpg","publisher":{"@id":"https://nearspace.app/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"isAccessibleForFree":true},{"@type":"MobileApplication","@id":"https://nearspace.app/asteroids-meteors/#app","name":"Asteroids & Meteors","alternateName":"Near-Earth flybys and meteor showers","operatingSystem":"Android","applicationCategory":"EducationalApplication","description":"Every asteroid passing close to Earth on a live radar, NASA impact-risk data, 3D flybys and meteor showers. Free Android app using NASA/JPL data.","url":"https://nearspace.app/asteroids-meteors/","image":"https://nearspace.app/assets/og-asteroids-meteors.jpg","publisher":{"@id":"https://nearspace.app/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"isAccessibleForFree":true},{"@type":"MobileApplication","@id":"https://nearspace.app/sky/#app","name":"Sky","alternateName":"Night sky & the search for alien signals","operatingSystem":"Android","applicationCategory":"EducationalApplication","description":"Tonight's stargazing score, a live star map and the stars Breakthrough Listen has searched for alien signals, plus the Wow! signal. Free Android app.","url":"https://nearspace.app/sky/","image":"https://nearspace.app/assets/og-sky.jpg","publisher":{"@id":"https://nearspace.app/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"isAccessibleForFree":true},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Are the apps free?","acceptedAnswer":{"@type":"Answer","text":"Yes, all four are free to download. Solar and Overhead also have an optional Pro upgrade that unlocks extra features. There are no ads in any of them."}},{"@type":"Question","name":"When can I download them?","acceptedAnswer":{"@type":"Answer","text":"The apps are coming to Google Play for Android. An iPhone version of Solar is planned."}},{"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. Open the app and it works. There is nothing to sign up for."}},{"@type":"Question","name":"Do the apps collect my data?","acceptedAnswer":{"@type":"Answer","text":"No. There are no analytics, no ads and no tracking. Your location is used on your phone to work out what is above you and is never sent to us. See the privacy policy."}},{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"From public science agencies: NOAA's Space Weather Prediction Center, NASA, NASA's Jet Propulsion Laboratory, CelesTrak, Breakthrough Listen and Open-Meteo."}},{"@type":"Question","name":"Do the apps work offline?","acceptedAnswer":{"@type":"Answer","text":"Each app keeps the latest data it downloaded and shows it when you are offline, so you can still check the last forecast or pass times."}}]}]}</script>
 </head>
 <body>
-
-
+<a class="skip" href="#main">Skip to content</a>
 <nav aria-label="Main">
   <div class="wrap">
-    <a class="brand" href="#top">
-      <svg class="brand-mark" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="5" fill="var(--sun)"/><ellipse cx="13" cy="13" rx="11.5" ry="5" fill="none" stroke="var(--orbit)" stroke-width="1.4" transform="rotate(-25 13 13)"/><circle cx="22.4" cy="8.8" r="1.8" fill="var(--rock)"/></svg>
-      <span class="bt">Near Space</span>
-    </a>
-    <ul>
-      <li><a href="#solar">Solar</a></li>
-      <li><a href="#overhead">Overhead</a></li>
-      <li><a href="#asteroids">Asteroids</a></li>
-      <li><a href="#sky-app">Sky</a></li>
-      <li class="opt"><a href="#privacy">Privacy</a></li>
-    </ul>
+    <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="5" fill="var(--sun)"/><ellipse cx="13" cy="13" rx="11.5" ry="5" fill="none" stroke="var(--orbit)" stroke-width="1.4" transform="rotate(-25 13 13)"/><circle cx="22.4" cy="8.8" r="1.8" fill="var(--rock)"/></svg><span class="bt">Near Space</span></a>
+    <ul><li><a href="/solar/">Solar</a></li><li><a href="/overhead/">Overhead</a></li><li><a href="/asteroids-meteors/">Asteroids</a></li><li><a href="/sky/">Sky</a></li><li class="opt"><a href="/privacy/">Privacy</a></li></ul>
   </div>
 </nav>
-
+<main id="main">
 <header class="hero" id="top">
-  <canvas id="sky" aria-hidden="true"></canvas>
+  <canvas id="herosky" aria-hidden="true"></canvas>
   <div class="wrap">
     <p class="label">Android apps · live data from NOAA, NASA, CelesTrak &amp; Breakthrough Listen</p>
     <h1 style="margin-top:18px">Know what's <em>happening above you</em>.</h1>
-    <p class="lede">Four companion apps for the sky. Watch the Sun's storms head for Earth, catch the ISS crossing overhead, see which asteroids are passing by this week, and find the stars we've listened to for alien signals.</p>
-    <div class="chips">
-      <a class="chip s" href="#solar"><span class="badge b-sun"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.4" fill="#fff"/><g stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></g></svg></span>Solar</a>
-      <a class="chip o" href="#overhead"><span class="badge b-orbit"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="6" y="6" width="4" height="4" rx="1" fill="#fff"/><rect x="1" y="6.6" width="4" height="2.8" fill="#fff"/><rect x="11" y="6.6" width="4" height="2.8" fill="#fff"/></svg></span>Overhead</a>
-      <a class="chip a" href="#asteroids"><span class="badge b-rock"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 4.5 9.5 3l3 3-.5 4.5L8 13l-4-2-1-3.5z" fill="#fff"/></svg></span>Asteroids &amp; Meteors</a>
-      <a class="chip k" href="#sky-app"><span class="badge b-seti"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 5.5a7 7 0 0 0 8 8z" fill="#fff"/><path d="M6.5 9.5 11 5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="11.6" cy="4.4" r="1.4" fill="#fff"/><path d="M5 14h5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>Sky</a>
-    </div>
+    <p class="lede">Four free Android apps for the sky. Watch the Sun's storms head for Earth, catch the ISS crossing overhead, see which asteroids are passing by this week, and find the stars we've listened to for alien signals.</p>
+    <div class="chips"><a class="chip s" href="#solar"><span class="badge b-sun"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.4" fill="#fff"/><g stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></g></svg></span>Solar</a><a class="chip o" href="#overhead"><span class="badge b-orbit"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="6" y="6" width="4" height="4" rx="1" fill="#fff"/><rect x="1" y="6.6" width="4" height="2.8" fill="#fff"/><rect x="11" y="6.6" width="4" height="2.8" fill="#fff"/></svg></span>Overhead</a><a class="chip a" href="#asteroids-meteors"><span class="badge b-rock"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 4.5 9.5 3l3 3-.5 4.5L8 13l-4-2-1-3.5z" fill="#fff"/></svg></span>Asteroids &amp; Meteors</a><a class="chip k" href="#sky"><span class="badge b-seti"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 5.5a7 7 0 0 0 8 8z" fill="#fff"/><path d="M6.5 9.5 11 5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="11.6" cy="4.4" r="1.4" fill="#fff"/><path d="M5 14h5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>Sky</a></div>
     <div class="readout" aria-label="What the apps track">
       <span>Kp index <b>0–9</b></span>
       <span>ISS altitude <b>~420 km</b></span>
@@ -201,8 +57,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
     </div>
   </div>
 </header>
-
-<!-- SOLAR -->
 <section class="app s-app" id="solar" aria-labelledby="solar-h">
   <div class="wrap">
     <div class="copy">
@@ -211,29 +65,21 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
         <div><h2 id="solar-h">Solar</h2><p class="storetitle">Solar: Sun, Aurora &amp; Eclipse</p></div>
       </div>
       <p class="pitch">Space weather you can actually read. A live view of the Sun with every numbered sunspot region, and a clear warning when a flare or CME is on its way to Earth.</p>
-      <ul class="feats">
-        <li><div><b>Live Sun</b></div><span>NASA SDO imagery with numbered active regions, rotated to the current time.</span></li>
-        <li><div><b>Earth</b></div><span>An animated magnetosphere showing what the solar wind and CMEs are doing to it right now.</span></li>
-        <li><div><b>Aurora tonight</b></div><span>A go, maybe or stay-in score from aurora chance, cloud cover, darkness and the Moon.</span></li>
-        <li><div><b>Eclipses</b></div><span>How each coming eclipse will look from where you are.</span></li>
-        <li><div><b>History</b></div><span>A calendar back to 1818 for sunspots and 1932 for geomagnetic storms.</span></li>
-        <li><div><b>Alerts &amp; widgets</b></div><span>Notifications with your own thresholds, plus six home-screen widgets.</span></li>
-      </ul>
+      <ul class="feats"><li><div><b>Live Sun</b></div><span>NASA SDO imagery with numbered active regions, rotated to the current time.</span></li><li><div><b>Earth</b></div><span>An animated magnetosphere showing what the solar wind and CMEs are doing to it right now.</span></li><li><div><b>Aurora tonight</b></div><span>A go, maybe or stay-in score from aurora chance, cloud cover, darkness and the Moon.</span></li><li><div><b>Eclipses</b></div><span>How each coming eclipse will look from where you are.</span></li><li><div><b>History</b></div><span>A calendar back to 1818 for sunspots and 1932 for geomagnetic storms.</span></li><li><div><b>Alerts &amp; widgets</b></div><span>Notifications for flares, storms and CMEs, plus six home-screen widgets.</span></li></ul>
       <p class="sources">Data: <b>NOAA SWPC</b>, <b>NASA SDO</b> &amp; <b>DONKI</b>, <b>SILSO</b>, <b>GFZ Potsdam</b>, <b>Open-Meteo</b></p>
       <div class="meta"><span class="pill soon">Coming to Google Play</span><span class="pill">Free · Pro upgrade</span><span class="pill">App Store planned</span></div>
+      <a class="more" href="/solar/">More about Solar <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
     <div class="phone-col">
       <div class="phone"><div class="screen" data-app="solar">
         <div class="sbar" aria-hidden="true"><b class="clk">21:42</b><i><svg viewBox="0 0 16 12"><path d="M1 11h2V8H1zM5 11h2V6H5zM9 11h2V3H9zM13 11h2V0h-2z"/></svg><svg viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="18" height="11" rx="2.5" fill="none" stroke="#e9ecf7"/><rect x="2" y="2" width="12" height="8" rx="1.2"/><rect x="19.5" y="3.5" width="2" height="5" rx="1"/></svg></i></div>
         <div class="boot" aria-hidden="true"><span></span></div>
-        <iframe title="Solar app, running live" data-src="apps/solar/index.html" tabindex="0"></iframe>
+        <iframe title="Solar app, running live" data-src="/apps/solar/index.html" tabindex="0" loading="lazy"></iframe>
       </div></div>
       <p class="caption">The real app, running live · tap to explore · <span class="src">sample data</span></p>
     </div>
   </div>
 </section>
-
-<!-- OVERHEAD -->
 <section class="app o-app flip" id="overhead" aria-labelledby="overhead-h">
   <div class="wrap">
     <div class="copy">
@@ -242,129 +88,95 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
         <div><h2 id="overhead-h">Overhead</h2><p class="storetitle">ISS &amp; satellite passes</p></div>
       </div>
       <p class="pitch">Never miss the ISS again. Overhead works out every pass from your location, tells you how good it will look, and points your camera to where it will appear.</p>
-      <ul class="feats">
-        <li><div><b>Pass predictions</b></div><span>Rise, peak and set times with height and brightness for the ISS and other satellites.</span></li>
-        <li><div><b>Viewing score</b></div><span>Each pass rated 0–100 from height, brightness, darkness, Moon and cloud.</span></li>
-        <li><div><b>Look</b></div><span>Hold up your phone and the camera view marks where to watch.</span></li>
-        <li><div><b>Radar</b></div><span>A 3D Earth with satellites circling it in their real orbits.</span></li>
-        <li><div><b>Planets &amp; night vision</b></div><span>Mercury to Saturn on the sky chart, and a red mode that keeps your eyes dark-adapted.</span></li>
-        <li><div><b>Widgets &amp; alerts</b></div><span>Next-pass countdown, upcoming passes and a live map on your home screen.</span></li>
-      </ul>
+      <ul class="feats"><li><div><b>Pass predictions</b></div><span>Rise, peak and set times with height and brightness for the ISS and other satellites.</span></li><li><div><b>Viewing score</b></div><span>Each pass rated 0–100 from height, brightness, darkness, Moon and cloud.</span></li><li><div><b>Look</b></div><span>Hold up your phone and the camera view marks where to watch.</span></li><li><div><b>Radar</b></div><span>A 3D Earth with satellites circling it in their real orbits.</span></li><li><div><b>Planets &amp; night vision</b></div><span>Mercury to Saturn on the sky chart, and a red mode that keeps your eyes dark-adapted.</span></li><li><div><b>Widgets &amp; alerts</b></div><span>Next-pass countdown, upcoming passes and a live map on your home screen.</span></li></ul>
       <p class="sources">Data: <b>CelesTrak</b> orbital elements, <b>Open-Meteo</b> cloud cover, <b>Wikipedia</b> &amp; <b>Wikidata</b> satellite details</p>
       <div class="meta"><span class="pill soon">Coming to Google Play</span><span class="pill">Free · Pro upgrade</span></div>
+      <a class="more" href="/overhead/">More about Overhead <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
     <div class="phone-col">
       <div class="phone"><div class="screen" data-app="overhead">
         <div class="sbar" aria-hidden="true"><b class="clk">21:42</b><i><svg viewBox="0 0 16 12"><path d="M1 11h2V8H1zM5 11h2V6H5zM9 11h2V3H9zM13 11h2V0h-2z"/></svg><svg viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="18" height="11" rx="2.5" fill="none" stroke="#e9ecf7"/><rect x="2" y="2" width="12" height="8" rx="1.2"/><rect x="19.5" y="3.5" width="2" height="5" rx="1"/></svg></i></div>
         <div class="boot" aria-hidden="true"><span></span></div>
-        <iframe title="Overhead app, running live" data-src="apps/overhead/index.html" tabindex="0"></iframe>
+        <iframe title="Overhead app, running live" data-src="/apps/overhead/index.html" tabindex="0" loading="lazy"></iframe>
       </div></div>
       <p class="caption">The real app, running live · tap to explore · <span class="src">sample data</span></p>
     </div>
   </div>
 </section>
-
-<!-- ASTEROIDS -->
-<section class="app a-app" id="asteroids" aria-labelledby="asteroids-h">
+<section class="app a-app" id="asteroids-meteors" aria-labelledby="asteroids-meteors-h">
   <div class="wrap">
     <div class="copy">
       <div class="app-head">
         <span class="badge b-rock"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 4.5 9.5 3l3 3-.5 4.5L8 13l-4-2-1-3.5z" fill="#fff"/></svg></span>
-        <div><h2 id="asteroids-h">Asteroids &amp; Meteors</h2><p class="storetitle">Near-Earth flybys and meteor showers</p></div>
+        <div><h2 id="asteroids-meteors-h">Asteroids &amp; Meteors</h2><p class="storetitle">Near-Earth flybys and meteor showers</p></div>
       </div>
-      <p class="pitch">See what's passing Earth this week. Every close approach on a live radar, real impact-risk data from NASA, and a 3D flyby you can ride alongside.</p>
-      <ul class="feats">
-        <li><div><b>Radar</b></div><span>A live dial of this week's flybys, with the next one counted down.</span></li>
-        <li><div><b>3D flyby</b></div><span>Follow an asteroid past Earth on its real path, with the true Sun, Moon and stars.</span></li>
-        <li><div><b>Risk</b></div><span>NASA's Sentry list of objects with any chance of impact, explained plainly.</span></li>
-        <li><div><b>Meteors</b></div><span>Showers with real radiants and rates, plus recent fireballs.</span></li>
-        <li><div><b>Sky</b></div><span>Point your phone up to find stars, planets and asteroids.</span></li>
-        <li><div><b>History</b></div><span>A calendar of close approaches from 1900 to 2200.</span></li>
-      </ul>
+      <p class="pitch">See what&#x27;s passing Earth this week. Every close approach on a live radar, real impact-risk data from NASA, and a 3D flyby you can ride alongside.</p>
+      <ul class="feats"><li><div><b>Radar</b></div><span>A live dial of this week&#x27;s flybys, with the next one counted down.</span></li><li><div><b>3D flyby</b></div><span>Follow an asteroid past Earth on its real path, with the true Sun, Moon and stars.</span></li><li><div><b>Risk</b></div><span>NASA&#x27;s Sentry list of objects with any chance of impact, explained plainly.</span></li><li><div><b>Meteors</b></div><span>Showers with real radiants and rates, plus recent fireballs.</span></li><li><div><b>Sky</b></div><span>Point your phone up to find stars, planets and asteroids.</span></li><li><div><b>History</b></div><span>A calendar of close approaches from 1900 to 2200.</span></li></ul>
       <p class="sources">Data: <b>NASA/JPL</b> Close Approach, <b>Sentry</b>, <b>Small-Body Database</b> &amp; <b>Fireball</b> APIs</p>
       <div class="meta"><span class="pill soon">Coming to Google Play</span></div>
+      <a class="more" href="/asteroids-meteors/">More about Asteroids &amp; Meteors <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
     <div class="phone-col">
       <div class="phone"><div class="screen" data-app="asteroids">
         <div class="sbar" aria-hidden="true"><b class="clk">21:42</b><i><svg viewBox="0 0 16 12"><path d="M1 11h2V8H1zM5 11h2V6H5zM9 11h2V3H9zM13 11h2V0h-2z"/></svg><svg viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="18" height="11" rx="2.5" fill="none" stroke="#e9ecf7"/><rect x="2" y="2" width="12" height="8" rx="1.2"/><rect x="19.5" y="3.5" width="2" height="5" rx="1"/></svg></i></div>
         <div class="boot" aria-hidden="true"><span></span></div>
-        <iframe title="Asteroids &amp; Meteors app, running live" data-src="apps/asteroids/index.html" tabindex="0"></iframe>
+        <iframe title="Asteroids &amp; Meteors app, running live" data-src="/apps/asteroids/index.html" tabindex="0" loading="lazy"></iframe>
       </div></div>
       <p class="caption">The real app, running live · tap to explore · <span class="src">sample data</span></p>
     </div>
   </div>
 </section>
-
-<!-- SKY -->
-<section class="app k-app flip" id="sky-app" aria-labelledby="sky-h">
+<section class="app k-app flip" id="sky" aria-labelledby="sky-h">
   <div class="wrap">
     <div class="copy">
       <div class="app-head">
         <span class="badge b-seti"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 5.5a7 7 0 0 0 8 8z" fill="#fff"/><path d="M6.5 9.5 11 5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="11.6" cy="4.4" r="1.4" fill="#fff"/><path d="M5 14h5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
         <div><h2 id="sky-h">Sky</h2><p class="storetitle">Night sky &amp; the search for alien signals</p></div>
       </div>
-      <p class="pitch">Your night sky, with the search for life running through it. See what's up tonight, then find the stars that radio telescopes have listened to for a signal.</p>
-      <ul class="feats">
-        <li><div><b>Tonight</b></div><span>A live horizon scene with the real Moon, planets and meteors, and a 0–100 stargazing score.</span></li>
-        <li><div><b>Sky map</b></div><span>A star map that follows your phone, with a slider to wind the sky 12 hours either way.</span></li>
-        <li><div><b>Listen</b></div><span>Over 5,500 stars and 94 galaxies that Breakthrough Listen pointed the Green Bank Telescope at.</span></li>
-        <li><div><b>Our radio bubble</b></div><span>A 3D view of the stars close enough to have already heard our broadcasts.</span></li>
-        <li><div><b>Signals</b></div><span>The Wow! signal, BLC1, fast radio bursts and more, marked solved or still unexplained.</span></li>
-        <li><div><b>Calendar</b></div><span>Moon phases, meteor showers, eclipses and the days Green Bank was listening.</span></li>
-      </ul>
+      <p class="pitch">Your night sky, with the search for life running through it. See what&#x27;s up tonight, then find the stars that radio telescopes have listened to for a signal.</p>
+      <ul class="feats"><li><div><b>Tonight</b></div><span>A live horizon scene with the real Moon, planets and meteors, and a 0–100 stargazing score.</span></li><li><div><b>Sky map</b></div><span>A star map that follows your phone, with a slider to wind the sky 12 hours either way.</span></li><li><div><b>Listen</b></div><span>Over 5,500 stars and 94 galaxies that Breakthrough Listen pointed the Green Bank Telescope at.</span></li><li><div><b>Our radio bubble</b></div><span>A 3D view of the stars close enough to have already heard our broadcasts.</span></li><li><div><b>Signals</b></div><span>The Wow! signal, BLC1, fast radio bursts and more, marked solved or still unexplained.</span></li><li><div><b>Calendar</b></div><span>Moon phases, meteor showers, eclipses and the days Green Bank was listening.</span></li></ul>
       <p class="sources">Data: <b>Breakthrough Listen</b> open data, <b>NOAA SWPC</b> aurora, <b>Open-Meteo</b> cloud cover</p>
       <div class="meta"><span class="pill soon">Coming to Google Play</span></div>
+      <a class="more" href="/sky/">More about Sky <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
     <div class="phone-col">
       <div class="phone"><div class="screen" data-app="sky">
         <div class="sbar" aria-hidden="true"><b class="clk">21:42</b><i><svg viewBox="0 0 16 12"><path d="M1 11h2V8H1zM5 11h2V6H5zM9 11h2V3H9zM13 11h2V0h-2z"/></svg><svg viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="18" height="11" rx="2.5" fill="none" stroke="#e9ecf7"/><rect x="2" y="2" width="12" height="8" rx="1.2"/><rect x="19.5" y="3.5" width="2" height="5" rx="1"/></svg></i></div>
         <div class="boot" aria-hidden="true"><span></span></div>
-        <iframe title="Sky app, running live" data-src="apps/sky/index.html" tabindex="0"></iframe>
+        <iframe title="Sky app, running live" data-src="/apps/sky/index.html" tabindex="0" loading="lazy"></iframe>
       </div></div>
       <p class="caption">The real app, running live · tap to explore · <span class="src">sample data</span></p>
     </div>
   </div>
 </section>
-
-<!-- PROMISES -->
-<section class="promise" id="privacy" aria-labelledby="promise-h">
+<section class="promise" id="promises" aria-labelledby="promise-h">
   <div class="wrap">
     <p class="label">Built the same way</p>
     <h2 id="promise-h" style="margin-top:14px">Your sky, your phone. Nothing leaves it.</h2>
     <div class="grid">
       <div><h3>No account</h3><p>Open the app and it works. There's nothing to sign up for.</p></div>
-      <div><h3>No tracking</h3><p>No analytics, no ads, no cookies. Your location is used on the phone to work out what's above you and isn't sent to us.</p></div>
+      <div><h3>No tracking</h3><p>No analytics, no ads, no cookies. Your location is used on the phone to work out what's above you and isn't sent to us. <a href="/privacy/" style="color:var(--orbit)">Privacy policy</a>.</p></div>
       <div><h3>Official data</h3><p>Every number comes from public science agencies, so you see what the scientists see.</p></div>
       <div><h3>Made to match</h3><p>All four share one look: dark, compact, with tabs at the bottom and home-screen widgets.</p></div>
     </div>
   </div>
 </section>
-
-<!-- DATA -->
-<section class="data" aria-labelledby="data-h">
+<section class="data" id="data" aria-labelledby="data-h">
   <div class="wrap">
     <p class="label">Where the numbers come from</p>
     <h2 id="data-h" style="margin-top:14px">Data sources</h2>
     <p class="intro">All free, public services. Thank you to the teams who keep them running.</p>
-    <div class="tbl">
-      <table>
-        <thead><tr><th>Source</th><th>What it provides</th><th>Used in</th></tr></thead>
-        <tbody>
-          <tr><td>NOAA SWPC</td><td>Kp index, solar wind, X-ray flux, R/S/G scales, alerts, OVATION aurora model</td><td><span class="dots"><i class="d-s" title="Solar"></i><i class="d-k" title="Sky"></i></span></td></tr>
-          <tr><td>NASA SDO &amp; DONKI</td><td>Images of the Sun, flare, CME and storm records</td><td><span class="dots"><i class="d-s" title="Solar"></i></span></td></tr>
-          <tr><td>SILSO &amp; GFZ Potsdam</td><td>Sunspot numbers since 1818, Kp since 1932, F10.7 radio flux</td><td><span class="dots"><i class="d-s" title="Solar"></i></span></td></tr>
-          <tr><td>CelesTrak</td><td>Orbital elements for the ISS and tracked satellites</td><td><span class="dots"><i class="d-o" title="Overhead"></i></span></td></tr>
-          <tr><td>NASA/JPL</td><td>Close approaches, Sentry impact risk, small-body orbits, fireballs</td><td><span class="dots"><i class="d-a" title="Asteroids &amp; Meteors"></i></span></td></tr>
-          <tr><td>Breakthrough Listen</td><td>Public index of Green Bank Telescope SETI observations, 2016–2018, and a sample recording</td><td><span class="dots"><i class="d-k" title="Sky"></i></span></td></tr>
-          <tr><td>Open-Meteo</td><td>Cloud cover forecasts and place search</td><td><span class="dots"><i class="d-s" title="Solar"></i><i class="d-o" title="Overhead"></i><i class="d-k" title="Sky"></i></span></td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="tbl"><table><thead><tr><th>Source</th><th>What it provides</th><th>Used in</th></tr></thead><tbody><tr><td>NOAA SWPC</td><td>Kp index, solar wind, X-ray flux, R/S/G scales, alerts, OVATION aurora model</td><td><span class="dots"><i class="d-s" title="Solar"></i><i class="d-k" title="Sky"></i></span></td></tr><tr><td>NASA SDO &amp; DONKI</td><td>Images of the Sun, flare, CME and storm records</td><td><span class="dots"><i class="d-s" title="Solar"></i></span></td></tr><tr><td>SILSO &amp; GFZ Potsdam</td><td>Sunspot numbers since 1818, Kp since 1932, F10.7 radio flux</td><td><span class="dots"><i class="d-s" title="Solar"></i></span></td></tr><tr><td>CelesTrak</td><td>Orbital elements for the ISS and tracked satellites</td><td><span class="dots"><i class="d-o" title="Overhead"></i></span></td></tr><tr><td>NASA/JPL</td><td>Close approaches, Sentry impact risk, small-body orbits, fireballs</td><td><span class="dots"><i class="d-a" title="Asteroids &amp; Meteors"></i></span></td></tr><tr><td>Breakthrough Listen</td><td>Public index of Green Bank Telescope SETI observations, 2016–2018, and a sample recording</td><td><span class="dots"><i class="d-k" title="Sky"></i></span></td></tr><tr><td>Open-Meteo</td><td>Cloud cover forecasts and place search</td><td><span class="dots"><i class="d-s" title="Solar"></i><i class="d-o" title="Overhead"></i><i class="d-k" title="Sky"></i></span></td></tr></tbody></table></div>
   </div>
 </section>
-
-<!-- CONTACT -->
-<section class="contact" aria-labelledby="contact-h">
+<section class="faq-sec" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <p class="label">Good to know</p>
+    <h2 id="faq-h" style="margin-top:14px">Questions</h2>
+    <div class="faq"><details><summary>Are the apps free?</summary><div class="a"><p>Yes, all four are free to download. Solar and Overhead also have an optional Pro upgrade that unlocks extra features. There are no ads in any of them.</p></div></details><details><summary>When can I download them?</summary><div class="a"><p>The apps are coming to Google Play for Android. An iPhone version of Solar is planned.</p></div></details><details><summary>Do I need an account?</summary><div class="a"><p>No. Open the app and it works. There is nothing to sign up for.</p></div></details><details><summary>Do the apps collect my data?</summary><div class="a"><p>No. There are no analytics, no ads and no tracking. Your location is used on your phone to work out what is above you and is never sent to us. See the <a href="/privacy/">privacy policy</a>.</p></div></details><details><summary>Where does the data come from?</summary><div class="a"><p>From public science agencies: NOAA's Space Weather Prediction Center, NASA, NASA's Jet Propulsion Laboratory, CelesTrak, Breakthrough Listen and Open-Meteo.</p></div></details><details><summary>Do the apps work offline?</summary><div class="a"><p>Each app keeps the latest data it downloaded and shows it when you are offline, so you can still check the last forecast or pass times.</p></div></details></div>
+  </div>
+</section>
+<section class="contact" id="contact" aria-labelledby="contact-h">
   <div class="wrap">
     <div>
       <h2 id="contact-h">Questions or ideas?</h2>
@@ -376,88 +188,20 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
     </div>
   </div>
 </section>
-
+</main>
 <footer>
   <div class="wrap">
-    <span>© 2026 Near Space · Solar · Overhead · Asteroids &amp; Meteors · Sky</span>
-    <span>Not affiliated with NOAA, NASA, JPL or Breakthrough Listen.</span>
+    <div class="foot">
+      <div>
+        <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="5" fill="var(--sun)"/><ellipse cx="13" cy="13" rx="11.5" ry="5" fill="none" stroke="var(--orbit)" stroke-width="1.4" transform="rotate(-25 13 13)"/><circle cx="22.4" cy="8.8" r="1.8" fill="var(--rock)"/></svg><span>Near Space</span></a>
+        <p>Android apps for space weather, ISS passes, near-Earth asteroids and the night sky. No accounts, no ads, no tracking.</p>
+      </div>
+      <div><h2>Apps</h2><ul><li><a href="/solar/">Solar</a></li><li><a href="/overhead/">Overhead</a></li><li><a href="/asteroids-meteors/">Asteroids &amp; Meteors</a></li><li><a href="/sky/">Sky</a></li></ul></div>
+      <div><h2>More</h2><ul><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
+    </div>
+    <div class="fine"><span>© 2026 Near Space</span><span>Not affiliated with NOAA, NASA, JPL, CelesTrak or Breakthrough Listen.</span></div>
   </div>
 </footer>
-
-<script>
-(function(){
-  // Copy address
-  var btn=document.getElementById('copy'),addr=document.getElementById('addr');
-  btn.addEventListener('click',function(){
-    var t=addr.textContent;
-    function sel(){var r=document.createRange();r.selectNodeContents(addr);var s=getSelection();s.removeAllRanges();s.addRange(r);}
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(t).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},1600)},sel);
-    } else sel();
-  });
-
-
-  // Live phones: scale each 412-px app to its screen; load when near view, unload when long gone
-  var screens=[].slice.call(document.querySelectorAll('.screen[data-app]'));
-  function fit(sc){var w=sc.clientWidth; sc.style.setProperty('--k',(w/412).toFixed(4));}
-  if(window.ResizeObserver){var ro=new ResizeObserver(function(es){es.forEach(function(e){fit(e.target)})});screens.forEach(function(sc){ro.observe(sc)})}
-  screens.forEach(fit);
-  function load(sc){var f=sc.querySelector('iframe');if(sc.dataset.on)return;sc.dataset.on='1';sc.classList.remove('live');f.onload=function(){if(sc.dataset.on)setTimeout(function(){sc.classList.add('live')},250)};f.src=f.dataset.src;}
-  function unload(sc){var f=sc.querySelector('iframe');if(!sc.dataset.on)return;delete sc.dataset.on;sc.classList.remove('live');f.src='about:blank';}
-  addEventListener('message',function(e){var d=e.data;if(!d||!d.demoLive)return;var sc=document.querySelector('.screen[data-app="'+d.demoLive+'"]');if(!sc)return;var c=sc.closest('.phone-col').querySelector('.src');if(c)c.textContent='live data';});
-  function clk(){var d=new Date(),t=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);document.querySelectorAll('.sbar .clk').forEach(function(e){e.textContent=t})}clk();setInterval(clk,10000);
-  var timers=new Map();
-  if(window.IntersectionObserver){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){var sc=e.target;
-      if(e.isIntersecting){clearTimeout(timers.get(sc));load(sc);}
-      else{clearTimeout(timers.get(sc));timers.set(sc,setTimeout(function(){unload(sc)},30000));}
-    })},{rootMargin:'300px 0px'});
-    screens.forEach(function(sc){io.observe(sc)});
-  } else screens.forEach(load);
-
-  // Hero sky: twinkling stars, the Sun's glow, a satellite on its orbit, an occasional meteor.
-  var c=document.getElementById('sky'),x=c.getContext('2d'),W,H,dpr,stars=[],t0=performance.now(),meteor=null;
-  var still=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function size(){
-    dpr=Math.min(devicePixelRatio||1,2);W=c.clientWidth;H=c.clientHeight;
-    c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);
-    stars=[];var n=Math.round(W*H/2600);
-    for(var i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.2,p:Math.random()*6.28,s:.5+Math.random()*1.5});
-  }
-  function draw(now){
-    var t=(now-t0)/1000;
-    x.clearRect(0,0,W,H);
-    // sun glow, upper right
-    var sx=W*.86,sy=H*.22,sr=Math.max(W,H)*.32;
-    var g=x.createRadialGradient(sx,sy,0,sx,sy,sr);
-    g.addColorStop(0,'rgba(255,184,90,.55)');g.addColorStop(.12,'rgba(255,130,60,.28)');g.addColorStop(.45,'rgba(255,107,61,.06)');g.addColorStop(1,'rgba(255,107,61,0)');
-    x.fillStyle=g;x.fillRect(0,0,W,H);
-    // stars
-    for(var i=0;i<stars.length;i++){var s=stars[i];var a=.35+.45*(.5+.5*Math.sin(t*s.s+s.p));x.fillStyle='rgba(220,228,255,'+a.toFixed(3)+')';x.beginPath();x.arc(s.x,s.y,s.r,0,6.283);x.fill();}
-    // orbit
-    var cx=W*.78,cy=H*.66,rx=Math.min(W*.34,420),ry=rx*.28,rot=-.32;
-    x.save();x.translate(cx,cy);x.rotate(rot);
-    x.strokeStyle='rgba(92,184,255,.22)';x.lineWidth=1;x.setLineDash([4,6]);x.beginPath();x.ellipse(0,0,rx,ry,0,0,6.283);x.stroke();x.setLineDash([]);
-    var a=t*.35;var px=Math.cos(a)*rx,py=Math.sin(a)*ry;
-    // trail
-    for(var k=1;k<26;k++){var b=a-k*.025;x.fillStyle='rgba(92,184,255,'+(0.5*(1-k/26)).toFixed(3)+')';x.beginPath();x.arc(Math.cos(b)*rx,Math.sin(b)*ry,1.6,0,6.283);x.fill();}
-    x.fillStyle='#fff';x.beginPath();x.arc(px,py,2.6,0,6.283);x.fill();
-    x.restore();
-    // meteor
-    if(!still){
-      if(!meteor&&Math.random()<.006)meteor={x:Math.random()*W*.7,y:Math.random()*H*.35,vx:6+Math.random()*4,vy:2.5+Math.random()*2,life:0};
-      if(meteor){meteor.life++;meteor.x+=meteor.vx;meteor.y+=meteor.vy;
-        var lg=x.createLinearGradient(meteor.x,meteor.y,meteor.x-meteor.vx*14,meteor.y-meteor.vy*14);
-        lg.addColorStop(0,'rgba(185,160,255,.9)');lg.addColorStop(1,'rgba(185,160,255,0)');
-        x.strokeStyle=lg;x.lineWidth=1.6;x.beginPath();x.moveTo(meteor.x,meteor.y);x.lineTo(meteor.x-meteor.vx*14,meteor.y-meteor.vy*14);x.stroke();
-        if(meteor.life>60)meteor=null;}
-    }
-    if(!still)requestAnimationFrame(draw);
-  }
-  size();addEventListener('resize',function(){size();if(still)draw(performance.now());});
-  if(still)draw(performance.now()+5000);else requestAnimationFrame(draw);
-})();
-</script>
-
+<script src="/assets/site.js?v=20261026" defer></script>
 </body>
 </html>
