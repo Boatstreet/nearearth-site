@@ -233,7 +233,7 @@
     offs.forEach(function (o, i) {
       var t = NOW + o * DAY + Math.floor(r() * 12) * HR, dist = i === 0 ? 0.00107 : 0.0016 + Math.pow(r(), 1.4) * 0.047;
       var disc = t - (5 + r() * 40) * DAY;
-      ROCKS.push({ des: i === 4 ? '2001 FO32' : i === 9 ? '2013 WA44' : desig(disc, r), t: t, dist: dist, v: 4 + r() * 19, h: i === 4 ? 17.7 : i === 9 ? 21.0 : 20.5 + r() * 8.2, pha: i === 4 || i === 9 || r() < 0.08, a: 0.85 + r() * 1.6, e: 0.1 + r() * 0.55, i: r() * 18, om: r() * 360, w: r() * 360, ma: r() * 360 });
+      ROCKS.push({ des: desig(disc, r), t: t, dist: dist, v: 4 + r() * 19, h: i === 4 ? 17.7 : i === 9 ? 21.0 : 20.5 + r() * 8.2, pha: i === 4 || i === 9 || r() < 0.08, a: 0.85 + r() * 1.6, e: 0.1 + r() * 0.55, i: r() * 18, om: r() * 360, w: r() * 360, ma: r() * 360 });
     });
     return ROCKS;
   }
@@ -256,7 +256,7 @@
       return cadOut(list);
     }
     if (path === 'sentry.api') {
-      var rs = rng(9), names = ['2000 SG344', '2010 RF12', '2005 QK76', '2008 JL3', '2006 JY26', '2023 DO', '2012 HG2', '2017 WT28', '2019 VB37', '2020 VW', '2007 UD6', '2014 HN197', '2018 LX3', '2016 WN55', '2021 EU', '2009 JF1', '2015 JJ', '2022 UF23', '2011 AG5', '2024 TY7'];
+      var rs = rng(9), rn = rng(31), names = []; for (var ni = 0; ni < 20; ni++) names.push(desig(Date.UTC(2004 + Math.floor(rn() * 22), Math.floor(rn() * 12), 1 + Math.floor(rn() * 28)), rn));
       return { signature: { source: 'NASA/JPL Sentry Data API', version: '2.0' }, count: names.length, data: names.map(function (n, i) {
         var ip = Math.pow(10, -2.4 - rs() * 5), y = 2030 + Math.floor(rs() * 90), h = 20 + rs() * 8;
         return { des: n, fullname: '(' + n + ')', id: 'bJ' + i, ip: ip.toExponential(2), ps_cum: (-2.5 - rs() * 6).toFixed(2), ps_max: (-2.8 - rs() * 6).toFixed(2), ts_max: i === 3 ? '1' : '0', n_imp: 1 + Math.floor(rs() * 60), range: y + '-' + (y + Math.floor(rs() * 60)), diameter: (Math.pow(10, -h / 5) * 1329 / Math.sqrt(0.14)).toFixed(3), h: h.toFixed(1), v_inf: (5 + rs() * 15).toFixed(2), last_obs: new Date(NOW - rs() * 3000 * DAY).toISOString().slice(0, 10), last_obs_jd: '0' };
@@ -305,10 +305,14 @@
   function live(u) {
     if (!LIVE_OK || !realFetch) return Promise.reject(new Error('off'));
     var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 9000);
-    return realFetch(u, ctl ? { signal: ctl.signal } : undefined).then(function (r) {
-      clearTimeout(tm); if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text().then(function (t) { if (!t || /^\s*</.test(t)) throw new Error('not data'); try { window.parent.postMessage({ demoLive: APP }, '*'); } catch (e) { } return t; });
-    }, function (e) { clearTimeout(tm); throw e; });
+    var opt = ctl ? { signal: ctl.signal } : undefined;
+    var take = function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text().then(function (t) { if (!t || /^\s*</.test(t)) throw new Error('not data'); clearTimeout(tm); try { window.parent.postMessage({ demoLive: APP }, '*'); } catch (e) { } return t; });
+    };
+    // on nearspace.app the site's edge function fetches the feeds (no browser restrictions, cached); elsewhere try direct
+    return realFetch('/api/proxy?url=' + encodeURIComponent(u), opt).then(take).catch(function () { return realFetch(u, opt).then(take); })
+      .catch(function (e) { clearTimeout(tm); throw e; });
   }
   window.fetch = function (input, init) {
     var u = typeof input === 'string' ? input : input && input.url;

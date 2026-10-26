@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@600&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=20261026d">
+<link rel="stylesheet" href="/assets/site.css?v=20261026g">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://nearspace.app/#org","name":"Near Space","url":"https://nearspace.app/","logo":"https://nearspace.app/icon-512.png","email":"hello@nearspace.app"},{"@type":"WebSite","@id":"https://nearspace.app/#website","name":"Near Space","url":"https://nearspace.app/","publisher":{"@id":"https://nearspace.app/#org"},"inLanguage":"en"},{"@type":"WebPage","@id":"https://nearspace.app/asteroids-meteors/#page","url":"https://nearspace.app/asteroids-meteors/","name":"Asteroids & Meteors: Near-Earth Asteroid Tracker App","description":"Every asteroid passing close to Earth on a live radar, NASA impact-risk data, 3D flybys and meteor showers. Free Android app using NASA/JPL data.","isPartOf":{"@id":"https://nearspace.app/#website"},"about":{"@id":"https://nearspace.app/asteroids-meteors/#app"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Near Space","item":"https://nearspace.app/"},{"@type":"ListItem","position":2,"name":"Asteroids & Meteors","item":"https://nearspace.app/asteroids-meteors/"}]}},{"@type":"MobileApplication","@id":"https://nearspace.app/asteroids-meteors/#app","name":"Asteroids & Meteors","alternateName":"Near-Earth flybys and meteor showers","operatingSystem":"Android","applicationCategory":"EducationalApplication","description":"Every asteroid passing close to Earth on a live radar, NASA impact-risk data, 3D flybys and meteor showers. Free Android app using NASA/JPL data.","url":"https://nearspace.app/asteroids-meteors/","image":"https://nearspace.app/assets/og-asteroids-meteors.jpg","publisher":{"@id":"https://nearspace.app/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"isAccessibleForFree":true},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is an asteroid going to hit Earth?","acceptedAnswer":{"@type":"Answer","text":"No known asteroid larger than about 140 metres has a significant chance of hitting Earth in the next 100 years. The Risk tab shows NASA's Sentry list of the objects that have any chance at all, and almost all of those chances are tiny."}},{"@type":"Question","name":"What is a lunar distance (LD)?","acceptedAnswer":{"@type":"Answer","text":"One lunar distance is the average distance from Earth to the Moon, about 384,400 km. An asteroid that passes at 0.5 LD comes halfway between Earth and the Moon."}},{"@type":"Question","name":"How do you know how big an asteroid is?","acceptedAnswer":{"@type":"Answer","text":"For most asteroids only the brightness is known, so the size is estimated from how much light it reflects. The app shows that range, for example 20 to 45 metres, and the measured size when one exists."}},{"@type":"Question","name":"What is a fireball?","acceptedAnswer":{"@type":"Answer","text":"A fireball is a meteor brighter than any planet. The largest ones are picked up by US government sensors, and NASA/JPL publishes their time, location, speed and energy."}},{"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"From NASA's Jet Propulsion Laboratory: the Close Approach Data, Sentry, Small-Body Database and Fireball services."}}]}]}</script>
 </head>
 <body>
@@ -38,7 +38,7 @@
 <nav aria-label="Main">
   <div class="wrap">
     <a class="brand" href="/"><svg class="brand-mark" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="5" fill="var(--sun)"/><ellipse cx="13" cy="13" rx="11.5" ry="5" fill="none" stroke="var(--orbit)" stroke-width="1.4" transform="rotate(-25 13 13)"/><circle cx="22.4" cy="8.8" r="1.8" fill="var(--rock)"/></svg><span class="bt">Near Space</span></a>
-    <ul><li><a href="/solar/">Solar</a></li><li><a href="/overhead/">Overhead</a></li><li><a href="/asteroids-meteors/" aria-current="page">Asteroids</a></li><li><a href="/sky/">Sky</a></li><li class="opt"><a href="/privacy/">Privacy</a></li></ul>
+    <ul><li><a href="/solar/">Solar</a></li><li><a href="/overhead/">Overhead</a></li><li><a href="/asteroids-meteors/" aria-current="page">Asteroids</a></li><li><a href="/sky/">Sky</a></li><li class="opt"><a href="/guides/">Guides</a></li></ul>
   </div>
 </nav>
 <main id="main">
@@ -67,6 +67,14 @@
     </div>
   </div>
 </section>
+<section class="screens a-app" aria-labelledby="scr-h">
+  <div class="wrap">
+    <div class="scr-head"><div><p class="label">Inside the app</p><h2 id="scr-h" style="margin-top:14px">Asteroids &amp; Meteors, screen by screen</h2></div>
+    <div class="scr-nav"><button type="button" class="sn" data-dir="-1" aria-label="Previous screens">‹</button><button type="button" class="sn" data-dir="1" aria-label="Next screens">›</button></div></div>
+  </div>
+  <ul class="strip" tabindex="0" aria-label="Asteroids &amp; Meteors screens"><li class="shot vid"><figure><div class="frame"><video muted loop playsinline preload="none" poster="/media/asteroids-0.webp" data-src="/media/asteroids-tour.mp4" aria-label="A short tour of Asteroids &amp; Meteors" width="412" height="914"></video></div><figcaption>A 20-second tour</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/asteroids-0.webp" alt="Asteroids &amp; Meteors: This week&#x27;s flybys on a live radar" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>This week&#x27;s flybys on a live radar</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/asteroids-1.webp" alt="Asteroids &amp; Meteors: Every close approach, with a 3D view" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Every close approach, with a 3D view</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/asteroids-2.webp" alt="Asteroids &amp; Meteors: Each asteroid&#x27;s path around the Sun" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Each asteroid&#x27;s path around the Sun</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/asteroids-3.webp" alt="Asteroids &amp; Meteors: Meteor showers with real radiants" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Meteor showers with real radiants</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/asteroids-4.webp" alt="Asteroids &amp; Meteors: NASA&#x27;s impact-risk list, explained" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>NASA&#x27;s impact-risk list, explained</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/asteroids-5.webp" alt="Asteroids &amp; Meteors: A calendar of flybys from 1900 to 2200" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>A calendar of flybys from 1900 to 2200</figcaption></figure></li></ul>
+  <div class="wrap"><p class="scr-note">Screens shown with sample data.</p></div>
+</section>
 <section class="prose-sec a-app" aria-labelledby="about-h">
   <div class="wrap">
     <div class="prose" style="max-width:none">
@@ -78,6 +86,7 @@
       <h2 style="margin-top:28px">Where the data comes from</h2>
       <ul><li><strong>NASA/JPL Close Approach Data</strong>: Every asteroid and comet flyby from 1900 to 2200</li><li><strong>NASA/JPL Sentry</strong>: Objects with any chance of impact</li><li><strong>NASA/JPL Small-Body Database</strong>: Orbits and physical data</li><li><strong>NASA/JPL Fireball data</strong>: Bright meteors detected in the atmosphere</li></ul>
       <p>The app fetches this data directly from each source. It doesn't go through our servers, and there is no account or tracking. <a href="/privacy/">Privacy policy</a>.</p>
+      <p>Read the guide: <a href="/guides/meteor-showers-2026-2027/">Meteor Shower Calendar 2026–2027: Dates, Rates and Moon Phases</a></p><p>Read the guide: <a href="/guides/will-an-asteroid-hit-earth/">Will an Asteroid Hit Earth? How the Risk Is Tracked</a></p>
     </div>
   </div>
 </section>
@@ -116,11 +125,12 @@
         <p>Android apps for space weather, ISS passes, near-Earth asteroids and the night sky. No accounts, no ads, no tracking.</p>
       </div>
       <div><h2>Apps</h2><ul><li><a href="/solar/">Solar</a></li><li><a href="/overhead/">Overhead</a></li><li><a href="/asteroids-meteors/">Asteroids &amp; Meteors</a></li><li><a href="/sky/">Sky</a></li></ul></div>
-      <div><h2>More</h2><ul><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
+      <div><h2>Guides</h2><ul><li><a href="/guides/see-the-iss/">How to see the ISS</a></li><li><a href="/guides/kp-index-aurora/">The Kp index and the aurora</a></li><li><a href="/guides/meteor-showers-2026-2027/">Meteor showers 2026–2027</a></li><li><a href="/guides/eclipses-2027-2030/">Eclipses 2027–2030</a></li><li><a href="/guides/will-an-asteroid-hit-earth/">Will an asteroid hit Earth?</a></li></ul></div>
+      <div><h2>More</h2><ul><li><a href="/guides/">All guides</a></li><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
     </div>
     <div class="fine"><span>© 2026 Near Space</span><span>Not affiliated with NOAA, NASA, JPL, CelesTrak or Breakthrough Listen.</span></div>
   </div>
 </footer>
-<script src="/assets/site.js?v=20261026d" defer></script>
+<script src="/assets/site.js?v=20261026g" defer></script>
 </body>
 </html>

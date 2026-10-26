@@ -1,9 +1,12 @@
-// Cloudflare settings: publish the website in the nearearth-site folder as static files
+// Cloudflare settings: the website in ./nearearth-site, plus a small edge function (worker/index.js)
+// that serves /api/sky (live summary for the home page) and /api/proxy (live data for the app demos).
 {
   "name": "nearearth-site",
+  "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./nearearth-site",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
   }
 }

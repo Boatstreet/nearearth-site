@@ -4,7 +4,9 @@
 Run:  python3 tools/build.py
 Edit the content in this file, run it, commit, push. Cloudflare deploys automatically.
 """
-import json, os, html, datetime
+import json, os, html, datetime, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from guides import GUIDES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'nearearth-site')
@@ -60,7 +62,7 @@ APPS = [
      "When a flare goes off, Solar shows its class (C, M or X) and the radio blackout level on NOAA's R scale. When NASA's models show a coronal mass ejection (CME) heading for Earth, the app shows when it is expected to arrive and how strong the geomagnetic storm could be.",
      "Alerts clear themselves once the event is over. With Solar Pro you set your own levels for storms, flares and radiation storms, and quiet hours for the night."]),
    ('Aurora forecast and the Kp index', [
-     "The Kp index measures how disturbed Earth's magnetic field is, on a scale from 0 to 9. The higher it goes, the further from the poles the northern lights can be seen. Solar shows the current Kp, NOAA's three-day forecast and the solar wind readings measured by spacecraft a million miles upstream of Earth.",
+     "The Kp index measures how disturbed Earth's magnetic field is, on a scale from 0 to 9. The higher it goes, the further from the poles the northern lights can be seen. Solar shows the current Kp, NOAA's three-day forecast and the solar wind readings measured by spacecraft 1.5 million km upstream of Earth.",
      "With Solar Pro, the Aurora tab combines NOAA's OVATION aurora model with the cloud forecast, how dark it will get and the Moon, then gives you a simple answer for your location: go, maybe, or stay in. It also shows both poles on spinning globes."]),
    ('Eclipses from where you are', [
      "The Eclipse tab, part of Solar Pro, plays out every eclipse as it will look from your place, with the exact local times, world path maps and every eclipse past and future."]),
@@ -201,6 +203,27 @@ GENERAL_FAQ = [
  ('Do the apps work offline?', "Each app keeps the latest data it downloaded and shows it when you are offline, so you can still check the last forecast or pass times."),
 ]
 
+
+SCREENS = {
+ 'solar': ['The live Sun with numbered sunspot regions', 'CMEs on their way, with arrival times', 'Kp, X-ray and solar wind charts', 'What is hitting Earth right now', "Tonight's aurora verdict for your place", 'The next eclipse as seen from you'],
+ 'overhead': ['The next pass and its viewing score', 'Every visible pass this week', 'A 3D globe with the satellites you follow', 'Where each pass rises and sets', 'Follow the ISS, Tiangong, Hubble and more'],
+ 'asteroids': ["This week's flybys on a live radar", 'Every close approach, with a 3D view', "Each asteroid's path around the Sun", 'Meteor showers with real radiants', "NASA's impact-risk list, explained", 'A calendar of flybys from 1900 to 2200'],
+ 'sky': ["Tonight's stargazing score", 'A star map with the listened-to stars', "Breakthrough Listen's targets above you", 'The Wow! signal and other mysteries', 'Moon phases and sky events, day by day'],
+}
+def screens_html(a):
+    caps = SCREENS[a['key']]; k = a['key']; n = esc(a['name'])
+    items = f'''<li class="shot vid"><figure><div class="frame"><video muted loop playsinline preload="none" poster="/media/{k}-0.webp" data-src="/media/{k}-tour.mp4" aria-label="A short tour of {n}" width="412" height="914"></video></div><figcaption>A 20-second tour</figcaption></figure></li>'''
+    items += ''.join(f'<li class="shot"><figure><div class="frame"><img src="/media/{k}-{i}.webp" alt="{n}: {esc(c)}" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>{esc(c)}</figcaption></figure></li>' for i, c in enumerate(caps))
+    return f'''<section class="screens {a['cls']}" aria-labelledby="scr-h">
+  <div class="wrap">
+    <div class="scr-head"><div><p class="label">Inside the app</p><h2 id="scr-h" style="margin-top:14px">{n}, screen by screen</h2></div>
+    <div class="scr-nav"><button type="button" class="sn" data-dir="-1" aria-label="Previous screens">‹</button><button type="button" class="sn" data-dir="1" aria-label="Next screens">›</button></div></div>
+  </div>
+  <ul class="strip" tabindex="0" aria-label="{n} screens">{items}</ul>
+  <div class="wrap"><p class="scr-note">Screens shown with sample data.</p></div>
+</section>
+'''
+
 # ---------------------------------------------------------------- page shell
 def head(title, desc, path, og_img, jsonld, extra=''):
     url = SITE + path
@@ -245,8 +268,8 @@ def head(title, desc, path, og_img, jsonld, extra=''):
 '''
 
 def nav(current=''):
-    items = [('/solar/', 'Solar', 'solar'), ('/overhead/', 'Overhead', 'overhead'), ('/asteroids-meteors/', 'Asteroids', 'asteroids-meteors'), ('/sky/', 'Sky', 'sky'), ('/privacy/', 'Privacy', 'privacy')]
-    li = ''.join(f'<li{" class=\"opt\"" if s == "privacy" else ""}><a href="{h}"{" aria-current=\"page\"" if s == current else ""}>{n}</a></li>' for h, n, s in items)
+    items = [('/solar/', 'Solar', 'solar'), ('/overhead/', 'Overhead', 'overhead'), ('/asteroids-meteors/', 'Asteroids', 'asteroids-meteors'), ('/sky/', 'Sky', 'sky'), ('/guides/', 'Guides', 'guides')]
+    li = ''.join(f'<li{" class=\"opt\"" if s == "guides" else ""}><a href="{h}"{" aria-current=\"page\"" if s == current else ""}>{n}</a></li>' for h, n, s in items)
     return f'''<nav aria-label="Main">
   <div class="wrap">
     <a class="brand" href="/">{MARK}<span class="bt">{NAME}</span></a>
@@ -265,7 +288,8 @@ def footer():
         <p>Android apps for space weather, ISS passes, near-Earth asteroids and the night sky. No accounts, no ads, no tracking.</p>
       </div>
       <div><h2>Apps</h2><ul>{apps}</ul></div>
-      <div><h2>More</h2><ul><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
+      <div><h2>Guides</h2><ul>{''.join(f'<li><a href="/guides/{g["slug"]}/">{esc(g["short"])}</a></li>' for g in GUIDES)}</ul></div>
+      <div><h2>More</h2><ul><li><a href="/guides/">All guides</a></li><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
     </div>
     <div class="fine"><span>© 2026 {NAME}</span><span>Not affiliated with NOAA, NASA, JPL, CelesTrak or Breakthrough Listen.</span></div>
   </div>
@@ -348,6 +372,21 @@ def write(path, text):
     os.makedirs(os.path.dirname(p), exist_ok=True)
     open(p, 'w').write(text)
 
+
+NOWBAR = '''<section class="now" id="now" aria-label="The sky right now" hidden>
+  <div class="wrap">
+    <div class="now-head"><span class="live-dot" aria-hidden="true"></span><span class="label">The sky right now</span><span class="now-at" data-n="at"></span></div>
+    <div class="now-grid">
+      <a class="nc s-app" href="/solar/" data-n="kp"><span class="k">Kp index</span><b>…</b><span class="s"> </span></a>
+      <a class="nc s-app" href="/solar/" data-n="flare"><span class="k">Latest solar flare</span><b>…</b><span class="s"> </span></a>
+      <a class="nc s-app" href="/solar/" data-n="regions"><span class="k">Sunspot groups</span><b>…</b><span class="s"> </span></a>
+      <a class="nc o-app" href="/overhead/" data-n="iss"><span class="k">ISS right now</span><b>…</b><span class="s"> </span></a>
+      <a class="nc a-app" href="/asteroids-meteors/" data-n="flyby"><span class="k">Next asteroid flyby</span><b>…</b><span class="s"> </span></a>
+    </div>
+  </div>
+</section>
+'''
+
 # ---------------------------------------------------------------- home
 def home():
     hero = f'''<header class="hero" id="top">
@@ -406,7 +445,7 @@ def home():
     page = head('Near Space: Space Weather, ISS, Asteroid & Sky Apps',
                 'Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.',
                 '/', '/assets/og-home.jpg', ld)
-    page += nav() + '<main id="main">\n' + hero + sections + promise + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
+    page += nav() + '<main id="main">\n' + hero + NOWBAR + sections + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
     write('/', page)
 
 # ---------------------------------------------------------------- app pages
@@ -433,6 +472,7 @@ def app_page(a):
       <h2 style="margin-top:28px">Where the data comes from</h2>
       <ul>{data_rows}</ul>
       <p>The app fetches this data directly from each source. It doesn't go through our servers, and there is no account or tracking. <a href="/privacy/">Privacy policy</a>.</p>
+      {''.join(f'<p>Read the guide: <a href="/guides/{g["slug"]}/">{esc(g["title"])}</a></p>' for g in GUIDES if g['app'] == a['key'])}
     </div>
   </div>
 </section>
@@ -451,8 +491,71 @@ def app_page(a):
          'breadcrumb': {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': NAME, 'item': SITE + '/'}, {'@type': 'ListItem', 'position': 2, 'name': a['name'], 'item': SITE + a['url']}]}},
         app_ld(a), faq_ld(a['faq'])]})
     page = head(a['title'], a['desc'], a['url'], f'/assets/og-{a["slug"]}.jpg', ld)
-    page += nav(a['slug']) + '<main id="main">\n' + crumbs + app_section(a, top=True) + body + faq_html(a['faq'], title=f'{esc(a["name"])} questions') + oth + CONTACT + '</main>\n' + footer()
+    page += nav(a['slug']) + '<main id="main">\n' + crumbs + app_section(a, top=True) + screens_html(a) + body + faq_html(a['faq'], title=f'{esc(a["name"])} questions') + oth + CONTACT + '</main>\n' + footer()
     write(a['url'], page)
+
+
+# ---------------------------------------------------------------- guides
+APP_BY_KEY = {a['key']: a for a in APPS}
+TOPIC = {'solar': 'Space weather', 'overhead': 'Satellites', 'asteroids': 'Asteroids & meteors', 'sky': 'Night sky'}
+def gcard(g):
+    a = APP_BY_KEY[g['app']]
+    return f'<a class="gcard {a["cls"]}" href="/guides/{g["slug"]}/"><span class="k">{esc(TOPIC[g["app"]])}</span><b>{esc(g["title"])}</b><span class="t">{esc(g["desc"])}</span></a>'
+
+def guides_section(title='Guides to the sky', items=None, hid='guides-h'):
+    items = items or GUIDES
+    return f'''<section class="guides-sec" id="guides" aria-labelledby="{hid}">
+  <div class="wrap">
+    <p class="label">Learn more</p>
+    <h2 id="{hid}" style="margin-top:14px">{title}</h2>
+    <div class="gcards">{''.join(gcard(g) for g in items)}</div>
+  </div>
+</section>
+'''
+
+def guide_page(g):
+    a = APP_BY_KEY[g['app']]; url = f'/guides/{g["slug"]}/'
+    d = datetime.date.today().strftime('%-d %B %Y')
+    crumbs = f'<div class="wrap crumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">{NAME}</a></li><li><a href="/guides/">Guides</a></li><li aria-current="page">{esc(g["short"])}</li></ol></nav></div>\n'
+    cta = f'<div class="cta {a["cls"]}"><span class="badge {a["badge"]}">{BADGE[a["key"]]}</span><div><b>{esc(a["name"])}</b><span>{esc(a["store"])}. Free for Android.</span></div><a class="go" href="{a["url"]}">See the app {ARROW}</a></div>'
+    rel = ''.join(f'<a href="/guides/{o["slug"]}/">{esc(o["short"])}</a>' for o in GUIDES if o is not g)
+    art = f'''<article class="guide {a['cls']}" aria-labelledby="g-h"><div class="wrap">
+  <p class="label">{esc(TOPIC[g['app']])} guide</p>
+  <h1 id="g-h" style="margin-top:14px">{esc(g['title'])}</h1>
+  <p class="lede">{esc(g['lede'])}</p>
+  <p class="updated">Updated {d}</p>
+  {cta}
+  <div class="prose">{g['body']}</div>
+  {cta}
+  <div class="related"><span class="label" style="align-self:center;margin-right:4px">More guides</span>{rel}</div>
+</div></article>
+'''
+    ld = clean({'@context': 'https://schema.org', '@graph': [ORG, WEBSITE,
+        {'@type': 'Article', '@id': SITE + url + '#article', 'headline': g['title'], 'description': g['desc'], 'url': SITE + url, 'mainEntityOfPage': SITE + url,
+         'image': SITE + f'/assets/og-{a["slug"]}.jpg', 'datePublished': '2026-10-26', 'dateModified': TODAY, 'inLanguage': 'en',
+         'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'about': {'@id': SITE + a['url'] + '#app'}},
+        {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': NAME, 'item': SITE + '/'}, {'@type': 'ListItem', 'position': 2, 'name': 'Guides', 'item': SITE + '/guides/'}, {'@type': 'ListItem', 'position': 3, 'name': g['short'], 'item': SITE + url}]},
+        faq_ld(g['faq'])]})
+    page = head(g['title'], g['desc'], url, f'/assets/og-{a["slug"]}.jpg', ld).replace('<meta property="og:type" content="website">', '<meta property="og:type" content="article">')
+    page += nav('guides') + '<main id="main">\n' + crumbs + art + faq_html(g['faq'], title='Quick answers') + CONTACT + '</main>\n' + footer()
+    write(url, page)
+
+def guides_index():
+    ld = clean({'@context': 'https://schema.org', '@graph': [ORG, WEBSITE,
+        {'@type': 'CollectionPage', '@id': SITE + '/guides/#page', 'url': SITE + '/guides/', 'name': 'Guides to the sky', 'isPartOf': {'@id': SITE + '/#website'},
+         'hasPart': [{'@type': 'Article', 'headline': g['title'], 'url': SITE + f'/guides/{g["slug"]}/'} for g in GUIDES]},
+        {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': NAME, 'item': SITE + '/'}, {'@type': 'ListItem', 'position': 2, 'name': 'Guides', 'item': SITE + '/guides/'}]}]})
+    page = head('Guides to the Sky: ISS, Aurora, Meteors & Eclipses',
+                'Plain-English guides to seeing the ISS, the Kp index and the aurora, meteor showers, upcoming eclipses and asteroid impact risk.', '/guides/', '/assets/og-home.jpg', ld)
+    crumbs = f'<div class="wrap crumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">{NAME}</a></li><li aria-current="page">Guides</li></ol></nav></div>\n'
+    intro = '''<section class="guide" aria-labelledby="gi-h"><div class="wrap">
+  <p class="label">Guides</p>
+  <h1 id="gi-h" style="margin-top:14px">Guides to the sky</h1>
+  <p class="lede">Plain-English answers to the questions people ask most: when to see the ISS, how far south the aurora reaches, the best meteor showers, the next eclipses, and whether an asteroid will hit us.</p>
+</div></section>
+'''
+    page += nav('guides') + '<main id="main">\n' + crumbs + intro + guides_section('All guides', hid='all-h') + CONTACT + '</main>\n' + footer()
+    write('/guides/', page)
 
 # ---------------------------------------------------------------- privacy
 PRIVACY = [
@@ -500,7 +603,7 @@ def notfound():
     open(os.path.join(OUT, '404.html'), 'w').write(page)
 
 def seo_files():
-    urls = ['/'] + [a['url'] for a in APPS] + ['/privacy/']
+    urls = ['/'] + [a['url'] for a in APPS] + ['/guides/'] + [f'/guides/{g["slug"]}/' for g in GUIDES] + ['/privacy/']
     pri = {'/': '1.0', '/privacy/': '0.3'}
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         f'  <url><loc>{SITE}{u}</loc><lastmod>{TODAY}</lastmod><priority>{pri.get(u, "0.8")}</priority></url>\n' for u in urls) + '</urlset>\n'
@@ -514,7 +617,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'd'
+VER = TODAY.replace('-', '') + 'g'
 if __name__ == '__main__':
-    css(); home(); [app_page(a) for a in APPS]; privacy(); notfound(); seo_files()
+    css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); privacy(); notfound(); seo_files()
     print('built', OUT)

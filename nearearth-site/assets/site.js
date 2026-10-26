@@ -30,6 +30,50 @@
     screens.forEach(function(sc){io.observe(sc)});
   } else screens.forEach(load);
 
+
+  // screen strips: arrows + tour videos that play only while visible
+  document.querySelectorAll('.screens').forEach(function(sec){
+    var st=sec.querySelector('.strip');
+    sec.querySelectorAll('.sn').forEach(function(b){b.addEventListener('click',function(){var w=st.querySelector('.shot');st.scrollBy({left:(+b.dataset.dir)*((w?w.offsetWidth:220)+18)*2,behavior:'smooth'})})});
+  });
+  var vids=[].slice.call(document.querySelectorAll('.shot video'));
+  if(vids.length&&window.IntersectionObserver){
+    var vo=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;
+      if(e.isIntersecting){if(!v.src)v.src=v.dataset.src;var p=v.play();if(p&&p.catch)p.catch(function(){});}else if(!v.paused)v.pause();
+    })},{threshold:.4});
+    vids.forEach(function(v){if(!matchMedia('(prefers-reduced-motion: reduce)').matches)vo.observe(v);else{v.controls=true;}});
+  }
+
+
+  // "The sky right now" bar (home page): /api/sky is served by the site's edge function
+  var bar=document.getElementById('now');
+  if(bar&&window.fetch){
+    var cell=function(n){return bar.querySelector('[data-n="'+n+'"]')};
+    var set=function(n,v,s){var c=cell(n);if(!c)return;if(v==null){c.classList.add('off');return}c.querySelector('b').textContent=v;c.querySelector('.s').textContent=s||'';c.classList.remove('off')};
+    var ago=function(t){var m=Math.round((Date.now()-t)/6e4);if(m<60)return m+' min ago';var h=Math.round(m/60);return h<48?h+' h ago':Math.round(h/24)+' days ago'};
+    var inT=function(t){var m=Math.round((t-Date.now())/6e4);if(m<60)return 'in '+Math.max(1,m)+' min';var h=Math.round(m/60);return h<48?'in '+h+' h':'in '+Math.round(h/24)+' days'};
+    var aur=function(k){return k>=8?'Severe storm: aurora far south':k>=7?'Strong storm: aurora across mid-latitudes':k>=6?'Storm: aurora in N England, N Germany':k>=5?'Storm: aurora in Scotland, S Scandinavia':k>=4?'Active: aurora in northern Scandinavia':k>=3?'Unsettled: aurora in the far north':'Quiet: aurora near the poles only'};
+    fetch('/api/sky').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+      var any=false;
+      if(d.kp&&d.kp.kp!=null){any=true;set('kp',d.kp.kp.toFixed(1),aur(d.kp.kp))}else set('kp',null);
+      if(d.flare&&d.flare.cls){any=true;set('flare',d.flare.cls,d.flare.t?ago(d.flare.t):'')}else set('flare',null);
+      if(d.regions&&d.regions.count!=null){any=true;set('regions',String(d.regions.count),d.regions.spots?d.regions.spots+' spots on the Sun':'on the Sun today')}else set('regions',null);
+      if(d.flyby&&d.flyby.name){any=true;set('flyby',d.flyby.name,(d.flyby.ld<10?d.flyby.ld.toFixed(2):d.flyby.ld.toFixed(1))+' Moon distances · '+inT(d.flyby.t))}else set('flyby',null);
+      var at=bar.querySelector('[data-n="at"]');if(at){var dt=new Date(d.at||Date.now());at.textContent='Updated '+('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2)}
+      if(d.iss){any=true;issLive(d.iss)}else set('iss',null);
+      if(any)bar.hidden=false;
+    }).catch(function(){});
+    function issLive(omm){
+      var go=function(){var rec;try{rec=satellite.twoline2satrec(omm.l1,omm.l2)}catch(e){set('iss',null);return}
+        var tick=function(){var t=new Date(),pv=satellite.propagate(rec,t);if(!pv||!pv.position){return}
+          var g=satellite.eciToGeodetic(pv.position,satellite.gstime(t)),la=satellite.degreesLat(g.latitude),lo=satellite.degreesLong(g.longitude);
+          var v=pv.velocity,sp=Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z)*3600;
+          set('iss',Math.abs(la).toFixed(1)+'°'+(la>=0?'N':'S')+' '+Math.abs(lo).toFixed(1)+'°'+(lo>=0?'E':'W'),Math.round(g.height)+' km up · '+Math.round(sp).toLocaleString('en')+' km/h')};
+        tick();setInterval(tick,2000)};
+      if(window.satellite)go();else{var sc=document.createElement('script');sc.src='/apps/overhead/lib/satellite.min.js';sc.onload=go;sc.onerror=function(){set('iss',null)};document.head.appendChild(sc)}
+    }
+  }
+
   // Hero sky: twinkling stars, the Sun's glow, a satellite on its orbit, an occasional meteor.
   var c=document.getElementById('herosky');if(!c)return;
   var x=c.getContext('2d'),W,H,dpr,stars=[],t0=performance.now(),meteor=null;
