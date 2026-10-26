@@ -238,3 +238,16 @@ footer .wrap{align-items:flex-start}
 .foot p{color:var(--mute);font-size:15px;max-width:40ch;margin-top:12px}
 .fine{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-block:18px 28px;font-size:13px;color:var(--mute);border-top:1px solid var(--line)}
 footer .wrap{display:block;padding-block:0}
+
+/* "try it" cue on the live phones */
+.caption{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.caption b{color:var(--ink);font-weight:500}
+.caption .hand{width:16px;height:16px;color:var(--acc);flex:none}
+.tap{position:absolute;left:58%;top:62%;width:calc(56px * var(--k,.7));height:calc(56px * var(--k,.7));transform:translate(-50%,-50%);z-index:2;pointer-events:none;opacity:0;transition:opacity .6s}
+.screen.live:not(.used) .tap{opacity:1;transition-delay:2.5s}
+.tap i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.75);background:rgba(255,255,255,.12);transform:scale(.35);opacity:0;animation:tapr 3.2s ease-out infinite 2.5s}
+.tap i+i{animation-delay:2.85s}
+@keyframes tapr{0%{transform:scale(.35);opacity:0}8%{opacity:.9}45%{transform:scale(1.25);opacity:0}100%{transform:scale(1.25);opacity:0}}
+.screen.used .tap{opacity:0!important;transition-delay:0s}
+.screen:hover .tap i{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.tap i{animation:none;opacity:.7;transform:scale(.6)}.tap i+i{display:none}}

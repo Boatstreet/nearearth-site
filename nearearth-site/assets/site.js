@@ -13,10 +13,11 @@
 
   // Live phones: scale each 412-px app to its screen; load when near view, unload when long gone
   var screens=[].slice.call(document.querySelectorAll('.screen[data-app]'));
+  if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches)document.querySelectorAll('.caption .verb').forEach(function(v){v.textContent='Click'});
   function fit(sc){var w=sc.clientWidth; sc.style.setProperty('--k',(w/412).toFixed(4));}
   if(window.ResizeObserver){var ro=new ResizeObserver(function(es){es.forEach(function(e){fit(e.target)})});screens.forEach(function(sc){ro.observe(sc)})}
   screens.forEach(fit);
-  function load(sc){var f=sc.querySelector('iframe');if(sc.dataset.on)return;sc.dataset.on='1';sc.classList.remove('live');f.onload=function(){if(sc.dataset.on)setTimeout(function(){sc.classList.add('live')},250)};f.src=f.dataset.src;}
+  function load(sc){var f=sc.querySelector('iframe');if(sc.dataset.on)return;sc.dataset.on='1';sc.classList.remove('live');f.onload=function(){if(!sc.dataset.on)return;setTimeout(function(){sc.classList.add('live')},250);try{var d=f.contentWindow.document;['pointerdown','touchstart','wheel','keydown'].forEach(function(ev){d.addEventListener(ev,function(){sc.classList.add('used')},{passive:true,once:true,capture:true})})}catch(e){}};f.src=f.dataset.src;}
   function unload(sc){var f=sc.querySelector('iframe');if(!sc.dataset.on)return;delete sc.dataset.on;sc.classList.remove('live');f.src='about:blank';}
   addEventListener('message',function(e){var d=e.data;if(!d||!d.demoLive)return;var sc=document.querySelector('.screen[data-app="'+d.demoLive+'"]');if(!sc)return;var c=sc.closest('.phone-col').querySelector('.src');if(c)c.textContent='live data';});
   function clk(){var d=new Date(),t=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);document.querySelectorAll('.sbar .clk').forEach(function(e){e.textContent=t})}clk();setInterval(clk,10000);

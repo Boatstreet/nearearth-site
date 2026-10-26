@@ -31,9 +31,10 @@ def phone(app):
       <div class="phone"><div class="screen" data-app="{app['key']}">
         {SBAR}
         <div class="boot" aria-hidden="true"><span></span></div>
+        <div class="tap" aria-hidden="true"><i></i><i></i></div>
         <iframe title="{esc(app['name'])} app, running live" data-src="/apps/{app['key']}/index.html" tabindex="0" loading="lazy"></iframe>
       </div></div>
-      <p class="caption">The real app, running live · tap to explore · <span class="src">sample data</span></p>
+      <p class="caption"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1.2a6 6 0 0 1-4.6-2.2L4.4 15a1.5 1.5 0 0 1 2.2-2L9 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><b class="verb">Tap</b> around. It's the real app · <span class="src">sample data</span></p>
     </div>'''
 
 # ---------------------------------------------------------------- the apps
@@ -513,7 +514,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '')
+VER = TODAY.replace('-', '') + 'b'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; privacy(); notfound(); seo_files()
     print('built', OUT)
