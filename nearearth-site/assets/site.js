@@ -36,14 +36,19 @@
     var st=sec.querySelector('.strip');
     sec.querySelectorAll('.sn').forEach(function(b){b.addEventListener('click',function(){var w=st.querySelector('.shot');st.scrollBy({left:(+b.dataset.dir)*((w?w.offsetWidth:220)+18)*2,behavior:'smooth'})})});
   });
-  var vids=[].slice.call(document.querySelectorAll('.shot video'));
-  if(vids.length&&window.IntersectionObserver){
-    var vo=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;
-      if(e.isIntersecting){if(!v.src)v.src=v.dataset.src;var p=v.play();if(p&&p.catch)p.catch(function(){});}else if(!v.paused)v.pause();
-    })},{threshold:.4});
-    vids.forEach(function(v){if(!matchMedia('(prefers-reduced-motion: reduce)').matches)vo.observe(v);else{v.controls=true;}});
-  }
-
+  // tour videos: autoplay muted when in view; play/pause buttons
+  document.querySelectorAll('.tour').forEach(function(sec){
+    var v=sec.querySelector('video'),btns=sec.querySelectorAll('[data-tour-toggle]'),txt=sec.querySelector('.tour-btn .txt'),userPaused=false;
+    var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function ui(){var on=!v.paused&&!v.ended;sec.classList.toggle('playing',on);btns.forEach(function(b){b.setAttribute('aria-pressed',on?'true':'false')});if(txt)txt.textContent=on?'Pause the tour':'Play the tour'}
+    function play(){if(!v.getAttribute('src'))v.src=v.dataset.src;var p=v.play();if(p&&p.catch)p.catch(ui)}
+    v.addEventListener('play',ui);v.addEventListener('pause',ui);
+    btns.forEach(function(b){b.addEventListener('click',function(){if(v.paused){userPaused=false;play()}else{userPaused=true;v.pause()}})});
+    v.addEventListener('click',function(){if(!v.paused){userPaused=true;v.pause()}});
+    if(window.IntersectionObserver&&!reduce){
+      new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){if(!userPaused)play()}else if(!v.paused)v.pause()})},{threshold:.5}).observe(v);
+    }
+  });
 
   // "The sky right now" bar (home page): /api/sky is served by the site's edge function
   var bar=document.getElementById('now');

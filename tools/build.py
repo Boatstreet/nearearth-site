@@ -210,9 +210,32 @@ SCREENS = {
  'asteroids': ["This week's flybys on a live radar", 'Every close approach, with a 3D view', "Each asteroid's path around the Sun", 'Meteor showers with real radiants', "NASA's impact-risk list, explained", 'A calendar of flybys from 1900 to 2200'],
  'sky': ["Tonight's stargazing score", 'A star map with the listened-to stars', "Breakthrough Listen's targets above you", 'The Wow! signal and other mysteries', 'Moon phases and sky events, day by day'],
 }
+
+TOUR_TABS = {'solar': 'Sun, Events, Activity, Earth, Aurora and Eclipse', 'overhead': 'Now, Passes, Sky, Radar and Satellites',
+             'asteroids': 'Radar, Upcoming, Orbit, Meteors, Risk and History', 'sky': 'Tonight, Sky, Listen, Signals and Calendar'}
+def tour_html(a):
+    k = a['key']; n = esc(a['name'])
+    return f'''<section class="tour {a['cls']}" aria-labelledby="tour-h">
+  <div class="wrap">
+    <div class="tour-copy">
+      <p class="label">See it in action</p>
+      <h2 id="tour-h" style="margin-top:14px">A 20-second tour of {n}</h2>
+      <p>Recorded from the real app, stepping through every tab: {TOUR_TABS[k]}.</p>
+      <button type="button" class="tour-btn" data-tour-toggle aria-pressed="false"><span class="ico" aria-hidden="true"></span><span class="txt">Play the tour</span></button>
+    </div>
+    <div class="tour-phone">
+      <div class="frame">
+        <video muted loop playsinline preload="none" poster="/media/{k}-tour.webp" data-src="/media/{k}-tour.mp4" aria-label="Video tour of {n}" width="412" height="916"></video>
+        <button type="button" class="tour-play" data-tour-toggle aria-label="Play the tour"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+'''
+
 def screens_html(a):
     caps = SCREENS[a['key']]; k = a['key']; n = esc(a['name'])
-    items = f'''<li class="shot vid"><figure><div class="frame"><video muted loop playsinline preload="none" poster="/media/{k}-0.webp" data-src="/media/{k}-tour.mp4" aria-label="A short tour of {n}" width="412" height="914"></video></div><figcaption>A 20-second tour</figcaption></figure></li>'''
+    items = ''
     items += ''.join(f'<li class="shot"><figure><div class="frame"><img src="/media/{k}-{i}.webp" alt="{n}: {esc(c)}" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>{esc(c)}</figcaption></figure></li>' for i, c in enumerate(caps))
     return f'''<section class="screens {a['cls']}" aria-labelledby="scr-h">
   <div class="wrap">
@@ -491,7 +514,7 @@ def app_page(a):
          'breadcrumb': {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': NAME, 'item': SITE + '/'}, {'@type': 'ListItem', 'position': 2, 'name': a['name'], 'item': SITE + a['url']}]}},
         app_ld(a), faq_ld(a['faq'])]})
     page = head(a['title'], a['desc'], a['url'], f'/assets/og-{a["slug"]}.jpg', ld)
-    page += nav(a['slug']) + '<main id="main">\n' + crumbs + app_section(a, top=True) + screens_html(a) + body + faq_html(a['faq'], title=f'{esc(a["name"])} questions') + oth + CONTACT + '</main>\n' + footer()
+    page += nav(a['slug']) + '<main id="main">\n' + crumbs + app_section(a, top=True) + tour_html(a) + screens_html(a) + body + faq_html(a['faq'], title=f'{esc(a["name"])} questions') + oth + CONTACT + '</main>\n' + footer()
     write(a['url'], page)
 
 
@@ -617,7 +640,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'g'
+VER = TODAY.replace('-', '') + 'h'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); privacy(); notfound(); seo_files()
     print('built', OUT)

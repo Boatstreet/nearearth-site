@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@600&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=20261026g">
+<link rel="stylesheet" href="/assets/site.css?v=20261026h">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://nearspace.app/#org","name":"Near Space","url":"https://nearspace.app/","logo":"https://nearspace.app/icon-512.png","email":"hello@nearspace.app"},{"@type":"WebSite","@id":"https://nearspace.app/#website","name":"Near Space","url":"https://nearspace.app/","publisher":{"@id":"https://nearspace.app/#org"},"inLanguage":"en"},{"@type":"WebPage","@id":"https://nearspace.app/overhead/#page","url":"https://nearspace.app/overhead/","name":"Overhead: ISS Tracker & Satellite Pass Times for Android","description":"Predicts every visible ISS and satellite pass over you, rates how good each will look and shows where to look. Free Android ISS tracker, no account.","isPartOf":{"@id":"https://nearspace.app/#website"},"about":{"@id":"https://nearspace.app/overhead/#app"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Near Space","item":"https://nearspace.app/"},{"@type":"ListItem","position":2,"name":"Overhead","item":"https://nearspace.app/overhead/"}]}},{"@type":"MobileApplication","@id":"https://nearspace.app/overhead/#app","name":"Overhead","alternateName":"ISS & satellite passes","operatingSystem":"Android","applicationCategory":"ReferenceApplication","description":"Predicts every visible ISS and satellite pass over you, rates how good each will look and shows where to look. Free Android ISS tracker, no account.","url":"https://nearspace.app/overhead/","image":"https://nearspace.app/assets/og-overhead.jpg","publisher":{"@id":"https://nearspace.app/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"isAccessibleForFree":true},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When can I see the International Space Station?","acceptedAnswer":{"@type":"Answer","text":"The ISS is easiest to see in the hour or two after sunset or before sunrise, when your sky is dark but the station, about 420 km up, is still lit by the Sun. Overhead lists every pass like this for your location and rates how good it will be."}},{"@type":"Question","name":"How accurate are the pass times?","acceptedAnswer":{"@type":"Answer","text":"Passes are calculated with the standard SGP4 model from orbital elements published by CelesTrak, which the app refreshes regularly. With fresh elements, times are typically accurate to within seconds."}},{"@type":"Question","name":"Which satellites can Overhead track?","acceptedAnswer":{"@type":"Answer","text":"The ISS, China's Tiangong space station, the Hubble Space Telescope and other bright satellites that are easy to see with the naked eye."}},{"@type":"Question","name":"What does the viewing score mean?","acceptedAnswer":{"@type":"Answer","text":"It is a 0 to 100 rating of how good a pass will look, based on how high it climbs, how bright it will be, how dark the sky is, the Moon and forecast cloud."}},{"@type":"Question","name":"Does Overhead need my camera?","acceptedAnswer":{"@type":"Answer","text":"Only for the Look tab (part of Overhead Pro), which shows where to point your phone. Everything else works without it, and nothing from the camera leaves your phone."}}]}]}</script>
 </head>
 <body>
@@ -67,12 +67,28 @@
     </div>
   </div>
 </section>
+<section class="tour o-app" aria-labelledby="tour-h">
+  <div class="wrap">
+    <div class="tour-copy">
+      <p class="label">See it in action</p>
+      <h2 id="tour-h" style="margin-top:14px">A 20-second tour of Overhead</h2>
+      <p>Recorded from the real app, stepping through every tab: Now, Passes, Sky, Radar and Satellites.</p>
+      <button type="button" class="tour-btn" data-tour-toggle aria-pressed="false"><span class="ico" aria-hidden="true"></span><span class="txt">Play the tour</span></button>
+    </div>
+    <div class="tour-phone">
+      <div class="frame">
+        <video muted loop playsinline preload="none" poster="/media/overhead-tour.webp" data-src="/media/overhead-tour.mp4" aria-label="Video tour of Overhead" width="412" height="916"></video>
+        <button type="button" class="tour-play" data-tour-toggle aria-label="Play the tour"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
 <section class="screens o-app" aria-labelledby="scr-h">
   <div class="wrap">
     <div class="scr-head"><div><p class="label">Inside the app</p><h2 id="scr-h" style="margin-top:14px">Overhead, screen by screen</h2></div>
     <div class="scr-nav"><button type="button" class="sn" data-dir="-1" aria-label="Previous screens">‹</button><button type="button" class="sn" data-dir="1" aria-label="Next screens">›</button></div></div>
   </div>
-  <ul class="strip" tabindex="0" aria-label="Overhead screens"><li class="shot vid"><figure><div class="frame"><video muted loop playsinline preload="none" poster="/media/overhead-0.webp" data-src="/media/overhead-tour.mp4" aria-label="A short tour of Overhead" width="412" height="914"></video></div><figcaption>A 20-second tour</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-0.webp" alt="Overhead: The next pass and its viewing score" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>The next pass and its viewing score</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-1.webp" alt="Overhead: Every visible pass this week" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Every visible pass this week</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-2.webp" alt="Overhead: A 3D globe with the satellites you follow" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>A 3D globe with the satellites you follow</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-3.webp" alt="Overhead: Where each pass rises and sets" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Where each pass rises and sets</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-4.webp" alt="Overhead: Follow the ISS, Tiangong, Hubble and more" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Follow the ISS, Tiangong, Hubble and more</figcaption></figure></li></ul>
+  <ul class="strip" tabindex="0" aria-label="Overhead screens"><li class="shot"><figure><div class="frame"><img src="/media/overhead-0.webp" alt="Overhead: The next pass and its viewing score" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>The next pass and its viewing score</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-1.webp" alt="Overhead: Every visible pass this week" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Every visible pass this week</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-2.webp" alt="Overhead: A 3D globe with the satellites you follow" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>A 3D globe with the satellites you follow</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-3.webp" alt="Overhead: Where each pass rises and sets" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Where each pass rises and sets</figcaption></figure></li><li class="shot"><figure><div class="frame"><img src="/media/overhead-4.webp" alt="Overhead: Follow the ISS, Tiangong, Hubble and more" width="540" height="1199" loading="lazy" decoding="async"></div><figcaption>Follow the ISS, Tiangong, Hubble and more</figcaption></figure></li></ul>
   <div class="wrap"><p class="scr-note">Screens shown with sample data.</p></div>
 </section>
 <section class="prose-sec o-app" aria-labelledby="about-h">
@@ -133,6 +149,6 @@
     <div class="fine"><span>© 2026 Near Space</span><span>Not affiliated with NOAA, NASA, JPL, CelesTrak or Breakthrough Listen.</span></div>
   </div>
 </footer>
-<script src="/assets/site.js?v=20261026g" defer></script>
+<script src="/assets/site.js?v=20261026h" defer></script>
 </body>
 </html>
