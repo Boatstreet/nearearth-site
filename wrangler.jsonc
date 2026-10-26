@@ -1,0 +1,9 @@
+// Cloudflare settings: publish the website in the nearearth-site folder as static files
+{
+  "name": "nearearth-site",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./nearearth-site",
+    "not_found_handling": "404-page"
+  }
+}
