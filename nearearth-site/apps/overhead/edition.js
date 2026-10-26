@@ -1,0 +1,1 @@
+window.EDITION = 'full';
