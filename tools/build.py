@@ -514,7 +514,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'c'
+VER = TODAY.replace('-', '') + 'd'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; privacy(); notfound(); seo_files()
     print('built', OUT)
