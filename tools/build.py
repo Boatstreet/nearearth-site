@@ -28,10 +28,10 @@ SBAR = '<div class="sbar" aria-hidden="true"><b class="clk">21:42</b><i><svg vie
 
 def phone(app):
     return f'''<div class="phone-col">
+      <div class="note" aria-hidden="true"><span>It's the real app. <br>Try it.</span><svg viewBox="0 0 90 60"><path d="M4 8c22-6 52 0 66 22 4 7 6 14 6 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M66 42l10 10 6-13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="phone"><div class="screen" data-app="{app['key']}">
         {SBAR}
         <div class="boot" aria-hidden="true"><span></span></div>
-        <div class="tap" aria-hidden="true"><i></i><i></i></div>
         <iframe title="{esc(app['name'])} app, running live" data-src="/apps/{app['key']}/index.html" tabindex="0" loading="lazy"></iframe>
       </div></div>
       <p class="caption"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1.2a6 6 0 0 1-4.6-2.2L4.4 15a1.5 1.5 0 0 1 2.2-2L9 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><b class="verb">Tap</b> around. It's the real app · <span class="src">sample data</span></p>
@@ -236,7 +236,7 @@ def head(title, desc, path, og_img, jsonld, extra=''):
 <meta name="twitter:image" content="{SITE}{og_img}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@600&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v={VER}">
 {extra}<script type="application/ld+json">{json.dumps(jsonld, ensure_ascii=False, separators=(',', ':'))}</script>
 </head>
@@ -514,7 +514,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'b'
+VER = TODAY.replace('-', '') + 'c'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; privacy(); notfound(); seo_files()
     print('built', OUT)
