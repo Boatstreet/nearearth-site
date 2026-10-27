@@ -89,8 +89,8 @@ APPS = [
   pitch="Never miss the ISS again. Overhead works out every pass from your location, tells you how good it will look, and points your camera to where it will appear.",
   feats=[('Pass predictions','Rise, peak and set times with height and brightness for the ISS and other satellites.'),
          ('Viewing score','Each pass rated 0–100 from height, brightness, darkness, Moon and cloud.'),
-         ('Look','Hold up your phone and the camera view marks where to watch.'),
-         ('Radar','A 3D Earth with satellites circling it in their real orbits.'),
+         ('Sky & Look','Drag around the sky, or hold up your phone and the camera view marks where to watch.'),
+         ('Orbit','A 3D Earth with satellites circling it in their real orbits, plus a radar of the passes ahead.'),
          ('Planets & night vision','Mercury to Saturn on the sky chart, and a red mode that keeps your eyes dark-adapted.'),
          ('Widgets & alerts','Next-pass countdown, upcoming passes and a live map on your home screen.')],
   sources='Data: <b>CelesTrak</b> orbital elements, <b>Open-Meteo</b> cloud cover, <b>Wikipedia</b> &amp; <b>Wikidata</b> satellite details',
@@ -103,20 +103,20 @@ APPS = [
      "Not every pass is a good one. Overhead rates each one from 0 to 100 using how high it climbs, how bright it will be, how dark your sky is, the Moon and the cloud forecast, so you can see at a glance which ones are worth the trip outside.",
      "Satellites shine by reflecting sunlight, so you see them best for an hour or two after sunset and before sunrise, when you are in darkness and they are still in sunlight. Overhead shows where each pass appears out of Earth's shadow or fades into it."]),
    ('Find it in the sky', [
-     "The Look tab, part of Overhead Pro, uses your camera and compass: hold up your phone and it marks where the satellite will appear and the path it will take. The Sky tab draws the whole sky with the planets from Mercury to Saturn, and a red night-vision mode keeps your eyes adjusted to the dark."]),
+     "The Sky tab shows the whole sky with each pass drawn across it. Its Look view, part of Overhead Pro, uses your camera and compass: hold up your phone and it marks where the satellite will appear and the path it will take. The planets from Mercury to Saturn and the constellations are drawn in, and a red night-vision mode keeps your eyes adjusted to the dark."]),
    ('Where is the ISS right now?', [
-     "The Now tab shows where the ISS is over the Earth this second, and Radar shows a 3D globe with the satellites you follow circling it in their real orbits."]),
+     "The Now tab shows where the ISS is over the Earth this second, Orbit shows a 3D globe with the satellites you follow circling it in their real orbits, and Radar shows where the coming passes rise and set."]),
    ('On your home screen', [
      "Alerts remind you a few minutes before a good ISS pass starts. With Overhead Pro, home-screen widgets show a countdown to the next pass, a list of upcoming passes and a live map, and you can get alerts for other satellites too."]),
   ],
-  tiers=(['ISS, Tiangong and Hubble passes','Viewing score and cloud forecast','Live position and 3D radar','Planets and night vision'],
-         ['Look: the camera view','Home-screen widgets','Alerts for several satellites','Follow up to five satellites']),
+  tiers=(['ISS, Tiangong and Hubble passes','Viewing score and cloud forecast','Live position, 3D orbit globe and radar','Planets and night vision'],
+         ['Look: the camera view in the Sky tab','Home-screen widgets','Alerts for several satellites','Follow up to five satellites']),
   faq=[
    ('When can I see the International Space Station?', "The ISS is easiest to see in the hour or two after sunset or before sunrise, when your sky is dark but the station, about 420 km up, is still lit by the Sun. Overhead lists every pass like this for your location and rates how good it will be."),
    ('How accurate are the pass times?', "Passes are calculated with the standard SGP4 model from orbital elements published by CelesTrak, which the app refreshes regularly. With fresh elements, times are typically accurate to within seconds."),
    ('Which satellites can Overhead track?', "The ISS, China's Tiangong space station, the Hubble Space Telescope and other bright satellites that are easy to see with the naked eye."),
    ('What does the viewing score mean?', "It is a 0 to 100 rating of how good a pass will look, based on how high it climbs, how bright it will be, how dark the sky is, the Moon and forecast cloud."),
-   ('Does Overhead need my camera?', "Only for the Look tab (part of Overhead Pro), which shows where to point your phone. Everything else works without it, and nothing from the camera leaves your phone."),
+   ('Does Overhead need my camera?', "Only for the Look view in the Sky tab (part of Overhead Pro), which shows where to point your phone. Everything else works without it, and nothing from the camera leaves your phone."),
   ],
   data=[('CelesTrak','Orbital elements for the ISS and tracked satellites'),('Open-Meteo','Cloud forecast and place search'),('Wikipedia & Wikidata','Satellite photos, size and mass')]),
 
@@ -161,14 +161,14 @@ APPS = [
   desc="Tonight's stargazing score, a live star map and the stars Breakthrough Listen has searched for alien signals, plus the Wow! signal. Free Android app.",
   category='EducationalApplication', pro=False,
   pitch="Your night sky, with the search for life running through it. See what's up tonight, then find the stars that radio telescopes have listened to for a signal.",
-  feats=[('Tonight','A live horizon scene with the real Moon, planets and meteors, and a 0–100 stargazing score.'),
+  feats=[('Tonight','A live horizon scene with the real Moon, planets and meteors, a 0–100 stargazing score and the best nights ahead.'),
          ('Sky map','A star map that follows your phone, with a slider to wind the sky 12 hours either way.'),
          ('Listen','Over 5,500 stars and 94 galaxies that Breakthrough Listen pointed the Green Bank Telescope at.'),
          ('Our radio bubble','A 3D view of the stars close enough to have already heard our broadcasts.'),
          ('Signals','The Wow! signal, BLC1, fast radio bursts and more, marked solved or still unexplained.'),
          ('Calendar','Moon phases, meteor showers, eclipses and the days Green Bank was listening.')],
   sources='Data: <b>Breakthrough Listen</b> open data, <b>NOAA SWPC</b> aurora, <b>Open-Meteo</b> cloud cover',
-  pills=[],
+  pills=['Free · Pro upgrade'],
   intro=[
    "Sky is a stargazing app with the search for extraterrestrial intelligence (SETI) built in. It tells you how good tonight is for looking up, shows you what is in the sky, and lets you explore the real stars that the Breakthrough Listen project has searched for radio signals from other civilisations.",
    "The SETI side uses Breakthrough Listen's public index of observations made with the 100-metre Green Bank Telescope between 2016 and 2018: over 5,500 stars and 94 nearby galaxies, each matched to its distance and star type."],
@@ -182,12 +182,14 @@ APPS = [
    ('Our radio bubble and famous signals', [
      "Radio broadcasts strong enough to leak into space began around a century ago, so a bubble about 100 light-years across now carries them. Sky shows the listened-to stars inside it. The Signals tab tells the stories of the Wow! signal, BLC1, pulsars and fast radio bursts, marked solved, likely solved or still unexplained."]),
   ],
-  tiers=None,
+  tiers=(["Tonight's stargazing score and darkness timeline", 'The live star map', 'Breakthrough Listen targets and simulations', 'Famous signals and the sky calendar'],
+         ['Camera view: hold up your phone to find things', 'Best-night finder and your own alerts', "Jupiter's moons, live", 'Time machine for the sky', 'SETI extras and the signal lab', 'Home-screen widgets']),
   faq=[
    ('What is Breakthrough Listen?', "Breakthrough Listen is the largest scientific search for signs of intelligent life beyond Earth. It uses large radio telescopes, including the Green Bank Telescope in West Virginia, and makes its data public."),
    ('Has anyone found an alien signal?', "No. Every candidate signal found by Breakthrough Listen so far has been traced to human-made interference. Sky explains how each one is checked and ruled out."),
    ('What was the Wow! signal?', "A strong, narrow radio signal picked up by Ohio State University's Big Ear telescope in August 1977. It lasted about 72 seconds and has never been detected again. Its origin is still debated."),
    ('What is the stargazing score?', "A 0 to 100 rating for tonight at your location, based on the cloud forecast, how dark the sky gets and how much moonlight there is."),
+   ('What does Sky Pro add?', "A camera view that shows what you are pointing at, a best-night finder with your own alerts, Jupiter's moons live, a time machine for the sky, extra SETI tools and home-screen widgets."),
    ('Does Sky work without an internet connection?', "Mostly. The star catalogue and the Breakthrough Listen data are built into the app. It only goes online for the cloud forecast and the aurora outlook."),
   ],
   data=[('Breakthrough Listen','Public index of Green Bank Telescope observations, 2016–2018'),('NOAA SWPC','Kp forecast for the aurora chance'),('Open-Meteo','Cloud forecast and temperature')]),
@@ -195,7 +197,7 @@ APPS = [
 for a in APPS: a['url'] = f'/{a["slug"]}/'
 
 GENERAL_FAQ = [
- ('Are the apps free?', "Yes, all four are free to download. Solar and Overhead also have an optional Pro upgrade that unlocks extra features. There are no ads in any of them."),
+ ('Are the apps free?', "Yes, all four are free to download. Solar, Overhead and Sky also have an optional Pro upgrade that unlocks extra features. There are no ads in any of them."),
  ('When can I download them?', "The apps are coming to Google Play for Android. An iPhone version of Solar is planned."),
  ('Do I need an account?', "No. Open the app and it works. There is nothing to sign up for."),
  ('Do the apps collect my data?', 'No. There are no analytics, no ads and no tracking. Your location is used on your phone to work out what is above you and is never sent to us. See the <a href="/privacy/">privacy policy</a>.'),
@@ -206,12 +208,12 @@ GENERAL_FAQ = [
 
 SCREENS = {
  'solar': ['The live Sun with numbered sunspot regions', 'CMEs on their way, with arrival times', 'Kp, X-ray and solar wind charts', 'What is hitting Earth right now', "Tonight's aurora verdict for your place", 'The next eclipse as seen from you'],
- 'overhead': ['The next pass and its viewing score', 'Every visible pass this week', 'A 3D globe with the satellites you follow', 'Where each pass rises and sets', 'Follow the ISS, Tiangong, Hubble and more'],
+ 'overhead': ['The next pass and its viewing score', 'Every pass tonight, on a sky chart', 'The whole sky, with the next pass marked', 'A 3D globe with the satellites you follow', 'Where each pass rises and sets', 'Follow the ISS, Tiangong, Hubble and more'],
  'asteroids': ["This week's flybys on a live radar", 'Every close approach, with a 3D view', "Each asteroid's path around the Sun", 'Meteor showers with real radiants', "NASA's impact-risk list, explained", 'A calendar of flybys from 1900 to 2200'],
- 'sky': ["Tonight's stargazing score", 'A star map with the listened-to stars', "Breakthrough Listen's targets above you", 'The Wow! signal and other mysteries', 'Moon phases and sky events, day by day'],
+ 'sky': ["Tonight's score and the best nights ahead", 'A star map with planets and listened-to stars', 'Breakthrough Listen targets and simulations', 'The Wow! signal and other mysteries', 'Moon phases and sky events, day by day'],
 }
 
-TOUR_TABS = {'solar': 'Sun, Events, Activity, Earth, Aurora and Eclipse', 'overhead': 'Now, Passes, Sky, Radar and Satellites',
+TOUR_TABS = {'solar': 'Sun, Events, Activity, Earth, Aurora and Eclipse', 'overhead': 'Now, Passes, Sky, Orbit, Radar and Satellites',
              'asteroids': 'Radar, Upcoming, Orbit, Meteors, Risk and History', 'sky': 'Tonight, Sky, Listen, Signals and Calendar'}
 def tour_html(a):
     k = a['key']; n = esc(a['name'])
@@ -640,7 +642,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'i'
+VER = TODAY.replace('-', '') + 'j'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); privacy(); notfound(); seo_files()
     print('built', OUT)

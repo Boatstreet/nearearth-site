@@ -1,7 +1,7 @@
 'use strict';
 /* ---------- app shell ---------- */
 const App = {
-  version: '1.2',
+  version: '2.1',
   go(v) {
     if (S.view === v && v !== 'sky') { $('#v-' + v).scrollTo({ top: 0, behavior: 'smooth' }); return; }
     const prev = S.view; S.view = v;
@@ -40,30 +40,31 @@ const App = {
   async refresh(force) {
     const p = place(), now = Date.now(), c = store.get('cache', {});
     const k = p.lat.toFixed(2) + ',' + p.lon.toFixed(2);
-    if (!force && c.k === k && now - c.t < 30 * 6e4) { S.wx = c.wx; S.kp = c.kp; return; }
+    if (!force && c.k === k && now - c.t < 30 * 6e4) { S.wx = c.wx; return; }
     sync('busy', 'Updating');
     const jobs = [
-      N.json(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&hourly=cloud_cover,temperature_2m&past_days=1&forecast_days=4&timeformat=unixtime&timezone=auto`).then(j => { S.wx = j; if (!p.tz && j.timezone) p.tz = j.timezone; }),
-      N.json('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json').then(j => {
-        const rows = Array.isArray(j[0]) ? j.slice(1).map(r => ({ t: r[0], kp: r[1] })) : j.map(r => ({ t: r.time_tag, kp: r.kp }));
-        S.kp = rows.map(r => ({ t: Date.parse(String(r.t).replace(' ', 'T') + (String(r.t).endsWith('Z') ? '' : 'Z')), kp: +r.kp })).filter(r => !isNaN(r.t) && !isNaN(r.kp));
-      })];
+      N.json(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&hourly=cloud_cover,temperature_2m&past_days=1&forecast_days=16&timeformat=unixtime&timezone=auto`).then(j => { S.wx = j; if (!p.tz && j.timezone) p.tz = j.timezone; }),];
     const res = await Promise.allSettled(jobs), fails = res.filter(r => r.status === 'rejected').length;
-    if (fails < 2) store.set('cache', { k, t: Date.now(), wx: S.wx, kp: S.kp });
-    else { if (c.k === k) { S.wx = S.wx || c.wx; S.kp = S.kp || c.kp; } }
-    sync(fails === 2 ? 'err' : '', fails === 2 ? 'Offline · sky still works' : fails ? 'Updated ' + fT(new Date()) + ' · partly' : 'Updated ' + fT(new Date()));
+    if (!fails) store.set('cache', { k, t: Date.now(), wx: S.wx });
+    else { if (c.k === k) { S.wx = S.wx || c.wx; } }
+    sync(fails ? 'err' : '', fails ? 'Offline · sky still works' : 'Updated ' + fT(new Date()));
     Tonight.render(); App.notify();
   },
   notify() {
     if (!N.has) return; const L = [], now = Date.now(), n = Tonight.night;
     try {
-      if (S.prefs.nDark && n && n.sc && n.sc.score >= 70 && n.civD && +n.civD > now) L.push({ id: 1, t: +n.civD, title: verdict(n.sc.score) + ' ahead · ' + n.sc.score, text: `Dark from ${fT(n.darkS)} until ${fT(n.darkE)} · ${n.sc.why}` });
+      const dmin = S.pro ? S.prefs.darkMin : 70;
+      if (S.prefs.nDark && n && n.sc && n.sc.score >= dmin && n.civD && +n.civD > now) L.push({ id: 1, t: +n.civD, title: verdict(n.sc.score) + ' ahead · ' + n.sc.score, text: `Dark from ${fT(n.darkS)} until ${fT(n.darkE)} · ${n.sc.why}` });
       const ev = events().filter(e => +e.t > now && +e.t < now + 15 * 864e5);
       if (S.prefs.nMeteor) ev.filter(e => e.k === 'met').forEach((e, i) => { const t = +e.t - 4 * 36e5; if (t > now) L.push({ id: 200 + i, t, title: e.n + ' tonight', text: e.d }); });
       if (S.prefs.nEclipse) ev.filter(e => e.k === 'ecl' && e.vis).forEach((e, i) => { const t = +e.t - 864e5; if (t > now) L.push({ id: 300 + i, t, title: e.n + ' tomorrow', text: e.d + ' · peak ' + fT(e.t) }); });
     } catch (e) {}
+      if (S.pro && S.prefs.nConj) Pro.conjunctions(20).forEach((c, i) => { const t = +c.t - 4 * 36e5; if (t > now) L.push({ id: 400 + i, t, title: c.a + ' meets ' + c.b + ' tonight', text: c.s.toFixed(1) + '° apart · look ' + compass(bodyPos(c.b, c.t, observer()).az) + ' after dark' }); });
+      if (S.pro && S.prefs.nFav && n && n.darkS && +n.darkS > now) { const M = horMatrix(n.mid, place().lat, place().lon), hi = store.get('favs', []).map(id => SETIDATA.find(t => t.id === id)).filter(t => t && altAz(M, t.ra, t.dec).alt > 40);
+        if (hi.length) L.push({ id: 500, t: +n.darkS, title: (hi.length === 1 ? setiName(hi[0]) + ' is' : hi.length + ' of your favourite stars are') + ' high tonight', text: hi.slice(0, 3).map(t => setiName(t)).join(', ') + ' · best around ' + fT(n.mid) }); }
     N.schedule(L);
   },
+  proChanged() { Tonight.render(); Pro.renderFavs(); Listen.repaint(); if (S.view === 'sky') SkyMap.show(); App.notify(); Pro.pushWidgets(); },
   tick() {
     $('#clock').textContent = fT(new Date());
     Tonight.tick(); SkyMap.tick();

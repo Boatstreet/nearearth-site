@@ -24,7 +24,7 @@ function drawMoon(x, cx, cy, r, phase, opts = {}) {
 }
 
 const Tonight = (() => {
-  let night = null, moon = null, planets = [], best = null, scn = null, raf = 0, aur = null;
+  let night = null, moon = null, planets = [], best = null, scn = null, raf = 0;
   const cvs = $('#tnCanvas');
 
   function cloudsFor(t0, t1) {
@@ -61,10 +61,7 @@ const Tonight = (() => {
     $('#tnDarkLen').textContent = n.darkS ? n.darkH.toFixed(1) + ' h ' + (n.trueDark ? 'true dark' : 'nautical dark') : 'twilight only';
     $('#tnHours').innerHTML = [['Dark from', n.darkS], ['Dark until', n.darkE]].map(([a, b]) => `<div><small>${a}</small><b>${fT(b)}</b></div>`).join('');
     // moon
-    const mc = $('#tnMoon'), mx = hidpi(mc, 76, 76).x; mx.clearRect(0, 0, 76, 76); drawMoon(mx, 38, 38, 32, A.MoonPhase(new Date()), { dark: '#1a2036' });
-    const mNow = moonInfo(new Date(), n);
-    $('#tnMoonTxt').innerHTML = `<b>${mNow.name}</b>${Math.round(mNow.frac * 100)}% lit<br>${mNow.rise ? '↑ ' + fT(mNow.rise) : ''} ${mNow.set ? ' ↓ ' + fT(mNow.set) : ''}`;
-    renderAurora();
+    renderMoon(n);
     // seti
     if (best) {
       const s = best.t, yr = new Date().getFullYear();
@@ -76,24 +73,41 @@ const Tonight = (() => {
       $('#tnSetiMore').onclick = () => Listen.target(s);
     } else $('#tnSeti').innerHTML = '<p class="muted">No listened-to stars climb high tonight.</p>';
     // planets
-    $('#tnPlanets').innerHTML = planets.map(p => `<div class="pl ${p.vis ? '' : 'dim'}"><i class="dot" style="background:radial-gradient(circle at 35% 30%,#fff,${p.c} 55%,#3a2c1c)"></i><div class="nm"><b>${p.b}</b><small>${p.vis ? 'Best ' + fT(p.bt) + ' · ' + Math.round(p.best) + '° ' + compassS(p.az) + ' · ' + esc(p.con) : 'Not up in the dark'}</small></div><div class="r">${p.vis ? 'mag ' + p.mag.toFixed(1) : ''}</div></div>`).join('');
-    renderSoon(); scene();
+    $('#tnPlanets').innerHTML = planets.map(p => `<button class="pl ${p.vis ? '' : 'dim'}" data-b="${p.b}"><i class="dot" style="background:radial-gradient(circle at 35% 30%,#fff,${p.c} 55%,#3a2c1c)"></i><div class="nm"><b>${p.b}</b><small>${p.vis ? 'Best ' + fT(p.bt) + ' · ' + Math.round(p.best) + '° ' + compassS(p.az) + ' · ' + esc(p.con) : 'Not up in the dark'}</small></div><div class="r">${p.vis ? 'mag ' + p.mag.toFixed(1) : ''}</div><span class="chev">›</span></button>`).join('');
+    $$('#tnPlanets .pl').forEach(b => b.onclick = () => { N.haptic(8); Planets.open(b.dataset.b); });
+    renderSoon(); scene(); Pro.renderBest(); Pro.pushWidgets();
     $('#tnFoot').textContent = (S.wx ? 'Cloud forecast Open-Meteo · ' : 'No cloud forecast yet · ') + 'Positions computed on your phone';
   }
 
-  function renderAurora() {
-    const el = $('#tnAur');
-    if (!S.kp) { el.innerHTML = '<div class="kp muted">–</div><span>Kp index loading</span>'; return; }
-    const now = Date.now(), next = S.kp.filter(k => k.t > now - 3 * 36e5 && k.t < now + 24 * 36e5);
-    const mx = next.length ? Math.max(...next.map(k => k.kp)) : S.kp[S.kp.length - 1].kp;
-    aur = auroraFor(mx);
-    const col = mx >= 7 ? 'var(--red)' : mx >= 5 ? 'var(--amb)' : 'var(--grn)';
-    el.innerHTML = `<div class="kp" style="color:${col}">Kp ${mx.toFixed(mx % 1 ? 1 : 0)}</div><b>${['Unlikely', 'Camera only', 'Possible', 'Likely overhead'][aur.lvl]}</b><span>${aur.lvl ? aur.t : 'Needs Kp ' + kpNeeded() + ' here'}</span><div class="aurbar">${next.slice(0, 9).map(k => `<i style="height:${4 + k.kp * 2}px;background:${k.kp >= 7 ? 'var(--red)' : k.kp >= 5 ? 'var(--amb)' : 'var(--grn)'};opacity:${k.t < now ? .45 : 1}"></i>`).join('')}</div>`;
+  function renderMoon(n) {
+    const now = new Date(), obs = observer(), mNow = moonInfo(now, n), pos = mNow.pos, ph = A.MoonPhase(now);
+    const mc = $('#tnMoon'), mx = hidpi(mc, 132, 132).x; mx.clearRect(0, 0, 132, 132); drawMoon(mx, 66, 66, 64, ph, { dark: '#1a2036' });
+    const age = ph / 360 * 29.53, km = Math.round(pos.dist * 149597870.7), waxing = ph < 180;
+    let con = ''; try { con = A.Constellation(pos.ra / 15, pos.dec).name; } catch (e) {}
+    const next = d => { try { return asDate(A.SearchRiseSet('Moon', obs, d, now, 1.2)); } catch (e) { return null; } };
+    const rise = next(+1), set = next(-1);
+    const size = km < 362000 ? 'Supermoon distance' : km > 404000 ? 'Far away, looks small' : km < 384400 ? 'Closer than average' : 'Further than average';
+    $('#tnMoonEm').textContent = 'Day ' + Math.floor(age) + ' of 29.5';
+    $('#tnMoonTxt').innerHTML = `<b>${mNow.name}</b><div class="pct">${Math.round(mNow.frac * 100)}%</div><span>lit · ${waxing ? 'growing' : 'shrinking'} each night</span><span>${pos.alt > 0 ? Math.round(pos.alt) + '° up in the ' + compass(pos.az) + ' now' : 'Below the horizon now'}</span>`;
+    const dh = n.darkS ? Math.round(mNow.upFrac * 100) : null;
+    $('#tnMoonFacts').innerHTML = [
+      ['Moonrise', fT(rise), rise ? relDay(rise) : ''], ['Moonset', fT(set), set ? relDay(set) : ''], ['Dark hours', dh == null ? '–' : dh + '%', dh == null ? '' : dh < 15 ? 'moon down, dark skies' : dh > 70 ? 'moon up, bright skies' : 'moon up part of it'],
+      ['Distance', fmtN(Math.round(km / 100) * 100) + ' km', size], ['In', con || '–', 'constellation'], ['Light takes', (km / 299792.458).toFixed(2) + ' s', 'to reach you']
+    ].map(f => `<div><small>${f[0]}</small><b>${esc(f[1])}</b><i>${esc(f[2])}</i></div>`).join('');
+    const p0 = partsIn(now); let strip = '';
+    for (let d = 0; d < 7; d++) { const md = new Date(+zMidnight(p0.y, p0.m, p0.d) + d * 864e5 + 21 * 36e5); strip += `<div class="${d ? '' : 't'}"><canvas data-p="${A.MoonPhase(md)}"></canvas>${d ? dtf({ weekday: 'short' }).format(md) : 'Today'}</div>`; }
+    $('#tnMoonStrip').innerHTML = strip;
+    $$('#tnMoonStrip canvas').forEach(c => { const { x } = hidpi(c, 28, 28); drawMoon(x, 14, 14, 11, +c.dataset.p, { dark: '#1a2036' }); });
+    const qn = ['New Moon', 'First quarter', 'Full Moon', 'Last quarter']; let q = null, out = [];
+    try { q = A.SearchMoonQuarter(now); for (let k = 0; k < 4; k++) { out.push([qn[q.quarter], q.time.date]); q = A.NextMoonQuarter(q); } } catch (e) {}
+    $('#tnMoonNext').innerHTML = out.map(o => `<div><span>${o[0]}</span><b>${fD(o[1])}</b></div>`).join('');
   }
 
   function renderSoon() {
     const now = Date.now(), ev = events().filter(e => +e.t > now - 6 * 36e5 && (e.k !== 'moon') && (e.k !== 'ecl' || e.vis || e.big)).slice(0, 5);
     const ic = { met: ['☄', 'rgba(255,210,122,.15)'], ecl: ['◐', 'rgba(255,93,115,.15)'], pl: ['✦', 'rgba(143,166,255,.16)'] };
+    if (S.pro) { try { Pro.conjunctions(30).slice(0, 3).forEach(c => ev.push({ t: c.t, k: 'conj', n: c.a + ' meets ' + c.b, d: c.s.toFixed(1) + '° apart · look ' + compass(bodyPos(c.b, c.t, observer()).az) + ' in the evening' })); ev.sort((a, b) => a.t - b.t); ev.splice(6); } catch (er) {} }
+    ic.conj = ['☌', 'rgba(63,240,207,.14)'];
     $('#tnSoon').innerHTML = ev.map(e => `<div class="si"><i style="background:${ic[e.k][1]}">${ic[e.k][0]}</i><div><b>${esc(e.n)}</b><small>${esc(e.d)}</small></div><em>${relDay(e.t)}</em></div>`).join('');
   }
 
@@ -123,15 +137,10 @@ const Tonight = (() => {
       for (const s of scn.stars) { const tw = .55 + .45 * Math.sin(t * 1.7 + s.p * 3) * Math.sin(t * .6 + s.p); x.globalAlpha = dark * tw * (s.y < .75 ? 1 : 1 - (s.y - .75) * 6); x.fillStyle = s.c; x.beginPath(); x.arc(s.x * w, s.y * hz, s.s, 0, 7); x.fill(); }
       x.globalAlpha = 1;
     }
-    // aurora
-    if (aur && aur.lvl >= 2 && dark > .3) {
-      for (let k = 0; k < 3; k++) { x.beginPath(); for (let i = 0; i <= 40; i++) { const px = i / 40 * w, py = hz - (hz * (.25 + .08 * k)) * (.6 + .4 * Math.sin(i * .35 + t * .5 + k)); i ? x.lineTo(px, py) : x.moveTo(px, py); } x.lineTo(w, hz); x.lineTo(0, hz); x.closePath();
-        const ag = x.createLinearGradient(0, hz * .45, 0, hz); ag.addColorStop(0, 'rgba(80,255,170,0)'); ag.addColorStop(1, `rgba(80,255,170,${.12 * dark * (aur.lvl - 1)})`); x.fillStyle = ag; x.fill(); }
-    }
     // planets
     for (const p of PLANETS) { const ps = bodyPos(p.b, date, obs); if (ps.alt < 0) continue; const [px, py] = proj(ps.az, ps.alt); if (px < -10 || px > w + 10) continue;
-      x.globalAlpha = Math.max(dark, .25); x.fillStyle = p.c; x.shadowColor = p.c; x.shadowBlur = 8; x.beginPath(); x.arc(px, py, 2.2, 0, 7); x.fill(); x.shadowBlur = 0;
-      x.font = '500 10px Inter'; x.fillStyle = 'rgba(230,235,255,.75)'; x.fillText(p.b, px + 6, py + 3); x.globalAlpha = 1; }
+      x.globalAlpha = 1; x.fillStyle = p.c; x.shadowColor = p.c; x.shadowBlur = 8; x.beginPath(); x.arc(px, py, 2.2, 0, 7); x.fill(); x.shadowBlur = 0;
+      x.font = '600 11.5px Inter'; x.shadowColor = 'rgba(0,0,0,.8)'; x.shadowBlur = 4; x.fillStyle = '#fff'; x.fillText(p.b, px + 6, py + 4); x.shadowBlur = 0; x.globalAlpha = 1; }
     // seti target ring
     if (best && dark > .2) { const h2 = altAz(horMatrix(date, place().lat, place().lon), best.t.ra, best.t.dec); if (h2.alt > 0) { const [px, py] = proj(h2.az, h2.alt);
       if (px > 0 && px < w) { const ph = (t % 2.4) / 2.4; x.strokeStyle = `rgba(63,240,207,${.9 * (1 - ph)})`; x.lineWidth = 1.4; x.beginPath(); x.arc(px, py, 5 + ph * 16, 0, 7); x.stroke(); x.fillStyle = '#3ff0cf'; x.beginPath(); x.arc(px, py, 2, 0, 7); x.fill(); } } }
@@ -150,10 +159,24 @@ const Tonight = (() => {
     const dx = w * .78, dy = hz + scn.hills[47] * h + 1, ds = Math.min(w, 420) * .06;
     x.save(); x.translate(dx, dy); x.strokeStyle = '#03050c'; x.fillStyle = '#03050c'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(-ds * .35, 0); x.lineTo(0, -ds * .7); x.lineTo(ds * .35, 0); x.stroke();
-    x.rotate(-.55 + Math.sin(t * .08) * .08); x.beginPath(); x.ellipse(0, -ds * .85, ds * .9, ds * .32, 0, Math.PI, 0); x.fill();
+    x.rotate(-.5 + Math.sin(t * .16) * .38);   // slow sweep back and forth, one full sweep about every 40 s
+    x.beginPath(); x.ellipse(0, -ds * .85, ds * .9, ds * .32, 0, Math.PI, 0); x.fill();
     x.beginPath(); x.moveTo(0, -ds * .9); x.lineTo(0, -ds * 1.55); x.stroke();
-    const bl = .5 + .5 * Math.sin(t * 3); x.fillStyle = `rgba(255,80,80,${.4 + .6 * bl})`; x.beginPath(); x.arc(0, -ds * 1.6, 1.8, 0, 7); x.fill();
-    if (dark > .3) { const ph = (t % 3) / 3; x.strokeStyle = `rgba(63,240,207,${(1 - ph) * .5})`; x.lineWidth = 1; for (let k = 0; k < 2; k++) { const pp = (ph + k * .5) % 1; x.beginPath(); x.arc(0, -ds * 1.6, 6 + pp * ds * 2.2, -2.4, -.7); x.stroke(); } }
+    const bl = .5 + .5 * Math.sin(t * 3); x.fillStyle = `rgba(63,240,207,${.6 + .4 * bl})`; x.shadowColor = '#3ff0cf'; x.shadowBlur = 12; x.beginPath(); x.arc(0, -ds * 1.6, 2.6, 0, 7); x.fill(); x.shadowBlur = 0;
+    // radio waves beaming out: bold and bright day or night (dark halo underneath keeps them visible against a bright sky)
+    { const day = 1 - dark, fy = -ds * 1.6, ph = (t % 3.2) / 3.2, reach = ds * 8, a0 = -2.35, a1 = -.79;
+      // faint beam cone
+      const cg = x.createRadialGradient(0, fy, 0, 0, fy, reach); cg.addColorStop(0, `rgba(63,240,207,${.22 + .1 * day})`); cg.addColorStop(1, 'rgba(63,240,207,0)');
+      x.fillStyle = cg; x.beginPath(); x.moveTo(0, fy); x.arc(0, fy, reach, a0, a1); x.closePath(); x.fill();
+      x.lineCap = 'round';
+      for (let k = 0; k < 6; k++) {
+        const pp = (((ph + k / 6) % 1) + 1) % 1, a = Math.pow(1 - pp, .85), r = 5 + pp * reach;
+        if (day > .05) { x.strokeStyle = `rgba(0,45,60,${a * .6 * day})`; x.lineWidth = 8 - pp * 4; x.beginPath(); x.arc(0, fy, r, a0, a1); x.stroke(); }
+        x.shadowColor = 'rgba(63,240,207,1)'; x.shadowBlur = 16;
+        x.strokeStyle = `rgba(${Math.round(lerp(63, 120, day))},255,${Math.round(lerp(207, 230, day))},${a})`; x.lineWidth = 4.6 - pp * 2.6; x.beginPath(); x.arc(0, fy, r, a0, a1); x.stroke();
+        x.shadowBlur = 0; x.strokeStyle = `rgba(255,255,255,${a * .8})`; x.lineWidth = 1.2; x.beginPath(); x.arc(0, fy, r, a0, a1); x.stroke();
+      }
+      x.lineCap = 'butt'; }
     x.restore();
     const fade = x.createLinearGradient(0, h * .82, 0, h); fade.addColorStop(0, 'rgba(4,6,13,0)'); fade.addColorStop(1, 'rgba(4,6,13,1)'); x.fillStyle = fade; x.fillRect(0, h * .82, w, h * .18);
     const tg = x.createLinearGradient(0, 0, 0, 90); tg.addColorStop(0, 'rgba(4,6,13,.85)'); tg.addColorStop(1, 'rgba(4,6,13,0)'); x.fillStyle = tg; x.fillRect(0, 0, w, 90);

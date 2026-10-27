@@ -456,6 +456,7 @@ h2.sec { justify-content: flex-start; } h2.sec span { margin-left: auto; }
 .l-btn[aria-pressed="true"] span { color: var(--tl); }
 #l-mode  { --tg: radial-gradient(circle at 35% 30%, #8fd2ff, #2a76d6 55%, #123c80); --tsh: rgba(60,140,255,.45); --tl: #9fd6ff; }
 #l-cam   { --tg: radial-gradient(circle at 35% 30%, #d4b8ff, #7b52d6 55%, #35207a); --tsh: rgba(140,100,240,.45); --tl: #d4b8ff; }
+#l-const { --tg: radial-gradient(circle at 35% 30%, #9ff5df, #22b392 55%, #0c5f52); --tsh: rgba(40,210,170,.42); --tl: #8ff0d6; }
 #l-fix   { --tg: radial-gradient(circle at 35% 30%, #ffe08a, #f0a224 55%, #a8560e); --tsh: rgba(255,170,50,.42); --tl: #ffd27a; }
 #l-night { --tg: radial-gradient(circle at 35% 30%, #ff9c8a, #d63a3a 55%, #7a1414); --tsh: rgba(230,70,60,.42); --tl: #ffa494; }
 .l-zoom { background: #0b1220d9; border-color: #ffffff1c; width: 60px; }
@@ -642,6 +643,25 @@ body.looking .toast { top: 122px; }
 .wk-d.best { border-color: #ffe08a88; }
 @media (prefers-reduced-motion: no-preference) { .wk-d.best { animation: wkglow 2.4s ease-in-out infinite; } }
 @keyframes wkglow { 0%, 100% { box-shadow: 0 0 0 0 #ffe08a00, inset 0 0 0 0 #ffe08a00; } 50% { box-shadow: 0 0 18px -2px #ffe08a88, inset 0 0 14px -6px #ffe08a66; } }
+
+/* Satellites: group chips stay in view while you scroll the list; page numbers top and bottom */
+.t-sticky { position: sticky; top: 0; z-index: 6; margin: 0 -14px; padding: 8px 14px 2px; background: linear-gradient(180deg, #080c13 70%, #080c1300); }
+html.night .t-sticky { background: linear-gradient(180deg, #000 70%, #0000); }
+.t-pages:empty { display: none; }
+.t-pages { padding: 10px 12px 8px; display: grid; justify-items: center; gap: 4px; }
+#t-pg-top { border-bottom: 1px solid var(--line); }
+#t-pg-bot { border-top: 1px solid var(--line); }
+.tp-row { display: flex; align-items: center; gap: 5px; }
+.tp-n, .tp-arrow { min-width: 36px; height: 36px; padding: 0 8px; border-radius: 12px; border: 1px solid #ffffff14; background: linear-gradient(180deg, #1c2839, #131c29); color: var(--ink); font: 700 .88rem var(--head); font-variant-numeric: tabular-nums; cursor: pointer; }
+.tp-arrow { font-size: 1.2rem; line-height: 1; }
+.tp-arrow[disabled] { opacity: .3; cursor: default; }
+.tp-n[aria-current="true"] { background: radial-gradient(circle at 35% 30%, #8ef5c0, #21a86a 55%, #0c5a3a); border-color: #8ef5c0; color: #fff; box-shadow: 0 3px 12px rgba(40,190,120,.45); }
+.tp-gap { color: var(--muted); padding: 0 2px; }
+.tp-info { font-size: .74rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.tp-info { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.tp-per { border: 1px solid #ffffff14; background: none; color: var(--muted); border-radius: 8px; padding: 2px 7px; font: 700 .72rem var(--body); cursor: pointer; }
+.tp-per[aria-pressed="true"] { background: #21a86a; border-color: #8ef5c0; color: #fff; }
 </style>
 </head>
 <body>
@@ -679,11 +699,23 @@ body.looking .toast { top: 122px; }
     <div class="seg" id="p-vis"><button data-v="vis" aria-pressed="true">Visible to the eye</button><button data-v="all" aria-pressed="false">All passes</button></div>
     <div class="chips" id="p-chips"></div>
     <div id="p-body"></div>
+    <div id="sky-dome">
+    <h2 class="sec" style="margin-top:14px">Sky above you <span>today's passes</span></h2>
+    <div class="chips" id="s-pchips"></div>
+    <div class="card flush" style="margin-bottom:6px">
+      <div class="skybox" id="skybox"><canvas id="sky-c"></canvas>
+        <div class="sky-ctl"><button id="s-compass" aria-pressed="false">Follow compass</button></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--lit)"></i>Sunlit, can be seen</span><span><i style="background:#5a6678"></i>In Earth's shadow</span><span><i style="background:var(--accent)"></i>Your satellites</span><span><i style="background:#ffe0b3;box-shadow:0 0 0 3px #ffe0b333"></i>Planets</span><span><i style="background:transparent;border:2px solid var(--lit);width:14px;height:6px;border-radius:3px"></i>Pass path (solid = you can see it)</span></div>
+      <div id="s-pinfo" class="s-pinfo"></div>
+      <p class="small muted" style="margin:0;padding:0 16px 14px" id="s-note">The centre is straight overhead, the edge is the horizon. Hold the phone above your head with the top pointing north, or turn on Follow compass.</p>
+    </div>
+    </div>
   </section>
 
   <!-- SKY -->
   <section class="page" id="p-sky" hidden>
-    <div class="top"><h1>Sky<small><button class="pchip" data-act="places" aria-label="Change place"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span class="pc-name">Choose a place</span><svg class="cv" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg></button><span id="s-sub" hidden></span></small><span class="sync" aria-live="polite"></span></h1>
+    <div class="top"><h1>Orbit<small><button class="pchip" data-act="places" aria-label="Change place"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span class="pc-name">Choose a place</span><svg class="cv" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg></button><span id="s-sub" hidden></span></small><span class="sync" aria-live="polite"></span></h1>
       <span class="clock" aria-label="Current time"></span><button class="icon-btn nv-btn" data-act="night" aria-label="Night vision" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.2"/><path d="M12 10.4a1.6 1.6 0 0 0 0 3.2" fill="currentColor"/></svg></button><button class="icon-btn" data-act="guide" aria-label="Guide"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></button>
       <button class="icon-btn" data-act="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
     </div>
@@ -698,28 +730,19 @@ body.looking .toast { top: 122px; }
       <div class="rd-list" id="rd-list"></div>
       <p class="small muted rd-note">Drag to spin the Earth, pinch to zoom, tap a satellite to pick it. Heights above the Earth are drawn three times larger so the orbits stand clear; switch to <button class="rd-link" id="rd-scale">true scale</button>. Earth images: NASA Blue Marble and Black Marble.</p>
     </div>
-    <div class="chips" id="s-pchips"></div>
-    <div class="card flush">
-      <div class="skybox" id="skybox"><canvas id="sky-c"></canvas>
-        <div class="sky-ctl"><button id="s-compass" aria-pressed="false">Follow compass</button></div>
-      </div>
-      <div class="legend"><span><i style="background:var(--lit)"></i>Sunlit, can be seen</span><span><i style="background:#5a6678"></i>In Earth's shadow</span><span><i style="background:var(--accent)"></i>Your satellites</span><span><i style="background:#ffe0b3;box-shadow:0 0 0 3px #ffe0b333"></i>Planets</span><span><i style="background:transparent;border:2px solid var(--lit);width:14px;height:6px;border-radius:3px"></i>Pass path (solid = you can see it)</span></div>
-      <div id="s-pinfo" class="s-pinfo"></div>
-      <p class="small muted" style="margin:0;padding:0 16px 14px" id="s-note">The centre is straight overhead, the edge is the horizon. Hold the phone above your head with the top pointing north, or turn on Follow compass.</p>
-    </div>
     <h2 class="sec">Up right now <span id="s-count"></span></h2>
     <div class="card flush"><ul class="list" id="s-list"></ul></div>
   </section>
 
   <!-- LOOK -->
   <section class="page" id="p-look" hidden>
-    <div class="top"><h1>Look<small><button class="pchip" data-act="places" aria-label="Change place"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span class="pc-name">Choose a place</span><svg class="cv" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg></button></small><span class="sync" aria-live="polite"></span></h1>
+    <div class="top"><h1>Sky<small><button class="pchip" data-act="places" aria-label="Change place"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span class="pc-name">Choose a place</span><svg class="cv" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg></button></small><span class="sync" aria-live="polite"></span></h1>
       <span class="clock" aria-label="Current time"></span><button class="icon-btn nv-btn" data-act="night" aria-label="Night vision" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.2"/><path d="M12 10.4a1.6 1.6 0 0 0 0 3.2" fill="currentColor"/></svg></button><button class="icon-btn" data-act="guide" aria-label="Guide"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></button>
       <button class="icon-btn" data-act="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
     </div>
     <div class="card pro-teaser" id="l-pro" hidden><p class="eyebrow">Overhead Pro</p><h3 style="font:700 1.4rem var(--head);margin:2px 0 6px">See the sky through your camera</h3>
       <p class="muted" style="margin:0">Hold your phone up and Overhead draws satellites, their paths, the planets and the stars over the live camera picture, and an arrow guides you to the next pass.</p>
-      <ul><li>Look: the live sky view with camera, compass and zoom</li><li>Home-screen widgets</li><li>Alerts for every satellite you follow</li><li>Follow as many satellites as you like (free: 5)</li></ul>
+      <ul><li>Sky: the live sky view with camera, compass and zoom</li><li>Home-screen widgets</li><li>Alerts for every satellite you follow</li><li>Follow up to 30 satellites (free: 5)</li></ul>
       <div class="btns"><button class="btn pri wide" data-url="https://play.google.com/store/apps/details?id=app.overhead.pro">Get Overhead Pro</button></div></div>
     <div class="look" id="look">
       <video id="l-video" muted playsinline autoplay hidden></video>
@@ -731,6 +754,7 @@ body.looking .toast { top: 122px; }
         <button class="l-btn" id="l-mode" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span id="l-mode-t">Compass</span></button>
         <button class="l-btn" id="l-cam" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Camera</span></button>
         <button class="l-btn" id="l-fix" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v5M12 16.5v5M2.5 12h5M16.5 12h5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg><span>Line up</span></button>
+        <button class="l-btn" id="l-const" aria-pressed="true" aria-label="Constellations"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-8M13 14l2 6"/><circle cx="4" cy="17" r="1.6" fill="currentColor"/><circle cx="9" cy="11" r="1.6" fill="currentColor"/><circle cx="13" cy="14" r="1.6" fill="currentColor"/><circle cx="20" cy="6" r="1.6" fill="currentColor"/><circle cx="15" cy="20" r="1.4" fill="currentColor"/></svg><span>Stars</span></button>
         <div class="l-zoom">
           <button class="l-zb" id="l-zin" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
           <button class="l-zv" id="l-zval" aria-label="Reset zoom">1×</button>
@@ -771,8 +795,11 @@ body.looking .toast { top: 122px; }
     <div id="t-res"></div>
     <h2 class="sec">Following <span id="t-n"></span></h2>
     <div class="card flush"><ul class="list" id="t-track"></ul></div>
-    <div class="seg" id="t-grp"><button data-g="stations" aria-pressed="true">Stations</button><button data-g="visual" aria-pressed="false">Brightest</button><button data-g="last-30-days" aria-pressed="false">New launches</button></div>
-    <div class="card flush"><ul class="list" id="t-list"></ul></div>
+    <h2 class="sec" id="t-browse">Browse satellites <span id="t-gcount"></span></h2>
+    <div class="t-sticky"><div class="chips" id="t-grp"><button class="chip" data-g="all" aria-pressed="true">All</button><button class="chip" data-g="stations" aria-pressed="false">Stations</button><button class="chip" data-g="visual" aria-pressed="false">Brightest</button><button class="chip" data-g="last-30-days" aria-pressed="false">New launches</button><button class="chip" data-g="weather" aria-pressed="false">Weather</button><button class="chip" data-g="resource" aria-pressed="false">Earth watch</button><button class="chip" data-g="science" aria-pressed="false">Science</button><button class="chip" data-g="amateur" aria-pressed="false">Amateur radio</button><button class="chip" data-g="gps-ops" aria-pressed="false">GPS</button><button class="chip" data-g="galileo" aria-pressed="false">Galileo</button><button class="chip" data-g="iridium-NEXT" aria-pressed="false">Iridium</button><button class="chip" data-g="oneweb" aria-pressed="false">OneWeb</button><button class="chip" data-g="starlink" aria-pressed="false">Starlink</button><button class="chip" data-g="geo" aria-pressed="false">Geostationary</button></div>
+    </div>
+    <p class="small muted" id="t-gnote" style="margin:2px 4px 8px"></p>
+    <div class="card flush"><div class="t-pages" id="t-pg-top"></div><ul class="list" id="t-list"></ul><div class="t-pages" id="t-pg-bot"></div></div>
   </section>
 
 </div>
@@ -780,9 +807,9 @@ body.looking .toast { top: 122px; }
 <nav class="tabbar" aria-label="Sections">
   <button data-tab="now"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>Now</button>
   <button data-tab="passes"><span class="ti"><svg viewBox="0 0 24 24"><path d="M3 18a9 9 0 0 1 18 0"/><path d="M6 18h12"/><circle cx="15.5" cy="11" r="1.6" fill="currentColor"/></svg></span>Passes</button>
-  <button data-tab="look"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="6.5" cy="16.5" r="3.5"/><circle cx="17.5" cy="16.5" r="3.5"/><path d="M3 16.5V9l2.2-4.5H8L9.5 9v7.5M21 16.5V9l-2.2-4.5H16L14.5 9v7.5M9.5 11.5h5"/></svg></span>Look</button>
-  <button data-tab="sky"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg></span>Sky</button>
-  <button data-tab="radar"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.5"/><ellipse cx="12" cy="12" rx="10" ry="3.8" transform="rotate(-25 12 12)"/><circle cx="20.2" cy="8.2" r="1.4" fill="currentColor"/></svg></span>Radar</button>
+  <button data-tab="look"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="6.5" cy="16.5" r="3.5"/><circle cx="17.5" cy="16.5" r="3.5"/><path d="M3 16.5V9l2.2-4.5H8L9.5 9v7.5M21 16.5V9l-2.2-4.5H16L14.5 9v7.5M9.5 11.5h5"/></svg></span>Sky</button>
+  <button data-tab="sky"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.5"/><ellipse cx="12" cy="12" rx="10" ry="3.8" transform="rotate(-25 12 12)"/><circle cx="20.2" cy="8.2" r="1.4" fill="currentColor"/></svg></span>Orbit</button>
+  <button data-tab="radar"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6.5-6.5"/><circle cx="15.5" cy="15" r="1.3" fill="currentColor"/></svg></span>Radar</button>
   <button data-tab="sats"><span class="ti"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M3 4l5 5M16 15l5 5M4 3l-1 1 4 4 1-1zM20 21l1-1-4-4-1 1z"/><path d="M15 6a3 3 0 0 1 3 3"/></svg></span>Satellites</button>
 </nav>
 
@@ -807,6 +834,7 @@ body.looking .toast { top: 122px; }
 <script src="lib/satellite.min.js"></script>
 <script src="lib/topojson-client.min.js"></script>
 <script src="lib/countries.js"></script>
+<script src="lib/constellations.js"></script>
 <script>
 (function () {
 'use strict';
@@ -1579,7 +1607,7 @@ function skyFrame() { if (!SKY.last) return; drawDome($('sky-c'), Object.assign(
 function skyLoop() {
   if (SKY.raf || reduce) return;
   var lastT = 0;
-  (function f(t) { SKY.raf = 0; if (cur !== 'sky' || document.hidden || !$('sheet').hidden) return; if (t - lastT > 30) { lastT = t; skyFrame(); } SKY.raf = requestAnimationFrame(f); })(0);
+  (function f(t) { SKY.raf = 0; if (cur !== 'passes' || document.hidden || !$('sheet').hidden) return; if (t - lastT > 30) { lastT = t; skyFrame(); } SKY.raf = requestAnimationFrame(f); })(0);
 }
 /* The little dome on the Now card: a comet keeps flying the pass path */
 function heroComet(p) {
@@ -1602,15 +1630,14 @@ function upNow() {
 }
 var skyListT = 0;
 function drawSky() {
-  if ($('p-sky').hidden) return;
+  var showDome = cur === 'passes', showList = cur === 'sky'; if (!showDome && !showList) return;
   var pl = place();
-  if (!pl) { $('s-list').innerHTML = '<li><div class="empty">Choose a place first.<br><button class="btn" data-act="places" style="margin-top:10px">Choose a place</button></div></li>'; drawDome($('sky-c'), {}); return; }
+  if (!pl) { if (showDome) drawDome($('sky-c'), {}); if (!showList) return; $('s-list').innerHTML = '<li><div class="empty">Choose a place first.<br><button class="btn" data-act="places" style="margin-top:10px">Choose a place</button></div></li>'; drawDome($('sky-c'), {}); return; }
   var ups = upNow(), n = nowMs();
   ups.forEach(function (o) { var tr = SKY.trails[o.id] || (SKY.trails[o.id] = []); if (!tr.length || n - tr.t > 3000) { tr.push([o.az, o.el]); tr.t = n; if (tr.length > 40) tr.shift(); } });
   var pl2 = skyPasses(), paths = pl2.filter(function (o) { return SKYP.sel === 'all' || SKYP.sel === o.p.key; }).map(function (o, k) { return { p: o.p, col: o.col, sel: SKYP.sel === o.p.key, k: k }; });
-  SKY.last = { sats: ups.slice().reverse(), paths: paths, single: SKYP.sel !== 'all' };
-  skyFrame(); skyLoop();
-  skyPassUI(pl2);
+  if (showDome) { SKY.last = { sats: ups.slice().reverse(), paths: paths, single: SKYP.sel !== 'all' }; skyFrame(); skyLoop(); skyPassUI(pl2); }
+  if (!showList) return;
   if (n - skyListT < 2500 && $('s-list').childElementCount) return; skyListT = n;
   var seen = ups.filter(function (o) { return o.lit && o.dark; }).length;
   $('s-count').textContent = plural(ups.length, 'satellite') + (seen ? ' · ' + seen + ' visible' : '');
@@ -1676,8 +1703,13 @@ function passRow(p) {
     '<span class="rt"><b>' + fTime(a.t) + '</b><span>' + Math.round(mx.el) + '° high</span></span>' +
     '<span class="sb">' + dir(a.az) + ' → ' + dir(b.az) + ' · ' + fDur(b.t - a.t) + (p.vis ? ' · ' + brightWord(p.vis.mag) : ' · not visible') + (p.vis && cloudAt(a.t) != null ? ' · ' + cloudHTML(a.t) : '') + '</span></button></li>';
 }
+/* The sky dome (with Follow compass) sits in the Passes list just above Tomorrow; anywhere else on the page it goes under the list */
+var SKYDOME = null;
+function placeDome() { var SD = SKYDOME || (SKYDOME = $('sky-dome')), slot = $('p-dome-slot'); if (slot) { if (SD.parentNode !== slot) slot.appendChild(SD); } else if (SD.previousElementSibling !== $('p-body')) $('p-body').after(SD); }
 function renderPasses() {
-  tonightStart();
+  tonightStart(); try { renderPasses2(); } finally { placeDome(); if (!PV.busyDome) { PV.busyDome = 1; setTimeout(function () { PV.busyDome = 0; drawSky(); }, 0); } }
+}
+function renderPasses2() {
   var pl = place();
   $('p-chips').innerHTML = '<button class="chip" data-ps="0" aria-pressed="' + (!PV.sat) + '">All</button>' + TRACK.filter(function (id) { return CAT[id]; }).map(function (id) { return '<button class="chip" data-ps="' + id + '" aria-pressed="' + (PV.sat === id) + '">' + esc(CAT[id].nice) + '</button>'; }).join('');
   if (!pl) { $('p-body').innerHTML = '<div class="card">' + 'Choose where you are to see passes.<div class="btns"><button class="btn pri" data-act="gps">Use my location</button><button class="btn" data-act="places">Search a place</button></div></div>'; return; }
@@ -1686,9 +1718,11 @@ function renderPasses() {
   var l = (PV.vis === 'vis' ? visList() : allList()).filter(function (p) { return !PV.sat || p.id === PV.sat; });
   if (PV.view === 'tl') { renderTimeline(l); return; }
   if (!l.length) { $('p-body').innerHTML = '<div class="card"><div class="empty" style="padding:12px">' + (PV.vis === 'vis' ? 'No passes you can see in the next ' + SET.days + ' days. Switch to All passes to see daytime ones.' : 'No passes higher than ' + SET.minEl + '°.') + '</div></div>'; return; }
-  var h = '', last = '';
-  l.forEach(function (p) { var t = PV.vis === 'vis' ? p.vis.start.t : p.rise.t, k = nightKey(t); if (k !== last) { last = k; var cnt = l.filter(function (q) { return nightKey(PV.vis === 'vis' ? q.vis.start.t : q.rise.t) === k; }).length; h += '<li><div class="dayhead"><span>' + nightLabel(t) + '</span><span>' + plural(cnt, 'pass') + '</span></div></li>'; } h += passRow(p); });
-  $('p-body').innerHTML = (PS.busy ? '<p class="small muted" style="margin:0 4px 8px">Updating…</p>' : '') + '<div class="card flush"><ul class="list">' + h + '</ul></div>' +
+  var h = '', last = '', hA = null, today = nightKey(nowMs());
+  l.forEach(function (p) { var t = PV.vis === 'vis' ? p.vis.start.t : p.rise.t, k = nightKey(t); if (k !== today && hA === null) { hA = h; h = ''; } if (k !== last) { last = k; var cnt = l.filter(function (q) { return nightKey(PV.vis === 'vis' ? q.vis.start.t : q.rise.t) === k; }).length; h += '<li><div class="dayhead"><span>' + nightLabel(t) + '</span><span>' + plural(cnt, 'pass') + '</span></div></li>'; } h += passRow(p); });
+  if (hA === null) { hA = h; h = ''; }
+  var SD = SKYDOME || (SKYDOME = $('sky-dome')); SD.remove();
+  $('p-body').innerHTML = (PS.busy ? '<p class="small muted" style="margin:0 4px 8px">Updating…</p>' : '') + (hA ? '<div class="card flush"><ul class="list">' + hA + '</ul></div>' : '') + '<div id="p-dome-slot"></div>' + (h ? '<div class="card flush"><ul class="list">' + h + '</ul></div>' : '') +
     '<p class="small muted" style="margin:0 4px">Times are ' + (pl.tz ? 'local time in ' + esc(pl.name) : 'your phone\'s time') + '. A day runs from noon to noon, so a whole night stays together.</p>';
 }
 function nightLabel(t) { var a = t - 12 * 3600000, b = a + 864e5, p = parts(t); var n = nowMs(); if (nightKey(t) === nightKey(n)) return p.h >= 12 ? 'Today & tonight' : 'Tonight'; if (nightKey(t) === nightKey(n + 864e5)) return 'Tomorrow'; return fDay(a + 12 * 3600000 > t ? t : a + 12 * 3600000); }
@@ -2000,7 +2034,22 @@ function showStats(s, info) {
 }
 
 /* ---------- SATELLITES tab ---------- */
-var TG = 'stations';
+var ALLG = ['stations', 'visual', 'last-30-days', 'weather', 'science', 'resource', 'amateur', 'gps-ops', 'galileo'];
+var TG = ls('satGroup') || 'all', TGLIM = {}, TGPAGE = {};
+/* "All": every group above put together (except the thousands of Starlinks and OneWebs), stations first */
+function allIds() { var seen = {}, out = []; ALLG.forEach(function (g) { (GROUPS[g] || []).forEach(function (id) { if (!seen[id]) { seen[id] = 1; out.push(id); } }); }); return out; }
+function TPER() { var v = +ls('satPer'); return v === 10 || v === 50 || v === 100 ? v : 25; }
+/* Page numbers for the satellite lists: arrows, the first and last page, and the pages around the one you're on */
+function tPager(pg, pages, total, per) {
+  var nums = [], i; for (i = 1; i <= pages; i++) if (i === 1 || i === pages || Math.abs(i - pg) <= 1) nums.push(i);
+  var h = '<button class="tp-arrow" data-tp="' + (pg - 1) + '"' + (pg === 1 ? ' disabled' : '') + ' aria-label="Previous page">‹</button>', prev = 0;
+  nums.forEach(function (n2) { if (n2 - prev > 1) h += '<span class="tp-gap">…</span>'; h += '<button class="tp-n" data-tp="' + n2 + '" aria-current="' + (n2 === pg) + '">' + n2 + '</button>'; prev = n2; });
+  h += '<button class="tp-arrow" data-tp="' + (pg + 1) + '"' + (pg === pages ? ' disabled' : '') + ' aria-label="Next page">›</button>';
+  return (pages > 1 ? '<div class="tp-row">' + h + '</div>' : '') + '<div class="tp-info">' + ((pg - 1) * per + 1) + '–' + Math.min(total, pg * per) + ' of ' + total.toLocaleString('en') + ' · per page ' + [10, 25, 50, 100].map(function (k) { return '<button class="tp-per" data-per="' + k + '" aria-pressed="' + (k === per) + '">' + k + '</button>'; }).join('') + '</div>';
+}
+var GNOTE = { all: 'Every group below put together: stations, the brightest, new launches, weather, science, Earth watch, amateur radio and navigation satellites.', stations: 'Space stations and the spacecraft visiting them.', visual: 'The brightest objects in the sky, the easiest to spot.', 'last-30-days': 'Everything launched in the past 30 days.', weather: 'Weather satellites, including NOAA, Meteor and Metop.',
+  resource: 'Earth-watching satellites such as Landsat and Sentinel.', science: 'Science missions, from telescopes to research satellites.', amateur: 'Satellites you can listen to with an amateur radio.', 'gps-ops': 'The working GPS navigation satellites.',
+  galileo: 'Europe\'s Galileo navigation satellites.', 'iridium-NEXT': 'The Iridium phone network.', oneweb: 'OneWeb internet satellites.', starlink: 'SpaceX Starlink internet satellites: thousands of them, so search for one by number to find it quickly.', geo: 'Geostationary satellites, which hang over one spot on the equator; they don\'t make passes.' };
 function satRow(s) {
   var o = s.l1 ? orbitInfo(s) : null, tr = TRACK.indexOf(s.id) >= 0;
   return '<li><div class="srow"><button class="main" data-sat="' + s.id + '"><span class="nm">' + esc(s.nice) + '</span><span class="sb">' + (FAMOUS[s.id] ? esc(FAMOUS[s.id]) + ' · ' : '') + (o ? Math.round((o.perigee + o.apogee) / 2) + ' km up · ' + o.inc.toFixed(0) + '° · ' + Math.round(o.period) + ' min' : 'NORAD ' + s.id) + '</span></button>' +
@@ -2012,15 +2061,32 @@ function renderTrack() {
 }
 function renderSats() {
   renderTrack();
+  document.querySelectorAll('#t-grp [data-g]').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.g === TG); });
+  if (TG === 'all') {
+    var miss = ALLG.filter(function (g) { return !GROUPS[g] && !(renderSats.tried || {})[g]; });
+    if (miss.length) { renderSats.tried = renderSats.tried || {}; miss.forEach(function (g) { renderSats.tried[g] = 1; loadGroup(g).then(function () { if (cur === 'sats' && TG === 'all') renderSats(); }).catch(function () {}); }); }
+    GROUPS.all = allIds(); if (!GROUPS.all.length) GROUPS.all = null;
+  }
   var ids = GROUPS[TG];
-  if (!ids) { $('t-list').innerHTML = '<li><div class="skel"></div></li><li><div class="skel"></div></li>';
+  if (!ids) { $('t-pg-top').innerHTML = $('t-pg-bot').innerHTML = ''; $('t-gnote').textContent = GNOTE[TG] || ''; $('t-gcount').textContent = 'loading…'; $('t-list').innerHTML = '<li><div class="skel"></div></li><li><div class="skel"></div></li>';
+    if (TG === 'all') return;
     loadGroup(TG).then(function () { if (cur === 'sats') renderSats(); }).catch(function (e) { $('t-list').innerHTML = '<li><div class="err">Couldn\'t load this list (' + esc(e.message) + ').</div></li>'; }); return; }
   var l = ids.map(function (id) { return CAT[id]; }).filter(Boolean);
-  if (TG === 'visual') l.sort(function (a, b) { return a.nice.localeCompare(b.nice); });
+  if (TG === 'all') { var st = GROUPS.stations || []; l.sort(function (a, b) { var A2 = st.indexOf(a.id) >= 0 ? 0 : 1, B2 = st.indexOf(b.id) >= 0 ? 0 : 1; return A2 - B2 || a.nice.localeCompare(b.nice, 'en', { numeric: true }); }); }
+  else if (TG !== 'last-30-days' && TG !== 'stations') l.sort(function (a, b) { return a.nice.localeCompare(b.nice, 'en', { numeric: true }); });
+  if (false) l.sort(function (a, b) { return a.nice.localeCompare(b.nice); });
   if (TG === 'last-30-days') l.sort(function (a, b) { return epochMs(b) - epochMs(a); });
-  $('t-list').innerHTML = (TG === 'last-30-days' ? '<li><div class="dayhead" style="text-transform:none;letter-spacing:0;font-size:.82rem">Fresh launches, like Starlink trains, are brightest in their first days.</div></li>' : '') + l.slice(0, 200).map(satRow).join('') + (l.length > 200 ? '<li><div class="empty">Showing 200 of ' + l.length + '. Search to find others.</div></li>' : '');
+  var per = TPER(), pages = Math.max(1, Math.ceil(l.length / per)), pg = Math.min(TGPAGE[TG] || 1, pages); TGPAGE[TG] = pg;
+  $('t-gnote').textContent = GNOTE[TG] || ''; $('t-gcount').textContent = plural(l.length, 'satellite');
+  var gb = $('t-grp').querySelector('[data-g="' + TG + '"]'), gr = $('t-grp'); if (gb) gr.scrollLeft = Math.max(0, gb.offsetLeft - (gr.clientWidth - gb.offsetWidth) / 2);
+  var bar = l.length ? tPager(pg, pages, l.length, per) : '';
+  $('t-pg-top').innerHTML = bar; $('t-pg-bot').innerHTML = bar;
+  $('t-list').innerHTML = (TG === 'last-30-days' && pg === 1 ? '<li><div class="dayhead" style="text-transform:none;letter-spacing:0;font-size:.82rem">Fresh launches, like Starlink trains, are brightest in their first days.</div></li>' : '') + l.slice((pg - 1) * per, pg * per).map(satRow).join('');
+  return;
+  $('t-list').innerHTML = l.slice(0, 200).map(satRow).join('') + (l.length > 200 ? '<li><div class="empty">Showing 200 of ' + l.length + '. Search to find others.</div></li>' : '');
 }
-$('t-grp').addEventListener('click', function (e) { var b = e.target.closest('[data-g]'); if (!b) return; TG = b.dataset.g; this.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); renderSats(); });
+['t-pg-top', 't-pg-bot'].forEach(function (id) { $(id).addEventListener('click', function (e) { var pb = e.target.closest('[data-per]'); if (pb) { var first = ((TGPAGE[TG] || 1) - 1) * TPER(); ls('satPer', +pb.dataset.per); TGPAGE[TG] = Math.floor(first / TPER()) + 1; renderSats(); return; } var b = e.target.closest('[data-tp]'); if (!b || b.disabled) return; TGPAGE[TG] = +b.dataset.tp; renderSats(); var y = $('t-browse').getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' }); }); });
+$('t-grp').addEventListener('click', function (e) { var b = e.target.closest('[data-g]'); if (!b) return; TG = b.dataset.g; ls('satGroup', TG); this.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); renderSats(); });
 var tq = null;
 $('t-q').addEventListener('input', function () { clearTimeout(tq); var q = this.value.trim(); tq = setTimeout(function () { satSearch(q, false); }, 200); });
 $('t-q').addEventListener('keydown', function (e) { if (e.key === 'Enter') { satSearch(this.value.trim(), true); this.blur(); } });
@@ -2038,7 +2104,7 @@ function satSearch(q, go) {
 function toggleTrack(id, btn) {
   var i = TRACK.indexOf(id);
   if (i >= 0) { TRACK.splice(i, 1); if (FOLLOW === id) { FOLLOW = TRACK[0] || ISS; ls('follow', FOLLOW); } }
-  else { if (!PRO && TRACK.length >= FREE_MAX) { proSheet('Following more than ' + FREE_MAX + ' satellites'); return; } if (TRACK.length >= 15) { toast('You can follow up to 15 satellites'); return; } TRACK.push(id); }
+  else { if (!PRO && TRACK.length >= FREE_MAX) { proSheet('Following more than ' + FREE_MAX + ' satellites'); return; } if (TRACK.length >= 30) { toast('You can follow up to 30 satellites'); return; } TRACK.push(id); }
   ls('track', TRACK);
   document.querySelectorAll('[data-track="' + id + '"]').forEach(function (b) { if (b.classList.contains('star')) b.setAttribute('aria-pressed', i < 0); else b.textContent = i < 0 ? 'Stop following' : 'Follow'; });
   toast(i < 0 ? 'Following ' + (CAT[id] ? CAT[id].nice : id) : 'Stopped following ' + (CAT[id] ? CAT[id].nice : id));
@@ -2139,8 +2205,8 @@ function openSettings() {
     '<h2 class="sec">Data</h2><div class="card">' +
       '<p class="small" style="margin:0 0 10px">Orbits come from CelesTrak, refreshed twice a day. Cloud forecasts and place search come from Open-Meteo. Satellite photos come from Wikipedia, weights and sizes from Wikidata. No account, no tracking, no key.</p>' +
       '<button class="btn wide" id="st-clear">Refresh orbits now</button></div>' +
-    (PRO ? '' : '<h2 class="sec">Overhead Pro</h2><div class="card"><p class="small" style="margin:0 0 10px">Pro adds the Look camera view, home-screen widgets, alerts for every satellite and unlimited satellites to follow. It\'s a one-off purchase, with no account and no tracking.</p><button class="btn pri wide" data-url="' + PRO_URL + '">Get Overhead Pro</button></div>') +
-    '<p class="small muted" style="text-align:center">Overhead' + (ED === 'pro' ? ' Pro' : '') + ' 4.1 · <a href="#" data-url="https://claude.ai/artifact/PDiHPXa3M2DKP3N3iYaAyq">Privacy</a></p>');
+    (PRO ? '' : '<h2 class="sec">Overhead Pro</h2><div class="card"><p class="small" style="margin:0 0 10px">Pro adds the Sky camera view, home-screen widgets, alerts for every satellite and unlimited satellites to follow. It\'s a one-off purchase, with no account and no tracking.</p><button class="btn pri wide" data-url="' + PRO_URL + '">Get Overhead Pro</button></div>') +
+    '<p class="small muted" style="text-align:center">Overhead' + (ED === 'pro' ? ' Pro' : '') + ' 4.8 · <a href="#" data-url="https://claude.ai/artifact/PDiHPXa3M2DKP3N3iYaAyq">Privacy</a></p>');
   var s = $('sheet');
   s.querySelectorAll('[data-sel]').forEach(function (x) { x.value = String(SET[x.dataset.sel]); x.onchange = function () { var k = x.dataset.sel; SET[k] = /^(minEl|lead|days)$/.test(k) ? +x.value : x.value; saveSet(); FMT = {};
     if (k === 'minEl' || k === 'days') computePasses(); else { renderAll(); scheduleAlerts(); } }; });
@@ -2160,7 +2226,7 @@ function setNight(on) {
 }
 function proSheet(what) {
   openSheet('<div class="top">' + BACK + '<h1>Overhead Pro<small>' + esc(what) + ' is part of Pro</small></h1></div><div class="card pro-teaser"><p style="margin:0">Pro is a one-off purchase. Like the free app it has no account, no ads and no tracking.</p>' +
-    '<ul><li>Look: the live sky view through your camera</li><li>Home-screen widgets</li><li>Alerts for every satellite you follow</li><li>Follow as many satellites as you like (free: ' + FREE_MAX + ')</li></ul><div class="btns"><button class="btn pri wide" data-url="' + PRO_URL + '">Get Overhead Pro</button></div></div>');
+    '<ul><li>Sky: the live sky view through your camera</li><li>Home-screen widgets</li><li>Alerts for every satellite you follow</li><li>Follow up to 30 satellites (free: ' + FREE_MAX + ')</li></ul><div class="btns"><button class="btn pri wide" data-url="' + PRO_URL + '">Get Overhead Pro</button></div></div>');
 }
 /* On a Play Store install the phone has to be asked before alerts can go off on the exact minute */
 function renderNote() {
@@ -2169,12 +2235,13 @@ function renderNote() {
   if (el.innerHTML !== h) { el.innerHTML = h; if (show) { $('nn-ok').onclick = function () { A.exactAlarms(); }; $('nn-x').onclick = function () { ls('exactNag', 1); renderNote(); }; } }
 }
 var GUIDE = [
-  ['The Look tab', 'Hold your phone up and look through it like a window: the view turns with you. The horizon has a compass on it, satellites are where they are right now (gold when the Sun lights them, grey in Earth\'s shadow, blue for ones you follow), and your next pass is drawn as a gold path with its times. Pick something in the strip at the bottom (swipe or use the arrows if there are more than fit) and the arrow guides you to it. It opens on the camera so the overlay sits on the real sky; pinch or use the + and − buttons to zoom; the camera picture and the overlay zoom together. The Camera button switches to the drawn sky, and the Compass button switches to dragging with your finger. Planets are drawn in their own colours, and you can pick them in the strip too.'],
-  ['When the directions are off', 'Phone compasses are easily thrown by metal, magnets and magnetic cases, and the Look tab warns you when the phone reports its compass needs calibrating. Wave the phone in a figure of eight a few times. If it is still off, tap Line up: put the cross on the real Moon, a bright planet or a bright star, tap Lined up, and the error is taken out. The correction lasts three days, or tap Undo to remove it.'],
+  ['The Sky tab', 'Hold your phone up and look through it like a window: the view turns with you. The horizon has a compass on it, satellites are where they are right now (gold when the Sun lights them, grey in Earth\'s shadow, blue for ones you follow), and your next pass is drawn as a gold path with its times. Pick something in the strip at the bottom (swipe or use the arrows if there are more than fit) and the arrow guides you to it. It opens on the camera so the overlay sits on the real sky; pinch or use the + and − buttons to zoom; the camera picture and the overlay zoom together. The Camera button switches to the drawn sky, and the Compass button switches to dragging with your finger. Planets are drawn in their own colours, and you can pick them in the strip too.'],
+  ['When the directions are off', 'Phone compasses are easily thrown by metal, magnets and magnetic cases, and the Sky tab warns you when the phone reports its compass needs calibrating. Wave the phone in a figure of eight a few times. If it is still off, tap Line up: put the cross on the real Moon, a bright planet or a bright star, tap Lined up, and the error is taken out. The correction lasts three days, or tap Undo to remove it.'],
   ['Viewing score', 'Each pass you can see gets a score out of 100: how high it climbs (counts most), how bright it is, how dark the sky is, how much a bright Moon gets in the way, and the cloud forecast for that hour. 75 and up is Excellent, 55 Good, 35 Fair. A forecast of 85% cloud or more is marked Cloudy. Tap a pass to see the breakdown.'],
   ['Night vision', 'The red eye button at the top of every page, or the switch in Settings, turns the whole app dim red, including the camera picture. Red light doesn\'t spoil your eyes\' adjustment to the dark, so you keep seeing faint satellites. It can also turn the screen right down while the app is open.'],
-  ['The Radar tab', 'The real Earth from space, turned to face your place, using NASA\'s Blue Marble pictures by day and the city lights at night, with the line between day and night where it really is. The satellites you follow fly round it as small models on their real orbits: solid behind them where they have been, dashed ahead. Live shows them where they are now; 60× and 600× speed time up so you can watch them go round. Drag to spin the Earth, pinch to zoom, double-tap or the green pin to come back to your place, and tap a satellite or its row to pick it. A blinking red light means it is in Earth\'s shadow. Heights are drawn three times larger than real so the orbits stand clear of the Earth; tap true scale to see them as they really are.'],
-  ['Planets', 'Venus, Jupiter, Mars, Saturn and Mercury are shown on the Sky and Look tabs when they are above the horizon. Venus and Jupiter are often mistaken for satellites: planets don\'t move across the sky in minutes like a satellite does.'],
+  ['The Orbit tab', 'The real Earth from space, turned to face your place, using NASA\'s Blue Marble pictures by day and the city lights at night, with the line between day and night where it really is. The satellites you follow fly round it as small models on their real orbits: solid behind them where they have been, dashed ahead. Live shows them where they are now; 60× and 600× speed time up so you can watch them go round. Drag to spin the Earth, pinch to zoom, double-tap or the green pin to come back to your place, and tap a satellite or its row to pick it. A blinking red light means it is in Earth\'s shadow. Heights are drawn three times larger than real so the orbits stand clear of the Earth; tap true scale to see them as they really are.'],
+  ['The Radar tab', 'A radar screen of what\'s coming: each pass is a dot in the direction it rises (north at the top), and the closer it is to the middle the sooner it comes. Rings mark 1 hour, 3 hours, 12 hours and 2 days. Dots light up as the sweep passes over them. Tap one for the details; the list below counts down to each pass.'],
+  ['Planets', 'Venus, Jupiter, Mars, Saturn and Mercury are shown on the Sky tab and the sky map on Passes when they are above the horizon. Venus and Jupiter are often mistaken for satellites: planets don\'t move across the sky in minutes like a satellite does.'],
   ['Alerts and widgets keep themselves up to date', 'Every few hours, when the phone has a connection, Overhead quietly refreshes the orbits and re-plans your alerts and widgets, even when you haven\'t opened it. The phone decides the exact moment, to save battery.'],
   ['Why can I only see passes at certain times?', 'A satellite has no light of its own. You see it when the Sun is lighting it up but your sky is dark, which happens in the hour or two after sunset and before sunrise. Later in the night it is usually in Earth\'s shadow and invisible.'],
   ['How do I spot it?', 'Go outside a few minutes early and let your eyes adjust. Look in the direction the app gives, about a third of the way up the sky for a 30° pass. It looks like a bright, steady star moving smoothly, with no blinking lights. The ISS crosses the sky in about four to six minutes.'],
@@ -2182,7 +2249,7 @@ var GUIDE = [
   ['Brightness (magnitude)', 'Lower numbers are brighter. The brightest stars are around 0, Venus around −4. A good ISS pass reaches −3 or brighter. Anything under 3 is easy to see from a town; 4 to 5 needs a dark sky. Values are estimates: they use measured brightness where known, otherwise the object\'s size, plus how far away it is, how it is lit and the haze near the horizon.'],
   ['"Fades into shadow"', 'Some passes end in mid-sky. The satellite has flown into Earth\'s shadow and goes dark within a few seconds, often turning orange first.'],
   ['The map', 'The world map shows where the satellite is now, where it has been (solid) and where it is going (dashed). The ring around it is everywhere it is above the horizon. The shaded area is night; the green dot is you.'],
-  ['The Sky tab', 'A chart of the sky above you: the centre is overhead, the edge is the horizon. Gold dots are sunlit satellites, grey ones are in shadow, blue ones are the ones you follow.'],
+  ['Sky above you (Passes page)', 'Just above Tomorrow on the Passes page, a chart of the sky above you: the centre is overhead, the edge is the horizon. Gold dots are sunlit satellites, grey ones are in shadow, blue ones are the ones you follow.'],
   ['How accurate is it?', 'Predictions use the same orbit model (SGP4) as most tracking sites, with orbits refreshed from CelesTrak twice a day. Times are usually right to within a minute for a few days ahead. The ISS sometimes boosts its orbit, which can shift passes, so refresh before an important one.'],
   ['NORAD number', 'Every tracked object has a catalogue number. The ISS is 25544. You can type any number in Satellites search to follow it.'],
   ['Starlink trains', 'New Starlink batches fly in a line for a few days after launch and can be bright. Look in New launches on the Satellites tab and follow the first one in a batch.']
@@ -2207,7 +2274,7 @@ var LINES = [['Betelgeuse', 'Bellatrix'], ['Bellatrix', 'Mintaka'], ['Mintaka', 
   ['Caph', 'Schedar'], ['Schedar', 'Navi'], ['Navi', 'Ruchbah'], ['Ruchbah', 'Segin'], ['Castor', 'Pollux'], ['Acrux', 'Mimosa'], ['Vega', 'Deneb'], ['Deneb', 'Altair'], ['Altair', 'Vega']];
 var Look = (function () {
   var c = $('look-c'), g = c.getContext('2d'), bg = document.createElement('canvas'), bgx = bg.getContext('2d'), video = $('l-video');
-  var on = false, raf = null, W = 0, H = 0, dpr = 1;
+  var on = false, raf = null, W = 0, H = 0, dpr = 1, showConst = ls('lookConst') !== false;
   var mode = 'drag', gotAbs = false, sensorAt = 0, waitT = null, warned = false, cam = false, stream = null;
   var yaw = ls('lookYaw') == null ? 180 : ls('lookYaw'), pitch = 25, fov = 64;
   var F = [0, 1, 0], Rt = [1, 0, 0], Up = [0, 0, 1], T = null;
@@ -2273,13 +2340,13 @@ var Look = (function () {
   function drawBackground(sunV, sunAltD) {
     var bw = bg.width, bh = bg.height, img = bgx.createImageData(bw, bh), d = img.data, f = fpx();
     var t = Math.max(0, Math.min(1, (sunAltD + 12) / 18)), tw = Math.max(0, 1 - Math.abs(sunAltD + 3) / 9);
-    var zen = mix([5, 9, 20], [47, 109, 179], t), hor = mix([16, 29, 51], [156, 195, 232], t), grd = mix([9, 13, 12], [38, 52, 38], t);
+    var zen = mix([5, 9, 20], [20, 46, 84], t), hor = mix([16, 29, 51], [52, 84, 124], t), grd = mix([9, 13, 12], [20, 28, 22], t);   // daytime kept deep so labels stay readable
     for (var py = 0; py < bh; py++) for (var px = 0; px < bw; px++) {
       var x = ((px + 0.5) / bw * W - W / 2) / f, y = (H / 2 - (py + 0.5) / bh * H) / f;
       var v = norm([F[0] + Rt[0] * x + Up[0] * y, F[1] + Rt[1] * x + Up[1] * y, F[2] + Rt[2] * x + Up[2] * y]), el = v[2], col;
       if (el >= 0) {
         col = mix(hor, zen, Math.pow(el, 0.55));
-        var s = Math.max(0, dot(v, sunV)), glow = Math.pow(s, 6) * (0.35 * t + 0.9 * tw) + Math.pow(s, 60) * 0.6 * (t > 0.05 ? 1 : 0);
+        var s = Math.max(0, dot(v, sunV)), glow = Math.pow(s, 6) * (0.12 * t + 0.7 * tw) + Math.pow(s, 60) * 0.45 * (t > 0.05 ? 1 : 0);
         col = [col[0] + 255 * glow, col[1] + 170 * glow * (1 - 0.3 * tw), col[2] + 110 * glow * (1 - 0.5 * tw)];
         if (el < 0.06) { var hz = 1 - el / 0.06; col = mix(col, [col[0] + 18, col[1] + 18, col[2] + 22], hz * 0.6); }
       } else col = mix(grd, [grd[0] * 0.45, grd[1] * 0.45, grd[2] * 0.45], Math.min(1, -el * 1.6));
@@ -2315,8 +2382,9 @@ var Look = (function () {
     if (sky && Math.abs(n - skyAt) < 1000) return sky;
     var sp = sunPos(n), sa = altaz(sp.ra, sp.dec, n, pl.lat, pl.lon), mp = moonPos(n), ma = altaz(mp.ra, mp.dec, n, pl.lat, pl.lon), st = {};
     STARS.forEach(function (x) { var q = precess(x[1] * 15 * DEG, x[2] * DEG, n), h = altaz(q.ra, q.dec, n, pl.lat, pl.lon); st[x[0]] = { az: h.az, el: h.alt, mag: x[3] }; });
-    var pls = sky && sky.pl && Math.abs(n - sky.plAt) < 20000 ? sky.pl : planetsAt(n, pl);
-    skyAt = n; return (sky = { sun: sa, moon: ma, stars: st, pl: pls, plAt: sky && sky.pl === pls ? sky.plAt : n });
+    var pls = sky && sky.pl && Math.abs(n - sky.plAt) < 20000 ? sky.pl : planetsAt(n, pl), cs = {};
+    if (showConst && window.CSTAR) Object.keys(CSTAR).forEach(function (k) { var x = CSTAR[k], q = precess(x[0] * 15 * DEG, x[1] * DEG, n), h = altaz(q.ra, q.dec, n, pl.lat, pl.lon); cs[k] = { az: h.az, el: h.alt, mag: x[2], v: enu(h.az, h.alt) }; });
+    skyAt = n; return (sky = { sun: sa, moon: ma, stars: st, cs: cs, pl: pls, plAt: sky && sky.pl === pls ? sky.plAt : n });
   }
   function drawPlanets(S, dark) {
     hits = hits.filter(function (h) { return !/^pl:/.test(h.id); });
@@ -2327,10 +2395,30 @@ var Look = (function () {
       if (target === 'pl:' + o.name) { g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.arc(q[0], q[1], r + 8, 0, 7); g.stroke(); }
       label(o.name, q[0] + r + 6, q[1] - 1, o.col, '700 11px system-ui', 'left'); hits.push({ x: q[0], y: q[1], id: 'pl:' + o.name }); });
   }
+  /* Constellation figures: stick lines, their fainter stars and a name near the middle of each. Shown by day too
+     (fainter), so you can learn where they sit. */
+  function drawConst(S, dark) {
+    if (!showConst || !window.CONST || !S.cs) return;
+    var a = Math.max(0.5, dark), cs = S.cs;
+    g.save(); g.lineCap = 'round';
+    CONST.forEach(function (c) {
+      var sx = 0, sy = 0, sz = 0, nv = 0, seen = {};
+      g.lineWidth = 1.3; g.strokeStyle = 'rgba(120,225,200,' + (0.42 * a) + ')'; g.beginPath();
+      c[1].forEach(function (l) { var A = cs[l[0]], B = cs[l[1]]; if (!A || !B || (A.el < -2 && B.el < -2)) return;
+        if (dot(A.v, F) < 0.2 || dot(B.v, F) < 0.2) return; var p1 = P(A.v), p2 = P(B.v); if (!p1 || !p2) return;
+        var d = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) || 1, gap = Math.min(5, d / 4), ux = (p2[0] - p1[0]) / d, uy = (p2[1] - p1[1]) / d;
+        g.moveTo(p1[0] + ux * gap, p1[1] + uy * gap); g.lineTo(p2[0] - ux * gap, p2[1] - uy * gap);
+        [l[0], l[1]].forEach(function (k) { if (seen[k]) return; seen[k] = 1; var s = cs[k]; if (s.el < 0) return; sx += s.v[0]; sy += s.v[1]; sz += s.v[2]; nv++; }); });
+      g.stroke();
+      Object.keys(seen).forEach(function (k) { var s = cs[k]; if (s.el < -1 || S.stars[k]) return; var q = P(s.v); if (!q) return;
+        g.fillStyle = 'rgba(235,242,255,' + Math.min(0.9, a * (1.2 - s.mag * 0.2)) + ')'; g.beginPath(); g.arc(q[0], q[1], Math.max(0.8, 2.6 - s.mag * 0.45), 0, 7); g.fill(); });
+      if (nv >= 2) { var q = P(norm([sx, sy, sz])); if (q && q[0] > 20 && q[0] < W - 20 && q[1] > 70 && q[1] < H - 60) label(c[0].toUpperCase(), q[0], q[1] + 14, 'rgba(140,240,214,' + (0.8 * a) + ')', '700 10px system-ui'); }
+    });
+    g.restore();
+  }
   function drawStars(S, dark) {
+    drawConst(S, dark);
     if (dark <= 0.02) return;
-    g.lineWidth = 1; g.strokeStyle = 'rgba(160,190,230,' + (0.22 * dark) + ')';
-    LINES.forEach(function (l) { var a = S.stars[l[0]], b = S.stars[l[1]]; if (a.el < -2 && b.el < -2) return; var p1 = P(enu(a.az, a.el)), p2 = P(enu(b.az, b.el)); if (p1 && p2) { g.beginPath(); g.moveTo(p1[0], p1[1]); g.lineTo(p2[0], p2[1]); g.stroke(); } });
     STARS.forEach(function (x) { var s = S.stars[x[0]]; if (s.el < -1) return; var q = P(enu(s.az, s.el)); if (!q) return;
       var r = Math.max(0.9, 3.2 - s.mag * 0.75); g.fillStyle = 'rgba(255,255,255,' + Math.min(1, dark * (1.15 - s.mag * 0.2)) + ')'; g.beginPath(); g.arc(q[0], q[1], r, 0, 7); g.fill();
       if (s.mag < 1.3) label(x[0], q[0] + 8, q[1] - 2, 'rgba(200,214,235,' + (0.75 * dark) + ')', '500 10px system-ui', 'left'); });
@@ -2468,6 +2556,8 @@ var Look = (function () {
     else if (k === 'ref') { align.sel = +b.dataset.i; cardAt = 0; }
   });
   $('l-fix').onclick = function () { if (align) stopAlign(); else startAlign(); };
+  $('l-const').setAttribute('aria-pressed', String(showConst));
+  $('l-const').onclick = function () { showConst = !showConst; ls('lookConst', showConst); sky = null; this.setAttribute('aria-pressed', String(showConst)); toast(showConst ? 'Constellations on' : 'Constellations off'); };
   /* ---- The phone's own view of its compass: accuracy 0–3 and the field strength (Earth's is 25–65 µT) ---- */
   var cmp = { acc: 3, uT: 50, shut: '' };
   function warnKind() { return mode !== 'motion' || align ? '' : cmp.acc <= 1 ? 'cal' : (cmp.uT < 18 || cmp.uT > 80) ? 'mag' : ''; }
@@ -2537,8 +2627,9 @@ var Look = (function () {
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (!pl) { g.fillStyle = '#05080f'; g.fillRect(0, 0, W, H); label('Choose your place first: tap the place button above', W / 2, H / 2, '#cfd6e2', '600 14px system-ui'); raf = requestAnimationFrame(frame); return; }
     var S = skyObjects(n, pl), sunV = enu(S.sun.az, S.sun.alt), dark = Math.max(0, Math.min(1, (-S.sun.alt - 4) / 8));
-    if (cam) g.clearRect(0, 0, W, H); else drawBackground(sunV, S.sun.alt);
-    drawGrid(); drawStars(S, cam ? dark * 0.7 : dark); drawPlanets(S, cam ? Math.max(0.6, dark) : dark);
+    if (cam) { g.clearRect(0, 0, W, H); var dayK = Math.max(0, Math.min(1, (S.sun.alt + 6) / 12)); if (dayK > 0) { g.fillStyle = 'rgba(4,9,18,' + (0.5 * dayK) + ')'; g.fillRect(0, 0, W, H); } }   // dim a bright daytime camera picture so the overlay shows
+    else drawBackground(sunV, S.sun.alt);
+    drawGrid(); drawStars(S, cam ? Math.max(dark * 0.7, showConst ? 0.75 : 0) : dark); drawPlanets(S, cam ? Math.max(0.6, dark) : dark);
     drawSunMoon(S);
     updateSats(n);
     tgt = resolveTarget(n, S);
@@ -3148,7 +3239,7 @@ function tickLive(force) {
   var n = performance.now(); if (!force && n - liveLast < 950) return; liveLast = n;
   if (document.hidden || !$('sheet').hidden) return;
   if (cur === 'now') { renderLiveInfo(drawMap()); placePulses(); }
-  if (cur === 'sky') drawSky();
+  if (cur === 'sky' || cur === 'passes') drawSky();
 }
 var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- Living background: twinkling stars, shooting stars, and now and then a satellite gliding over ---------- */

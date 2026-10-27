@@ -143,18 +143,3 @@ function events() {
   _ev = { key, list }; return list;
 }
 
-/* ---------- aurora ---------- */
-function magLat(lat, lon) {
-  const pl = 80.8 * D2R, po = -72.7 * D2R, a = lat * D2R, o = lon * D2R;
-  return Math.asin(Math.sin(a) * Math.sin(pl) + Math.cos(a) * Math.cos(pl) * Math.cos(o - po)) * R2D;
-}
-function auroraFor(kp) {
-  const ml = Math.abs(magLat(place().lat, place().lon));
-  const over = 66.5 - 2 * kp, hor = over - 8;
-  if (ml >= over) return { lvl: 3, t: 'Likely overhead' };
-  if (ml >= hor) return { lvl: 2, t: 'Possible low on the ' + (place().lat >= 0 ? 'north' : 'south') + 'ern horizon' };
-  if (ml >= hor - 4) return { lvl: 1, t: 'Only with a camera, if at all' };
-  return { lvl: 0, t: 'Not expected this far ' + (place().lat >= 0 ? 'south' : 'north') };
-}
-function kpNeeded() { const ml = Math.abs(magLat(place().lat, place().lon)); return clamp(Math.ceil((66.5 - 8 - ml) / 2), 0, 9); }
-

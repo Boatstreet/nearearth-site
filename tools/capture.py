@@ -4,7 +4,7 @@ import os, glob, shutil, sys
 from playwright.sync_api import sync_playwright
 PLAN = {
  'solar': ['Sun', 'Events', 'Activity', 'Earth', 'Aurora', 'Eclipse'],
- 'overhead': ['Now', 'Passes', 'Sky', 'Radar', 'Satellites'],
+ 'overhead': ['Now', 'Passes', 'Sky', 'Orbit', 'Radar', 'Satellites'],
  'asteroids': ['Radar', 'Upcoming', 'Orbit', 'Meteors', 'Risk', 'History'],
  'sky': ['Tonight', 'Sky', 'Listen', 'Signals', 'Calendar'],
 }

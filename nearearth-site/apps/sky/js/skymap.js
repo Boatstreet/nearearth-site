@@ -11,7 +11,7 @@ const SkyMap = (() => {
   const conLbl = Object.entries(SD.cons).map(([k, o]) => ({ n: o.n, v: eqVec((o.c[0] + 360) % 360, o.c[1]) }));
   const mw = SD.mw.map((lvl, i) => ({ a: [.035, .03, .028, .025][i] || .02, polys: lvl.map(poly => poly.map(p => eqVec(p[0], p[1]))) }));
 
-  let mode = 'dome', cam = { az: 180, alt: 90, fov: 182 }, tgt = null, vel = { az: 0, alt: 0 };
+  let mode = 'look', cam = { az: 180, alt: 35, fov: 80 }, tgt = null, vel = { az: 0, alt: 0 };
   let tOff = 0, sel = null, compassOn = false, orient = null, pts = [], dirty = true, t0 = performance.now();
   const W = () => c.clientWidth, H = () => c.clientHeight;
 
@@ -30,26 +30,32 @@ const SkyMap = (() => {
     return [B.cx + X * s * B.sc, B.cy - Y * s * B.sc, Z];
   }
   function hv(az, alt) { const a = az * D2R, l = alt * D2R; return [Math.cos(l) * Math.sin(a), Math.cos(l) * Math.cos(a), Math.sin(l)]; }
-  const now = () => new Date(Date.now() + tOff * 6e4);
+  let tm = null;   // time machine: { base: Date, place: {lat, lon, name, tz}, label }
+  const P = () => (tm && tm.place) || place();
+  const OBS = () => { const p = P(); return new Astronomy.Observer(p.lat, p.lon, p.elev || 0); };
+  const now = () => new Date((tm ? +tm.base : Date.now()) + tOff * 6e4);
+  /* camera view */
+  let camOn = false, stream = null, calib = { az: 0, alt: 0 }, camFov = store.get('camFov', 74);
+  const vid = $('#skyVid');
 
   function draw() {
-    const { x, w, h } = hidpi(c), B = basis(), date = now(), p = place(), M = horMatrix(date, p.lat, p.lon), obs = observer();
+    const { x, w, h } = hidpi(c), B = basis(), date = now(), p = P(), M = horMatrix(date, p.lat, p.lon), obs = OBS();
     const t = (performance.now() - t0) / 1000, zoom = clamp(120 / cam.fov, .8, 4);
     const sun = bodyPos('Sun', date, obs), day = clamp((sun.alt + 12) / 12, 0, 1);
     // sky background
-    x.fillStyle = '#02040b'; x.fillRect(0, 0, w, h);
+    if (camOn) x.clearRect(0, 0, w, h); else { x.fillStyle = '#02040b'; x.fillRect(0, 0, w, h); }
     const zen = proj(B, [0, 0, 1]);
     const bg = x.createRadialGradient(zen ? zen[0] : w / 2, zen ? zen[1] : -h, 0, zen ? zen[0] : w / 2, zen ? zen[1] : -h, Math.max(w, h) * 1.1);
     const dc = (a, b) => `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], day))).join(',')})`;
-    bg.addColorStop(0, dc([5, 9, 24], [46, 98, 180])); bg.addColorStop(1, dc([14, 24, 56], [130, 170, 225]));
+    bg.addColorStop(0, dc([5, 9, 24], [14, 30, 66])); bg.addColorStop(1, dc([14, 24, 56], [30, 54, 100]));   // daytime: muted deep blue so stars stay readable
     x.save();
     if (mode === 'dome') { x.beginPath(); x.arc(B.cx, B.cy, B.rad, 0, 7); x.clip(); }
-    x.fillStyle = bg; x.fillRect(0, 0, w, h);
-    const sa = 1 - day * .95;
+    if (camOn) { x.fillStyle = 'rgba(0,4,16,.22)'; x.fillRect(0, 0, w, h); } else { x.fillStyle = bg; x.fillRect(0, 0, w, h); }
+    const sa = 1 - day * .3;
     // milky way
-    if (sa > .1) for (const L of mw) { x.fillStyle = `rgba(170,190,255,${L.a * sa})`; for (const poly of L.polys) { x.beginPath(); let ok = 0; for (const v of poly) { const q = proj(B, applyM(M, v)); if (!q) { ok = 0; break; } ok++ ? x.lineTo(q[0], q[1]) : x.moveTo(q[0], q[1]); } if (ok) x.fill(); } }
+    if (sa > .1 && !camOn) for (const L of mw) { x.fillStyle = `rgba(170,190,255,${L.a * sa})`; for (const poly of L.polys) { x.beginPath(); let ok = 0; for (const v of poly) { const q = proj(B, applyM(M, v)); if (!q) { ok = 0; break; } ok++ ? x.lineTo(q[0], q[1]) : x.moveTo(q[0], q[1]); } if (ok) x.fill(); } }
     // alt-az grid
-    x.lineWidth = .6; x.strokeStyle = `rgba(140,160,230,${.1 + .05 * day})`;
+    x.lineWidth = .6; x.strokeStyle = `rgba(140,160,230,${.1 + .04 * day})`;
     for (const al of [30, 60]) { x.beginPath(); for (let az = 0; az <= 360; az += 6) { const q = proj(B, hv(az, al)); if (q) az ? x.lineTo(q[0], q[1]) : x.moveTo(q[0], q[1]); } x.stroke(); }
     // constellations
     if (S.prefs.lines) { x.strokeStyle = `rgba(130,160,255,${.32 * sa + .05})`; x.lineWidth = 1;
@@ -115,7 +121,7 @@ const SkyMap = (() => {
     // stereographic maps the horizon (a great circle) to a circle, or a line when it passes the antipode
     const a = proj(B, hv(cam.az, 0)), b = proj(B, hv(cam.az + 90, 0)), c2 = proj(B, hv(cam.az - 90, 0));
     const nad = proj(B, [0, 0, -1]); if (!a || !b || !c2) return;
-    const gcol = day > .5 ? 'rgba(18,30,28,.97)' : 'rgba(5,9,14,.97)';
+    const gcol = camOn ? 'rgba(4,8,14,.3)' : day > .5 ? 'rgba(18,30,28,.97)' : 'rgba(5,9,14,.97)';
     const ax = a[0], ay = a[1], bx = b[0], by = b[1], cx = c2[0], cy = c2[1];
     const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
     x.beginPath();
@@ -139,7 +145,7 @@ const SkyMap = (() => {
   function loop() {
     raf = requestAnimationFrame(loop); if (S.view !== 'sky') return;
     if (tgt) { const k = .12; let da = ((tgt.az - cam.az + 540) % 360) - 180; cam.az = (cam.az + da * k + 360) % 360; cam.alt += (tgt.alt - cam.alt) * k; cam.fov += (tgt.fov - cam.fov) * k; if (Math.abs(da) < .05 && Math.abs(tgt.alt - cam.alt) < .05 && Math.abs(tgt.fov - cam.fov) < .1) tgt = null; }
-    else if (compassOn && orient) { let da = ((orient.az - cam.az + 540) % 360) - 180; cam.az = (cam.az + da * .18 + 360) % 360; cam.alt += (clamp(orient.alt, -10, 90) - cam.alt) * .18; }
+    else if (compassOn && orient) { let da = ((orient.az + calib.az - cam.az + 540) % 360) - 180; cam.az = (cam.az + da * .18 + 360) % 360; cam.alt += (clamp(orient.alt + calib.alt, -10, 90) - cam.alt) * .18; }
     else if (!drag && (Math.abs(vel.az) > .01 || Math.abs(vel.alt) > .01)) { cam.az = (cam.az + vel.az + 360) % 360; if (mode === 'look') cam.alt = clamp(cam.alt + vel.alt, -10, 90); vel.az *= .93; vel.alt *= .93; }
     draw();
   }
@@ -150,8 +156,9 @@ const SkyMap = (() => {
     if (ptrs.size === 1) drag = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, t: performance.now(), moved: 0 };
     if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), fov: cam.fov }; drag = null; } });
   c.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, [e.clientX, e.clientY]);
-    if (pinch && ptrs.size === 2) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); cam.fov = clamp(pinch.fov * pinch.d / d, mode === 'dome' ? 60 : 20, mode === 'dome' ? 186 : 130); return; }
+    if (pinch && ptrs.size === 2) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (camOn) { camFov = clamp(pinch.fov * pinch.d / d, 30, 110); cam.fov = camFov; store.set('camFov', camFov); return; } cam.fov = clamp(pinch.fov * pinch.d / d, mode === 'dome' ? 60 : 20, mode === 'dome' ? 186 : 130); return; }
     if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.moved += Math.abs(dx) + Math.abs(dy);
+    if (camOn && compassOn) { const k = cam.fov / H(); calib.az = (calib.az - dx * k + 540) % 360 - 180; calib.alt = clamp(calib.alt + dy * k, -20, 20); drag.x = e.clientX; drag.y = e.clientY; return; }   // in camera view, dragging fine-tunes the line-up
     if (compassOn && drag.moved > 12) setCompass(false);
     if (mode === 'dome') { const B = basis(); const a0 = Math.atan2(drag.y - B.cy, drag.x - B.cx), a1 = Math.atan2(e.clientY - B.cy, e.clientX - B.cx); let d = (a1 - a0) * R2D; if (d > 180) d -= 360; if (d < -180) d += 360; cam.az = (cam.az + d + 360) % 360; vel.az = d * .6; }
     else { const k = cam.fov / W() * 1.1; cam.az = (cam.az - dx * k + 360) % 360; cam.alt = clamp(cam.alt + dy * k, -10, 90); vel = { az: -dx * k * .6, alt: dy * k * .6 }; }
@@ -172,7 +179,7 @@ const SkyMap = (() => {
   function select(p) {
     const box = $('#skyInfo');
     if (!p) { sel = null; box.classList.remove('on'); return; }
-    const date = now(), obs = observer(), M = horMatrix(date, place().lat, place().lon); let h = '';
+    const date = now(), obs = OBS(), M = horMatrix(date, P().lat, P().lon); let h = '';
     if (p.k === 'seti' || (p.k === 'star' && p.o.seti)) {
       const t = p.k === 'seti' ? p.o : p.o.seti, hz = altAz(M, t.ra, t.dec);
       sel = { k: 'seti', v: eqVec(t.ra, t.dec) };
@@ -187,7 +194,7 @@ const SkyMap = (() => {
       sel = { k: 'body', hor: true, v: hv(bp.az, bp.alt), body: b };
       const rs = d => { try { return asDate(A.SearchRiseSet(b, obs, d, date, 1)); } catch (e) { return null; } };
       const dist = b === 'Moon' ? fmtN(Math.round(bp.dist * 149597870.7)) + ' km' : bp.dist.toFixed(2) + ' AU · light takes ' + Math.round(bp.dist * 8.317) + ' min';
-      box.innerHTML = `<b>${b}</b><p>${b === 'Sun' ? '' : 'Magnitude ' + il.mag.toFixed(1) + ' · '}${dist}<br>${Math.round(bp.alt)}° up in the ${compass(bp.az)} · rises ${fT(rs(+1))} · sets ${fT(rs(-1))}</p>`;
+      box.innerHTML = `<b>${b}</b><p>${b === 'Sun' ? '' : 'Magnitude ' + il.mag.toFixed(1) + ' · '}${dist}<br>${Math.round(bp.alt)}° up in the ${compass(bp.az)} · rises ${fT(rs(+1))} · sets ${fT(rs(-1))}</p>${Planets.INFO[b] ? '<button class="btn cy" id="siPl">More about ' + b + '</button>' : ''}`; const pb = $('#siPl'); if (pb) pb.onclick = () => Planets.open(b);
       sel.track = b;
     } else if (p.k === 'shower') {
       const s = p.o; sel = { k: 'star', v: eqVec(s.ra, s.dec) };
@@ -198,11 +205,11 @@ const SkyMap = (() => {
   function focus(o) {
     if (mode !== 'look') setMode('look');
     let az, alt;
-    if (o.body) { const bp = bodyPos(o.body, now(), observer()); az = bp.az; alt = bp.alt; }
-    else { const h = altAz(horMatrix(now(), place().lat, place().lon), o.ra, o.dec); az = h.az; alt = h.alt; }
+    if (o.body) { const bp = bodyPos(o.body, now(), OBS()); az = bp.az; alt = bp.alt; }
+    else { const h = altAz(horMatrix(now(), P().lat, P().lon), o.ra, o.dec); az = h.az; alt = h.alt; }
     setCompass(false); tgt = { az, alt: clamp(alt, 5, 80), fov: o.fov || 70 };
     setTimeout(() => {
-      if (o.seti) select({ k: 'seti', o: o.seti }); else if (o.body) select({ k: o.body === 'Moon' ? 'moon' : 'planet', o: PLANETS.find(p => p.b === o.body) });
+      if (o.seti) select({ k: 'seti', o: o.seti }); else if (o.body && o.body !== 'Sun') select({ k: o.body === 'Moon' ? 'moon' : 'planet', o: PLANETS.find(p => p.b === o.body) });
       else if (o.label) { sel = { k: 'seti', v: eqVec(o.ra, o.dec) }; $('#skyInfo').innerHTML = `<span class="tag">${esc(o.tag || 'Signal')}</span><b>${esc(o.label)}</b><p>${esc(o.sub || '')}<br>${alt > 0 ? Math.round(alt) + '° up in the ' + compass(az) : 'Below your horizon right now'}</p>`; $('#skyInfo').classList.add('on'); }
       if (alt < 0) toast('Below your horizon right now');
     }, 250);
@@ -210,11 +217,12 @@ const SkyMap = (() => {
 
   function setMode(m) {
     mode = m; $$('#skyMode button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
-    if (m === 'dome') { setCompass(false); tgt = { az: place().lat >= 0 ? 180 : 0, alt: 90, fov: 182 }; } else tgt = { az: place().lat >= 0 ? 180 : 0, alt: 35, fov: 80 };
+    if (m === 'dome') { if (camOn) setCamera(false); setCompass(false); tgt = { az: P().lat >= 0 ? 180 : 0, alt: 90, fov: 182 }; } else tgt = { az: P().lat >= 0 ? 180 : 0, alt: 35, fov: 80 };
   }
-  function setCompass(on) {
+  let firstShow = true, resumeCompass = false;   // compass is on by default each launch; it pauses while you're on other tabs
+  function setCompass(on, quiet) {
     compassOn = on; $('#skyCompass').classList.toggle('on', on); N.compass(on); N.awake(on);
-    if (on) { if (mode !== 'look') { mode = 'look'; $$('#skyMode button').forEach(b => b.classList.toggle('on', b.dataset.m === 'look')); } tgt = null; cam.fov = Math.min(cam.fov, 75); if (!N.has) webOrient(); toast('Hold your phone up to the sky'); }
+    if (on) { if (mode !== 'look') { mode = 'look'; $$('#skyMode button').forEach(b => b.classList.toggle('on', b.dataset.m === 'look')); } tgt = null; cam.fov = camOn ? camFov : Math.min(cam.fov, 75); if (!N.has) webOrient(); if (!quiet) toast('Hold your phone up to the sky'); }
   }
   window.onOrient = (az, alt) => { orient = { az, alt }; };
   let webOri = false;
@@ -225,7 +233,7 @@ const SkyMap = (() => {
   }
 
   function chips() {
-    const date = now(), obs = observer(), M = horMatrix(date, place().lat, place().lon), out = [];
+    const date = now(), obs = OBS(), M = horMatrix(date, P().lat, P().lon), out = [];
     const mp = bodyPos('Moon', date, obs); if (mp.alt > 0) out.push(['Moon', () => focus({ body: 'Moon' })]);
     PLANETS.forEach(p => { if (bodyPos(p.b, date, obs).alt > 3) out.push([p.b, () => focus({ body: p.b })]); });
     let nb = null; for (const t of SETIDATA) if (t.ly && t.k === 'star' && altAz(M, t.ra, t.dec).alt > 15 && (!nb || t.ly < nb.ly)) nb = t;
@@ -235,7 +243,7 @@ const SkyMap = (() => {
     $('#skyFind').innerHTML = out.map((o, i) => `<button data-i="${i}" class="${o[2] || ''}">${esc(o[0])}</button>`).join('');
     $$('#skyFind button').forEach(b => b.onclick = () => { N.haptic(8); out[+b.dataset.i][1](); });
   }
-  function timeLabel() { const v = tOff; $('#skyTl').textContent = v === 0 ? fT(new Date()) : (v > 0 ? '+' : '−') + Math.floor(Math.abs(v) / 60) + 'h' + String(Math.abs(v) % 60).padStart(2, '0'); }
+  function timeLabel() { const v = tOff; if (tm) { $('#skyTl').textContent = tmFmt(now(), { hour: '2-digit', minute: '2-digit' }); return; } $('#skyTl').textContent = v === 0 ? fT(new Date()) : (v > 0 ? '+' : '−') + Math.floor(Math.abs(v) / 60) + 'h' + String(Math.abs(v) % 60).padStart(2, '0'); }
 
   $$('#skyMode button').forEach(b => b.onclick = () => { N.haptic(8); setMode(b.dataset.m); });
   $('#skyCompass').onclick = () => { N.haptic(10); setCompass(!compassOn); };
@@ -243,13 +251,59 @@ const SkyMap = (() => {
   $('#skyLines').onclick = () => { S.prefs.lines = !S.prefs.lines; savePrefs(); syncBtns(); N.haptic(8); };
   $('#skyT').oninput = e => { tOff = +e.target.value; timeLabel(); };
   $('#skyNow').onclick = () => { tOff = 0; $('#skyT').value = 0; timeLabel(); };
-  function syncBtns() { $('#skySeti').classList.toggle('on', S.prefs.setiLayer); $('#skyLines').classList.toggle('on', S.prefs.lines); }
+  function syncBtns() { $('#skySeti').classList.toggle('on', S.prefs.setiLayer); $('#skyLines').classList.toggle('on', S.prefs.lines); $('#skyCam').classList.toggle('on', camOn); $('#skyTM').classList.toggle('on', !!tm); }
+
+  /* ---------- camera view (Pro) ---------- */
+  async function setCamera(on) {
+    if (on) {
+      const perm = await N.camPerm(); if (perm && perm.error) { toast('Camera permission is needed for the camera view'); return; }
+      try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } }, audio: false }); }
+      catch (e) { toast('Camera not available'); return; }
+      vid.srcObject = stream; try { await vid.play(); } catch (e) {}
+      camOn = true; document.body.classList.add('cam'); if (mode !== 'look') { mode = 'look'; $$('#skyMode button').forEach(b => b.classList.toggle('on', b.dataset.m === 'look')); }
+      setCompass(true, true); cam.fov = camFov; toast('Drag to line the labels up with the real sky'); $('#camTip').classList.add('on'); setTimeout(() => $('#camTip').classList.remove('on'), 6000);
+    } else {
+      if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; vid.srcObject = null; camOn = false; document.body.classList.remove('cam');
+    }
+    syncBtns();
+  }
+  $('#skyCam').onclick = () => { N.haptic(10); if (camOn) setCamera(false); else Pro.gate('Camera', () => setCamera(true))(); };
+
+  /* ---------- time machine (Pro) ---------- */
+  function tmFmt(d, o) { try { return new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: (tm && tm.place && tm.place.tz) || tzOf(), hourCycle: S.prefs.h24 ? 'h23' : 'h12' }, o)).format(d); } catch (e) { return d.toUTCString(); } }
+  function setTM(o) {
+    tm = o; tOff = 0; $('#skyT').value = 0; sel = null; $('#skyInfo').classList.remove('on');
+    const b = $('#tmBan');
+    if (tm) { if (camOn) setCamera(false); b.innerHTML = `<span class="tm-ic">⏳</span><div><b>${esc(tm.label || tmFmt(tm.base, { day: 'numeric', month: 'short', year: 'numeric' }))}</b><small>${tmFmt(tm.base, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })} · ${esc(P().name)}</small></div><button id="tmBack">Back to now</button>`; b.classList.add('on'); $('#tmBack').onclick = () => { N.haptic(10); setTM(null); }; }
+    else { b.classList.remove('on'); toast('Back to the sky right now'); }
+    syncBtns(); chips(); timeLabel();
+  }
+  function openTM() {
+    const p0 = partsIn(new Date()), pad = n => String(n).padStart(2, '0');
+    const iso = `${p0.y}-${pad(p0.m)}-${pad(p0.d)}T${pad(p0.h)}:${pad(p0.mi)}`;
+    const next = events().filter(e => e.k === 'ecl' && e.vis && +e.t > Date.now())[0];
+    const PRE = [
+      { k: 'wow', ic: '❗', n: 'The Wow! signal', s: '15 Aug 1977, 22:16 · Big Ear, Ohio', go: () => { setTM({ base: new Date('1977-08-16T02:16:00Z'), place: { lat: 40.0025, lon: -83.0436, name: 'Big Ear, Ohio', tz: 'America/New_York' }, label: 'The night of the Wow! signal' }); setTimeout(() => focus({ ra: 291.38, dec: -26.95, label: 'Wow! signal', tag: '15 Aug 1977 · Big Ear', sub: 'Big Ear was looking here, low in the south, when the 72-second signal arrived.' }), 300); } },
+      { k: 'apollo', ic: '🌕', n: 'Apollo 11 lands', s: '20 Jul 1969, 20:17 UTC · from ' + place().name, go: () => { setTM({ base: new Date('1969-07-20T20:17:40Z'), label: 'Apollo 11 lands on the Moon' }); setTimeout(() => focus({ body: 'Moon' }), 300); } },
+      { k: 'gc', ic: '🪐', n: 'The great conjunction', s: '21 Dec 2020 · Jupiter and Saturn 0.1° apart', go: () => { const t = new Date(+zMidnight(2020, 12, 21) + 17.5 * 36e5); setTM({ base: t, label: 'Jupiter and Saturn side by side' }); setTimeout(() => focus({ body: 'Jupiter', fov: 30 }), 300); } }];
+    if (next) PRE.push({ k: 'ecl', ic: '◐', n: 'Next eclipse you can see', s: next.n + ' · ' + fDm(next.t), go: () => { setTM({ base: next.t, label: next.n }); setTimeout(() => focus({ body: next.solar ? 'Sun' : 'Moon' }), 300); } });
+    PRE.push({ k: '100', ic: '🕰', n: 'This moment, 100 years ago', s: 'Same time and place in ' + (p0.y - 100), go: () => setTM({ base: new Date(Date.now() - 36524.22 * 864e5), label: 'A century ago tonight' }) });
+    Sheet.open(`<h2>Time machine</h2><p class="muted" style="font-size:13.5px;margin-bottom:12px">Wind the sky to any moment, from your place or where history happened. Drag the time slider to move on from there.</p>
+      <div class="tm-pick"><input type="datetime-local" id="tmDt" value="${iso}" min="1700-01-01T00:00" max="2200-12-31T23:59"><button class="btn cy" id="tmGo">Go</button></div>
+      <h3>Famous moments</h3>${PRE.map((x, i) => `<button class="simrow" data-i="${i}"><span class="si-ic">${x.ic}</span><div><b>${x.n}</b><p>${esc(x.s)}</p></div><span class="chev">›</span></button>`).join('')}`, el => {
+      $('#tmGo', el).onclick = () => { const v = $('#tmDt', el).value; if (!v) return; const [d, t] = v.split('T'), [y, m, dd] = d.split('-').map(Number), [hh, mi] = t.split(':').map(Number);
+        const base = new Date(+zMidnight(y, m, dd) + (hh * 60 + mi) * 6e4); Sheet.close(); setTM({ base }); N.haptic(12); };
+      $$('.simrow', el).forEach(b => b.onclick = () => { Sheet.close(); N.haptic(12); PRE[+b.dataset.i].go(); });
+    });
+  }
+  $('#skyTM').onclick = () => { N.haptic(10); Pro.gate('Time', openTM)(); };
 
   return {
-    show() { syncBtns(); chips(); timeLabel(); if (!raf) raf = requestAnimationFrame(loop); },
-    hide() { if (compassOn) setCompass(false); },
-    focus, tick() { if (S.view === 'sky' && tOff === 0) timeLabel(); },
-    reset() { cam = { az: place().lat >= 0 ? 180 : 0, alt: 90, fov: 182 }; },
+    show() { syncBtns(); chips(); timeLabel(); if (!raf) raf = requestAnimationFrame(loop);
+      if (firstShow) { firstShow = false; setCompass(true); } else if (resumeCompass) { resumeCompass = false; setCompass(true, true); } },
+    hide() { if (camOn) setCamera(false); if (compassOn) { setCompass(false); resumeCompass = true; } },
+    focus, tick() { if (S.view === 'sky' && tOff === 0 && !tm) timeLabel(); }, setTM, get tm() { return tm; },
+    reset() { const s = P().lat >= 0 ? 180 : 0; cam = mode === 'dome' ? { az: s, alt: 90, fov: 182 } : { az: s, alt: 35, fov: 80 }; },
     get cam() { return cam; }, setMode, select
   };
 })();

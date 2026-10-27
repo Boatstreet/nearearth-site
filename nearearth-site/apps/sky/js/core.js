@@ -28,6 +28,8 @@ const S = {
   wx: null, kp: null, tle: null,
 };
 function savePrefs() { store.set('prefs', S.prefs); }
+/* Sky tab buttons start from their defaults on every launch */
+S.prefs.setiLayer = true; S.prefs.lines = true;
 
 /* place helpers */
 function place() {
@@ -94,6 +96,7 @@ const N = (() => {
     share(t) { try { has ? window.Native.share(t) : navigator.share && navigator.share({ text: t }); } catch (e) {} },
     compass(on) { try { has && window.Native.compass(!!on); } catch (e) {} },
     schedule(list) { try { has && window.Native.schedule(JSON.stringify(list)); } catch (e) {} },
+    camPerm() { return has && window.Native.cameraPermission ? call('cameraPermission') : Promise.resolve({ ok: true }); },
     awake(on) { try { has && window.Native.keepAwake(!!on); } catch (e) {} },
   };
 })();
@@ -197,31 +200,42 @@ function savePlaces() { store.set('places', S.places); store.set('placeIdx', S.p
 function openSettings() {
   const sw = (k, t, s) => `<div class="row"><div>${t}${s ? `<small>${s}</small>` : ''}</div><button class="sw ${S.prefs[k] ? 'on' : ''}" data-k="${k}"></button></div>`;
   Sheet.open(`<h2>Settings</h2>
+    <h3>Sky Pro</h3>
+    <div class="row"><div>Pro unlocked <span class="test-b">TESTING</span><small>Testing switch until Play billing is added. Turn off to see the free app.</small></div><button class="sw ${S.pro ? 'on' : ''}" id="proSw"></button></div>
+    <button class="row pro-row" id="proWhat"><div>What's in Pro<small>Camera view, best nights, alerts, widgets, Jupiter's moons, time machine, SETI explorer</small></div><span class="chev">›</span></button>
     <h3>Display</h3>
     <div class="row"><div>Time format</div><div class="opt" data-o="h24"><button data-v="1" class="${S.prefs.h24 ? 'on' : ''}">24 h</button><button data-v="0" class="${!S.prefs.h24 ? 'on' : ''}">12 h</button></div></div>
     <div class="row"><div>Temperature</div><div class="opt" data-o="tempC"><button data-v="1" class="${S.prefs.tempC ? 'on' : ''}">°C</button><button data-v="0" class="${!S.prefs.tempC ? 'on' : ''}">°F</button></div></div>
     ${sw('red', 'Night vision', 'Turns the whole app red so your eyes stay dark-adapted')}
     <h3>Sky map</h3>
-    ${sw('setiLayer', 'Show listened-to stars', 'Cyan rings on every SETI target')}
-    ${sw('lines', 'Constellation lines')}
+    ${sw('setiLayer', 'Show listened-to stars', 'Cyan rings on every SETI target · back on each time the app opens')}
+    ${sw('lines', 'Constellation lines', 'Back on each time the app opens')}
     ${sw('labels', 'Labels')}
     <h3>Notifications</h3>
     ${sw('nDark', 'Clear dark nights', 'At dusk when tonight scores 70 or more')}
     ${sw('nMeteor', 'Meteor shower peaks', 'Evening before the peak')}
     ${sw('nEclipse', 'Eclipses', 'The day before, when visible from your place')}
+    <h3>Pro alerts</h3>
+    ${S.pro ? `<div class="row"><div>Clear-night alert from<small>Tonight's score needed for the dusk alert</small></div><div class="opt" data-n="darkMin">${[50, 60, 70, 80].map(v => `<button data-v="${v}" class="${S.prefs.darkMin === v ? 'on' : ''}">${v}</button>`).join('')}</div></div>
+    ${sw('nConj', 'Planets meeting', 'Afternoon before the Moon or two planets pass close')}
+    ${sw('nFav', 'Favourite stars high', 'At dusk when your favourites climb above 40°')}` : `<button class="row pro-row" id="proAl"><div>Choose your own alerts <span class="pro-b">PRO</span><small>Your score, planets meeting, favourite stars</small></div><span class="chev">›</span></button>`}
     <h3>About</h3>
-    <p class="muted" style="font-size:12.5px;line-height:1.6">Sky ${App.version}. SETI targets and observation dates come from the Breakthrough Listen public archive index (UC Berkeley SETI Research Center). Star distances: HYG database. Stars and constellations: d3-celestial (Yale Bright Star / Hipparcos). Positions: Astronomy Engine. Weather: Open-Meteo. Aurora: NOAA SWPC. No account, no tracking; your places stay on your phone.</p>`, el => {
-    $$('.sw', el).forEach(b => b.onclick = () => { const k = b.dataset.k; S.prefs[k] = !S.prefs[k]; b.classList.toggle('on', S.prefs[k]); savePrefs(); N.haptic(10); App.prefsChanged(k); });
-    $$('.opt', el).forEach(o => o.onclick = e => { const b = e.target.closest('button'); if (!b) return; S.prefs[o.dataset.o] = b.dataset.v === '1'; $$('button', o).forEach(x => x.classList.toggle('on', x === b)); savePrefs(); App.prefsChanged(o.dataset.o); });
+    <p class="muted" style="font-size:12.5px;line-height:1.6">Sky ${App.version}. SETI targets and observation dates come from the Breakthrough Listen public archive index (UC Berkeley SETI Research Center). Star distances: HYG database. Stars and constellations: d3-celestial (Yale Bright Star / Hipparcos). Positions: Astronomy Engine. Weather: Open-Meteo. No account, no tracking; your places stay on your phone.</p>`, el => {
+    $('#proSw', el).onclick = () => { Pro.setPro(!S.pro); Sheet.close(); setTimeout(openSettings, 380); toast(S.pro ? 'Pro on (testing)' : 'Pro off: free app'); };
+    $('#proWhat', el).onclick = () => Pro.paywall(); const pa = $('#proAl', el); if (pa) pa.onclick = () => Pro.paywall('Your own');
+    $$('[data-n]', el).forEach(o => o.onclick = e => { const b = e.target.closest('button'); if (!b) return; S.prefs[o.dataset.n] = +b.dataset.v; $$('button', o).forEach(x => x.classList.toggle('on', x === b)); savePrefs(); App.notify(); N.haptic(8); });
+    $$('.sw:not(#proSw)', el).forEach(b => b.onclick = () => { const k = b.dataset.k; S.prefs[k] = !S.prefs[k]; b.classList.toggle('on', S.prefs[k]); savePrefs(); N.haptic(10); App.prefsChanged(k); });
+    $$('.opt[data-o]', el).forEach(o => o.onclick = e => { const b = e.target.closest('button'); if (!b) return; S.prefs[o.dataset.o] = b.dataset.v === '1'; $$('button', o).forEach(x => x.classList.toggle('on', x === b)); savePrefs(); App.prefsChanged(o.dataset.o); });
   });
 }
 
 function openGuide() {
   Sheet.open(`<div class="gd"><h2>Guide</h2>
   <h3>Tonight</h3><p>The big number scores tonight from 0 to 100 for stargazing: how long it stays properly dark, how much the Moon washes the sky out, and the cloud forecast for the dark hours. The bar shows the night from dusk to dawn: lighter blue is twilight, deep navy is true darkness, and grey blocks are forecast cloud.</p>
-  <h3>Sky</h3><p><b>Dome</b> shows the whole sky as if you were lying on your back, with the horizon around the edge. <b>Look</b> is a window you drag around. Tap the compass to let the phone steer: hold it up and the map follows where you point. Drag the time slider to wind the sky forwards or back by 12 hours. Cyan rings mark stars the Breakthrough Listen team pointed the Green Bank Telescope at.</p>
+  <h3>Sky</h3><p><b>Look</b> is a window onto the sky. The compass is on when the tab opens: hold your phone up and the map follows where you point. Drag the map to take over by hand, and tap the compass to hand control back. <b>Dome</b> shows the whole sky as if you were lying on your back, with the horizon around the edge. Drag the time slider to wind the sky forwards or back by 12 hours. Cyan rings mark stars the Breakthrough Listen team pointed the Green Bank Telescope at.</p>
   <h3>Listen</h3><p>Breakthrough Listen is the largest search yet for radio signals from other civilisations. The list here is the real public index of their Green Bank observations from 2016 to 2018: 45,815 recordings, counting the OFF pointings, of ${fmtN(SETIDATA.filter(t => t.k === 'star').length)} stars, ${SETIDATA.filter(t => t.k === 'galaxy').length} nearby galaxies and ${SETIDATA.filter(t => t.k === 'pulsar').length} pulsars used to check the equipment. The top animation is a simulation of how a search works, using whichever real target is highest over you right now. A narrow line that drifts across frequency is what a transmitter on a rotating, orbiting planet would look like. Every candidate so far turned out to be Earth's own interference, which is why each target is checked with an "OFF" pointing: a real signal disappears when the dish looks away, interference does not.</p>
   <h3>Our radio bubble</h3><p>Radio broadcasts strong enough to leak into space began around 1920, so a sphere roughly a century of light-years wide now carries them. Any listened-to star inside the bubble could in principle have heard us; a reply from it could already be on its way.</p>
   <h3>Signals</h3><p>The famous moments the sky seemed to answer: the Wow! signal, BLC1, pulsars, fast radio bursts, and the microwave oven that fooled a telescope for 17 years. Red stamps are still unexplained, amber ones have a likely but unproven answer, green ones are solved, and violet ones are messages we sent the other way.</p>
+  <h3>Sky Pro</h3><p><b>Camera view</b> (camera button on the Sky tab) lays the map over your live camera; drag to line the labels up with real stars and pinch to match your camera's zoom. <b>Time machine</b> (hourglass button) winds the sky to any date, with famous moments like the night of the Wow! signal. <b>Best nights ahead</b> ranks the next 15 nights, <b>Pro alerts</b> in Settings let you choose your score and get told when planets meet or your favourite stars ride high, and three <b>home-screen widgets</b> show tonight's score, the Moon and what's coming up. Jupiter's page shows its four big moons live, and Listen adds favourites, an explorer for every target, Signal lab and share cards.</p>
   <h3>Calendar</h3><p>Moon phases for every day, with dots for meteor showers, eclipses, planet events and days in the archive when Green Bank was listening. Tap a day for darkness and moon times. It returns to today each time you open the app.</p></div>`);
 }

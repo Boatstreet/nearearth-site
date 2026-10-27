@@ -51,17 +51,24 @@
         <div class="dlbl" id="tnDlbl"></div>
         <div class="hours" id="tnHours"></div>
       </div>
-      <div class="grid2">
-        <div class="card mini" id="tnMoonCard"><div class="ch"><span>Moon</span></div><div class="moonrow"><canvas id="tnMoon" width="120" height="120"></canvas><div id="tnMoonTxt"></div></div></div>
-        <div class="card mini" id="tnAurCard"><div class="ch"><span>Aurora</span></div><div id="tnAur" class="aur"></div></div>
-      </div>
-      <div class="card" id="tnSetiCard">
-        <div class="ch"><span class="seti">Listened-to star overhead</span><em>Breakthrough Listen</em></div>
-        <div id="tnSeti"></div>
+      <div class="card">
+        <div class="ch"><span>Best nights ahead <span class="pro-b">PRO</span></span><em>next 15 nights</em></div>
+        <div id="bestNights"></div>
       </div>
       <div class="card">
         <div class="ch"><span>Planets tonight</span></div>
         <div id="tnPlanets" class="plist"></div>
+      </div>
+      <div class="card moon-card" id="tnMoonCard">
+        <div class="ch"><span>Moon</span><em id="tnMoonEm"></em></div>
+        <div class="mtop"><canvas id="tnMoon"></canvas><div id="tnMoonTxt"></div></div>
+        <div class="mfacts" id="tnMoonFacts"></div>
+        <div class="mstrip" id="tnMoonStrip"></div>
+        <div class="mnext" id="tnMoonNext"></div>
+      </div>
+      <div class="card" id="tnSetiCard">
+        <div class="ch"><span class="seti">Listened-to star overhead</span><em>Breakthrough Listen</em></div>
+        <div id="tnSeti"></div>
       </div>
       </div>
       <div class="card">
@@ -74,12 +81,17 @@
 
   <!-- SKY MAP -->
   <section class="view nosc" id="v-sky">
+    <video id="skyVid" playsinline muted autoplay></video>
     <canvas id="skyC"></canvas>
+    <div class="cam-tip" id="camTip">Drag to line the labels up with the real sky · pinch to match your camera's zoom</div>
     <div class="sky-top">
-      <div class="seg" id="skyMode"><button data-m="dome" class="on">Dome</button><button data-m="look">Look</button></div>
+      <div class="seg" id="skyMode"><button data-m="look" class="on">Look</button><button data-m="dome">Dome</button></div>
+      <div class="tm-ban" id="tmBan"></div>
       <div class="chips" id="skyFind"></div>
     </div>
     <div class="sky-side">
+      <button class="fab" id="skyCam" title="Camera view"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg><span class="pro-b fab-b">PRO</span></button>
+      <button class="fab" id="skyTM" title="Time machine"><svg viewBox="0 0 24 24"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/></svg><span class="pro-b fab-b">PRO</span></button>
       <button class="fab" id="skyCompass" title="Point phone"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 4.5l2.6 7.5L12 19.5 9.4 12z"/></svg></button>
       <button class="fab" id="skySeti" title="SETI layer"><svg viewBox="0 0 24 24"><path d="M5 19a9 9 0 0 1 9-14"/><path d="M5 19l7-7"/><circle cx="12.5" cy="11.5" r="1.4"/><path d="M15 4.5a6 6 0 0 1 4.5 4.5M16 1.8a9 9 0 0 1 6.2 6.2"/></svg></button>
       <button class="fab" id="skyLines" title="Constellations"><svg viewBox="0 0 24 24"><path d="M4 18l5-7 5 3 6-9"/><circle cx="4" cy="18" r="1.6"/><circle cx="9" cy="11" r="1.6"/><circle cx="14" cy="14" r="1.6"/><circle cx="20" cy="5" r="1.6"/></svg></button>
@@ -101,15 +113,27 @@
         <div class="ls-target" id="lsTarget">Tuning…</div>
         <div class="ls-meta" id="lsMeta"></div>
         <div class="ls-status" id="lsStatus"><i></i><span>Listening</span></div>
+        <button class="sim-pill" id="simPill"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg><span class="sp-l"><small id="simKind">Simulation</small><b id="simName">Typical search</b></span><span class="sp-c">Change ▾</span></button>
+        <div class="sim-hint" id="simHint">Tap here to choose a different simulation</div>
       </div>
     </div>
     <div class="pad">
-      <div class="sim-note">Live view is a simulation run on the real target list. Everything below it is real archive data.</div>
+      <div class="sim-head"><span>Choose a simulation</span><button id="simAll">See all</button></div>
+      <div class="sim-row" id="simRow"></div>
+      <div class="sim-note">Replays recreate real moments; simulations show how the search works. Everything below is real archive data.</div>
       <div class="stats" id="lsStats"></div>
       <div class="card">
         <div class="ch"><span class="seti">Above you now</span><em id="lsAboveN"></em></div>
         <div class="seg sm" id="lsSort"><button data-s="near" class="on">Nearest</button><button data-s="high">Highest</button><button data-s="most">Most listened</button></div>
         <div id="lsAbove" class="tlist"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="seti">★ Favourites <span class="pro-b">PRO</span></span><em>your own list</em></div>
+        <div id="lsFavs" class="tlist"></div>
+      </div>
+      <div class="grid2 pro-tiles">
+        <button class="card pro-tile" id="lsExplore"><span class="pt-ic">🔭</span><b>Explore all targets <span class="pro-b">PRO</span></b><small>Search and filter all 5,541 stars</small></button>
+        <button class="card pro-tile" id="lsLab"><span class="pt-ic">🧪</span><b>Signal lab <span class="pro-b">PRO</span></b><small>Alien or Earth? Test your eye</small></button>
       </div>
       <div class="card bubble-card">
         <div class="ch"><span>Our radio bubble</span><em id="bbYears"></em></div>
@@ -180,6 +204,8 @@
 <script src="js/listen.js"></script>
 <script src="js/signals.js"></script>
 <script src="js/calendar.js"></script>
+<script src="js/planets.js"></script>
+<script src="js/pro.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
