@@ -34,6 +34,7 @@
   // screen strips: arrows + tour videos that play only while visible
   document.querySelectorAll('.screens').forEach(function(sec){
     var st=sec.querySelector('.strip');
+    var chk=function(){sec.classList.toggle('overflows',st.scrollWidth>st.clientWidth+4)};chk();addEventListener('resize',chk);
     sec.querySelectorAll('.sn').forEach(function(b){b.addEventListener('click',function(){var w=st.querySelector('.shot');st.scrollBy({left:(+b.dataset.dir)*((w?w.offsetWidth:220)+18)*2,behavior:'smooth'})})});
   });
   // tour videos: autoplay muted when in view; play/pause buttons
