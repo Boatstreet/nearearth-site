@@ -235,7 +235,7 @@ function draw(dt) {
 
 /* ---------- controls and readouts ---------- */
 function ui() {
-  var sub = $('e-sub'); if (sub) sub.textContent = list.length ? (idx + 1) + ' of ' + list.length + ' this week' : '';
+  var sub = $('e-sub'); if (sub) sub.textContent = !list.length ? '' : api.pro ? (idx + 1) + ' of ' + list.length + ' this week' : 'Next flyby · Pro shows all ' + list.length;
   if (!cur) { $('nv-name').innerHTML = '<b>No flybys this week</b>'; $('nv-facts').innerHTML = ''; $('nv-btns').hidden = true; return; }
   var f = cur.f, n = api.now(), next = list.filter(function (o) { return o.t > n; })[0] === f, past = f.t < n;
   $('nv-name').innerHTML = '<b>' + api.esc(f.name) + (f.pha ? ' <span class="badge b-pha">PHA</span>' : '') + (next ? ' <span class="badge b-next">Next</span>' : '') + '</b><span>' + (past ? 'Passed ' : 'Closest ') + api.fDay(f.t) + ', ' + api.fTime(f.t) + '</span>';
@@ -243,8 +243,9 @@ function ui() {
   $('nv-btns').hidden = false;
 }
 function bind() {
-  $('nv-prev').onclick = function () { select(idx - 1); };
-  $('nv-next').onclick = function () { select(idx + 1); };
+  // free edition: the next flyby only; the arrows open the Pro card
+  $('nv-prev').onclick = function () { if (!api.pro) { api.openPro('earth'); return; } select(idx - 1); };
+  $('nv-next').onclick = function () { if (!api.pro) { api.openPro('earth'); return; } select(idx + 1); };
   $('nv-btns').addEventListener('click', function (e) {
     var b = e.target.closest('[data-nv]'); if (!b || !cur) return; var f = cur.f, k = b.dataset.nv;
     if (k === 'fly') api.openFlyby(f.des, f.t); else if (k === 'obj') api.openObject(f.des); else if (k === 'orbit') api.openOrbit(f.des, f.t);
@@ -256,7 +257,10 @@ function bind() {
   box.addEventListener('pointerdown', function (e) { sx = e.clientX; sy = e.clientY; k0 = Math.min(1, loopT / SPAN); drag = null; try { box.setPointerCapture(e.pointerId); } catch (x) {} });
   box.addEventListener('pointermove', function (e) {
     if (sx == null) return; var dx = e.clientX - sx, dy = e.clientY - sy;
-    if (!drag && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { drag = true; resumeAt = 0; }
+    if (!drag && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+      if (!api.pro) { sx = null; if (!bind.told) { bind.told = 1; api.toast('Sliding a flyby with your finger is part of Pro'); } return; }
+      drag = true; resumeAt = 0;
+    }
     if (drag) { scrubTo(e.clientX, sx); e.preventDefault(); }
   });
   function end(e) {

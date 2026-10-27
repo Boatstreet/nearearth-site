@@ -393,6 +393,44 @@ a { color: var(--accent); }
 .badge.b-next { background: #5fd6a422; color: var(--ok); }
 .nv-facts { padding: 8px 16px 0; text-align: center; }
 .nv-btns { margin: 12px 16px 0; }
+.pro-tag { display: inline-block; font: 800 .58rem var(--body); letter-spacing: .08em; padding: 2px 6px; border-radius: 6px; margin-left: 6px; vertical-align: 2px;
+  background: linear-gradient(135deg, #ffd98a, #f0a224); color: #2b1a00; }
+.pro-hero { text-align: center; padding: 22px 18px 8px; }
+.pro-hero .pro-orb { width: 74px; height: 74px; margin: 0 auto 12px; border-radius: 22px; background: radial-gradient(circle at 35% 30%, #ffe7b0, #f0a224 55%, #8a4b06); box-shadow: 0 10px 30px -8px #f0a224aa, inset 0 1px 0 #ffffff66; display: grid; place-items: center; }
+.pro-hero h2 { font: 700 1.5rem/1.1 var(--head); margin: 0 0 6px; }
+.pro-hero p { margin: 0; color: var(--muted); }
+.pro-list { list-style: none; margin: 0; padding: 0; }
+.pro-list li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
+.pro-list li:first-child { border-top: 0; }
+.pro-list li b { display: block; }
+.pro-list li span { font-size: .84rem; color: var(--muted); }
+.pro-list li.hit { background: linear-gradient(90deg, #f0a22418, transparent); border-radius: 10px; }
+.pro-list i { font-style: normal; color: #ffc65c; font-weight: 800; }
+.btn.gold { background: linear-gradient(135deg, #ffd98a, #f0a224); border-color: #f0a224; color: #2b1a00; font-weight: 800; }
+.fly-pro { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: #04050ccc; backdrop-filter: blur(6px); padding: 24px; }
+.fly-pro .card { max-width: 340px; text-align: center; }
+.lic pre { white-space: pre-wrap; font: 11px/1.45 ui-monospace, "Roboto Mono", monospace; color: #b9c0d6; background: var(--bg2); border-radius: 12px; padding: 12px; margin: 8px 0 0; }
+#tour { position: fixed; inset: 0; z-index: 150; }
+#tour[hidden] { display: none; }
+#tour .t-hole { position: fixed; border-radius: 18px; box-shadow: 0 0 0 200vmax rgba(3,4,10,.8); border: 1.5px solid #a99cffcc; transition: all .4s cubic-bezier(.3,.8,.3,1); pointer-events: none; }
+#tour .t-card { position: fixed; left: 16px; right: 16px; max-width: 440px; margin: 0 auto; background: linear-gradient(180deg, #1b2034, #141927); border: 1px solid #343c58; border-radius: 22px; padding: 18px 18px 14px; box-shadow: 0 20px 50px -10px #000c; transition: top .4s cubic-bezier(.3,.8,.3,1); }
+#tour .t-card.in { animation: tIn .35s ease; }
+@keyframes tIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#tour .t-icon { text-align: center; margin: 2px 0 10px; }
+#tour .t-step { margin: 0 0 4px; font: 700 .66rem var(--body); letter-spacing: .14em; text-transform: uppercase; color: #c9bfff; }
+#tour h3 { margin: 0 0 6px; font: 700 1.25rem/1.15 var(--head); }
+#tour .t-text { margin: 0; color: #c9cfdf; font-size: .93rem; line-height: 1.45; }
+#tour .t-dots { display: flex; gap: 5px; justify-content: center; margin: 14px 0 12px; }
+#tour .t-dots i { width: 6px; height: 6px; border-radius: 3px; background: #3a4262; transition: width .3s, background .3s; }
+#tour .t-dots i.on { width: 18px; background: var(--accent); }
+#tour .t-btns { display: flex; align-items: center; gap: 8px; }
+#tour .t-btns span { flex: 1; }
+#tour .t-btns button { border: 0; border-radius: 12px; min-height: 42px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+#tour .t-skip { background: none; color: var(--muted); padding-left: 2px !important; }
+#tour .t-back { background: var(--surface2); color: var(--ink); }
+#tour .t-next { background: var(--accent); color: var(--accent-ink); }
+#tour .t-next.gold { background: linear-gradient(135deg, #ffd98a, #f0a224); color: #2b1a00; }
+body.touring .ptr { display: none; }
 #intro { position: fixed; inset: 0; z-index: 200; background: #04050c; touch-action: none; transition: opacity .6s ease, transform .6s ease; }
 #intro canvas { width: 100%; height: 100%; display: block; }
 #intro.done { opacity: 0; transform: scale(1.08); pointer-events: none; }
@@ -448,7 +486,7 @@ a { color: var(--accent); }
       <div class="nv-pick"><button class="icon-btn" id="nv-prev" aria-label="Previous flyby"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="nv-name" id="nv-name"></div><button class="icon-btn" id="nv-next" aria-label="Next flyby"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
       <div class="facts3 nv-facts" id="nv-facts"></div>
       <div class="btns nv-btns" id="nv-btns" style="grid-template-columns:1fr 1fr 1fr"><button class="btn pri" data-nv="fly">3D flyby</button><button class="btn" data-nv="orbit">Orbit</button><button class="btn" data-nv="obj">Details</button></div>
-      <p class="small muted" style="margin:0;padding:10px 16px 14px">In 3D, on its real path: the asteroid's real approach direction, speed and miss distance, with Earth lit by the real Sun, the Moon where it really is and the real stars behind. Slide your finger across to move it along its path; tap to pause.</p>
+      <p class="small muted" id="nv-hint" style="margin:0;padding:10px 16px 14px">In 3D, on its real path: the asteroid's real approach direction, speed and miss distance, with Earth lit by the real Sun, the Moon where it really is and the real stars behind. Slide your finger across to move it along its path; tap to pause.</p>
     </div>
     </div>
     <h2 class="sec">All close approaches</h2>
@@ -578,6 +616,7 @@ a { color: var(--accent); }
   <div class="fly-cue" id="fly-cue" hidden></div>
   <div class="fly-flash" id="fly-flash" hidden></div>
   <div class="fly-note" id="fly-note"></div>
+  <div class="fly-pro" id="fly-pro" hidden><div class="card"><div class="pro-hero" style="padding:6px 0 4px"><div class="pro-orb"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#2b1a00" stroke-width="2"><path d="M3 20.5L12.5 11"/><circle cx="16" cy="8" r="3.6" fill="#2b1a00"/></svg></div><h2>Enjoyed the ride?</h2><p>The full 3D flyby, with Forward and Earth views and every asteroid, is part of Pro.</p></div><div class="btns"><button class="btn" id="fly-pro-x">Close</button><button class="btn gold" id="fly-pro-go">See Pro</button></div></div></div>
   <div class="fly-load" id="fly-load"><div class="ptr spin" style="position:static;opacity:1;transform:none;margin:0 auto 12px"></div><span>Preparing the flyby…</span></div>
   <div class="fly-hud glass">
     <div class="fly-read">
@@ -597,6 +636,14 @@ a { color: var(--accent); }
 (function () {
 'use strict';
 var A = window.Android || null;
+/* Pro is an in-app upgrade. Testing build: Pro starts unlocked; Settings › Pro unlocked switches it off to see the free app.
+   Google Play Billing replaces the unlock button before release. */
+var PRO = (function () { try { var v = localStorage.getItem('pro'); return v == null ? true : v === 'true'; } catch (e) { return true; } })();
+function setPro(on) {
+  try { localStorage.setItem('pro', on ? 'true' : 'false'); sessionStorage.setItem('noIntro', '1'); sessionStorage.setItem('proMsg', on ? 'Pro unlocked' : 'Pro switched off'); } catch (e) {}
+  if (A && A.setPro) try { A.setPro(!!on); } catch (e) {}
+  location.reload();
+}
 var APPV = (location.search.match(/v=(\d+)/) || [])[1] || '';
 function asset(f) { return APPV ? f + '?v=' + APPV : f; }
 var LD = 384400, AU = 149597870.7, LD_AU = LD / AU;
@@ -613,7 +660,7 @@ function nowMs() { return window.__NOW ? +window.__NOW : Date.now(); }
 
 /* ---------- Settings ---------- */
 var SET = Object.assign({ units: 'ld', alerts: true, alertLd: 1, alertBig: true, bigM: 140, utc: false }, ls('settings') || {});
-function saveSet() { ls('settings', SET); if (A && A.setAlerts) try { A.setAlerts(JSON.stringify({ on: SET.alerts, ld: SET.alertLd, big: SET.alertBig, bigM: SET.bigM, units: SET.units, utc: SET.utc })); } catch (e) {} }
+function saveSet() { if (!PRO) { SET.alertLd = 1; SET.bigM = 140; } ls('settings', SET); if (A && A.setAlerts) try { A.setAlerts(JSON.stringify({ on: SET.alerts, ld: SET.alertLd, big: SET.alertBig, bigM: SET.bigM, units: SET.units, utc: SET.utc })); } catch (e) {} }
 
 /* ---------- Formatting ---------- */
 function d8(ms) { var x = new Date(ms); return SET.utc ? { y: x.getUTCFullYear(), m: x.getUTCMonth(), d: x.getUTCDate(), w: x.getUTCDay(), h: x.getUTCHours(), mi: x.getUTCMinutes() } : { y: x.getFullYear(), m: x.getMonth(), d: x.getDate(), w: x.getDay(), h: x.getHours(), mi: x.getMinutes() }; }
@@ -767,7 +814,7 @@ function simNow() { return SIM.t == null ? nowMs() : SIM.t; }
 var earthReady = null;
 function openEarth() {
   if (!earthReady) earthReady = new Promise(function (res, rej) { var s = document.createElement('script'); s.src = asset('nearview.js'); s.onload = res; s.onerror = function () { earthReady = null; rej(); }; document.head.appendChild(s); })
-    .then(function () { NearView.init({ D: function () { return D; }, now: nowMs, ls: ls, AU: AU, LD_AU: LD_AU, asset: asset, loadObj: loadObj, flyGeom: flyGeom, fDist: fDist, fDay: fDay, fTime: fTime, fSize: fSize, esc: esc,
+    .then(function () { NearView.init({ D: function () { return D; }, now: nowMs, ls: ls, pro: PRO, openPro: openPro, toast: toast, AU: AU, LD_AU: LD_AU, asset: asset, loadObj: loadObj, flyGeom: flyGeom, fDist: fDist, fDay: fDay, fTime: fTime, fSize: fSize, esc: esc,
       openObject: openObject, openFlyby: openFlyby, openOrbit: function (des, t) { Orbit.set(des, t); show('orbit'); } }); });
   earthReady.then(function () { if (cur === 'up') NearView.shown(); }).catch(function () { toast('Couldn\'t load the Earth view'); });
 }
@@ -777,7 +824,7 @@ function openMeteors() {
     var srcs = (window.SKYDATA ? [] : ['skydata.js']).concat(['meteors.js']), n = 0, done = function () { if (++n === srcs.length) res(); };
     srcs.forEach(function (src) { var s = document.createElement('script'); s.src = asset(src); s.onload = done; s.onerror = function () { meteorReady = null; rej(); }; document.head.appendChild(s); });
   }).then(function () {
-    MeteorView.init({ A: A, now: nowMs, ls: ls, toast: toast, esc: esc, fDay: fDay, fTime: fTime, getJSON: getJSON, JPL: JPL,
+    MeteorView.init({ A: A, now: nowMs, ls: ls, toast: toast, pro: PRO, openPro: openPro, esc: esc, fDay: fDay, fTime: fTime, getJSON: getJSON, JPL: JPL,
       openOrbit: function (des) { Orbit.set(des); show('orbit'); } });
   });
   meteorReady.then(function () { if (cur === 'meteor') MeteorView.shown(); }).catch(function () { toast('Couldn\'t load meteors'); });
@@ -793,6 +840,7 @@ function openSky() {
   });
   skyReady.then(function () { if (cur === 'sky') SkyView.shown(); }).catch(function () { toast('Couldn\'t load the sky'); });
 }
+document.addEventListener('click', function (e) { if (!PRO && e.target.closest('[data-sky="cam"]')) { e.stopPropagation(); e.preventDefault(); openPro('cam'); } }, true);
 document.querySelector('.tabbar').addEventListener('click', function (e) { var b = e.target.closest('[data-tab]'); if (b) show(b.dataset.tab); });
 document.addEventListener('click', function (e) {
   var a = e.target.closest('[data-act]'); if (a) {
@@ -811,7 +859,7 @@ window.__open = function (kind, val) {
   if (kind === 'obj') { if (cur !== 'radar' && cur !== 'up') show('radar'); openObject(val); }
   else if (kind === 'tab') { closeSheet(); show(val); }
 };
-window.__appBack = function () { if (!$('fly').hidden) { closeFlyby(); return true; } if (!$('sheet').hidden) { closeSheet(); return true; } if (cur !== 'radar') { show('radar'); return true; } return false; };
+window.__appBack = function () { if (window.Tour && Tour.active()) { Tour.end(); return true; } if (!$('fly').hidden) { closeFlyby(); return true; } if (!$('sheet').hidden) { closeSheet(); return true; } if (cur !== 'radar') { show('radar'); return true; } return false; };
 
 /* ---------- Radar tab ---------- */
 function weekList() { var n = nowMs(); return (D.up || []).filter(function (o) { return o.t >= n - 3600000 && o.t <= n + 7 * 86400000; }); }
@@ -1485,6 +1533,7 @@ function openFlyby(des, t) {
     try { FLY.ctrl = window.Flyby.create($('fly-c'), P, flyHud); }
     catch (e) { $('fly-load').querySelector('span').textContent = 'Couldn\'t start 3D (' + e.message + ').'; return; }
     setTimeout(function () { if (tok === FLY.token) $('fly-load').classList.add('done'); }, 350);
+    if (!PRO) setTimeout(function () { if (tok === FLY.token && !$('fly').hidden) $('fly-pro').hidden = false; }, 15000); // free: a 15-second preview
     var note = 'Flying forward along its real path · ' + (SHAPES[des] ? 'known shape type' : 'shape is illustrative') + ' · real size, speed, miss distance, sunlight and sky' + (g.approx ? ' · approach angle estimated' : '');
     $('fly-note').textContent = note; $('fly-note').style.opacity = 1;
     setTimeout(function () { if (tok === FLY.token) $('fly-note').style.opacity = 0; }, 6000);
@@ -1492,7 +1541,7 @@ function openFlyby(des, t) {
   }).catch(function (e) { if (tok === FLY.token) $('fly-load').querySelector('span').textContent = 'Couldn\'t open the flyby (' + e.message + ').'; });
 }
 function closeFlyby() {
-  FLY.token++;
+  FLY.token++; $('fly-pro').hidden = true;
   if (FLY.ctrl) { try { FLY.ctrl.dispose(); } catch (e) {} FLY.ctrl = null; }
   var old = $('fly-c'), fresh = document.createElement('canvas'); fresh.id = 'fly-c'; old.parentNode.replaceChild(fresh, old); // a released 3D context can't be reused
   $('fly').hidden = true; document.body.style.overflow = '';
@@ -1572,27 +1621,72 @@ $('fly-marks').addEventListener('click', function (e) { if (e.target.closest('.f
 $('fly-half').onclick = function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); this.textContent = on ? '½×' : '1×'; if (FLY.ctrl) FLY.ctrl.setHalf(on); };
 
 /* ---------- Settings + Guide ---------- */
+/* ---------- Pro ---------- */
+var PRO_FEATS = [
+  ['earth', 'Every flyby in 3D', 'Around Earth shows each of this week\'s flybys on its real path, and you can slide it with your finger'],
+  ['fly', 'The full 3D flyby', 'Ride along with any asteroid, looking forward or back at Earth, for as long as you like'],
+  ['cam', 'Camera sky view', 'Hold your phone up and see asteroids marked over the live camera picture'],
+  ['peaks', 'Meteor peak previews', 'See any coming shower\'s peak night on your own sky before it happens'],
+  ['remind', 'Meteor reminders', 'A notification at the best time to watch, tonight or on a peak night'],
+  ['alerts', 'Custom alerts', 'Choose how close, and how big, a flyby must be before you hear about it'],
+  ['widgets', 'All three widgets', 'Add This week and Radar to your home screen, as well as Next flyby']
+];
+function openPro(hit) {
+  openSheet('<div class="top">' + BACK + '<h1>Pro</h1></div><div class="card"><div class="pro-hero"><div class="pro-orb"><svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#2b1a00" stroke-width="2"><path d="M3 20.5L12.5 11"/><path d="M6.5 13.5L10 10" opacity=".6"/><circle cx="16" cy="8" r="3.6" fill="#2b1a00"/></svg></div>' +
+    '<h2>Asteroids &amp; Meteors Pro</h2><p>Everything in the free app, plus:</p></div><ul class="pro-list">' +
+    PRO_FEATS.map(function (f) { return '<li' + (f[0] === hit ? ' class="hit"' : '') + '><i>✦</i><div><b>' + f[1] + '</b><span>' + f[2] + '</span></div></li>'; }).join('') + '</ul>' +
+    (PRO ? '<button class="btn" style="width:100%;margin-top:14px" disabled>Pro is unlocked ✓</button>' : '<button class="btn gold" style="width:100%;margin-top:14px" id="pro-buy">Unlock Pro</button>') +
+    '<p class="small muted" style="text-align:center;margin:10px 0 0">One payment, yours for good. No account, no ads, no subscription.</p>' +
+    '<p class="small muted" style="text-align:center;margin:6px 0 0;opacity:.7">Testing build: the Google Play purchase is added before release. Until then this button, or the switch in Settings, unlocks Pro.</p></div>');
+  if ($('pro-buy')) $('pro-buy').onclick = function () { setPro(true); };
+}
+function openLicences() {
+  var MIT = 'The MIT License\n\nCopyright © 2010-2024 three.js authors\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.';
+  var BSD = 'Copyright (c) 2015, Olaf Frohn\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.';
+  var OFL = 'Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)\n\nThis Font Software is licensed under the SIL Open Font License, Version 1.1, available with a FAQ at https://openfontlicense.org. Permission is granted to use, study, copy, merge, embed, modify, redistribute, and sell modified and unmodified copies of the Font Software, subject to the conditions of that licence: the font may not be sold by itself; copies must carry this notice and the licence; modified versions may not use any Reserved Font Name; the authors’ names may not be used to promote modified versions; and the font must remain under the OFL. THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.';
+  openSheet('<div class="top">' + BACK + '<h1>Licences</h1></div>' +
+    '<div class="card"><p style="margin:0 0 8px"><b>Asteroids &amp; Meteors</b><br>© 2026 Near Space (nearspace.app). All rights reserved.</p>' +
+    '<p class="small muted" style="margin:0">Not affiliated with or endorsed by NASA or JPL.</p></div>' +
+    '<h2 class="sec">Data</h2><div class="card"><dl class="dl">' +
+      dl('Flybys, risk, orbits, fireballs', 'NASA/JPL Center for Near-Earth Object Studies and Solar System Dynamics') +
+      dl('Meteor showers', 'International Meteor Organization working list') +
+      dl('Stars and constellations', 'd3-celestial by Olaf Frohn, from XHIP (Anderson &amp; Francis 2012), the IAU and star-name cross-indices') +
+      dl('Coastlines', 'Natural Earth (public domain)') + '</dl></div>' +
+    '<h2 class="sec">Open-source software</h2>' +
+    '<div class="card lic"><b>three.js</b> <span class="muted small">MIT Licence</span><pre>' + esc(MIT) + '</pre></div>' +
+    '<div class="card lic"><b>d3-celestial star data</b> <span class="muted small">BSD 3-Clause Licence</span><pre>' + esc(BSD) + '</pre></div>' +
+    '<div class="card lic"><b>Space Grotesk font</b> <span class="muted small">SIL Open Font Licence 1.1</span><pre>' + esc(OFL) + '</pre></div>');
+}
 function openSettings() {
   var sw = function (k, on) { return '<button class="switch" role="switch" data-sw="' + k + '" aria-checked="' + !!on + '"></button>'; };
   openSheet('<div class="top">' + BACK + '<h1>Settings</h1></div>' +
+    '<h2 class="sec">Pro</h2><div class="card">' +
+      '<div class="set" data-st="pro" style="cursor:pointer;border-top:0"><div class="t"><b>Asteroids &amp; Meteors Pro<span class="pro-tag">PRO</span></b><span>' + (PRO ? 'Unlocked. Thank you!' : 'Every flyby in 3D, the camera sky, meteor reminders, custom alerts, all widgets') + '</span></div><span class="muted">›</span></div>' +
+      '<div class="set"><div class="t"><b>Pro unlocked</b><span>Testing only: switch off to see the free app</span></div><button class="switch" role="switch" id="st-pro" aria-checked="' + PRO + '"></button></div></div>' +
     '<h2 class="sec">Display</h2><div class="card">' +
       '<div class="set"><div class="t"><b>Distances in</b><span>1 LD is the Moon\'s distance, 384,400 km</span></div><select data-sel="units"><option value="ld">Lunar distances</option><option value="km">Kilometres</option><option value="mi">Miles</option></select></div>' +
       '<div class="set"><div class="t"><b>Show times in UTC</b><span>Off shows your phone\'s local time</span></div>' + sw('utc', SET.utc) + '</div></div>' +
     '<h2 class="sec">Notifications</h2><div class="card">' +
       '<div class="set"><div class="t"><b>Close flyby alerts</b><span>A notification when an asteroid will pass close, checked a few times a day</span></div>' + sw('alerts', SET.alerts) + '</div>' +
-      '<div class="set"><div class="t"><b>Alert when closer than</b><span>Most weeks something passes inside 5 LD</span></div><select data-sel="alertLd"><option value="0.5">0.5 LD</option><option value="1">1 LD (Moon)</option><option value="2">2 LD</option><option value="5">5 LD</option><option value="10">10 LD</option></select></div>' +
+      '<div class="set"' + (PRO ? '' : ' data-pro="alerts"') + '><div class="t"><b>Alert when closer than' + (PRO ? '' : '<span class="pro-tag">PRO</span>') + '</b><span>Most weeks something passes inside 5 LD</span></div><select data-sel="alertLd"' + (PRO ? '' : ' disabled') + '><option value="0.5">0.5 LD</option><option value="1">1 LD (Moon)</option><option value="2">2 LD</option><option value="5">5 LD</option><option value="10">10 LD</option></select></div>' +
       '<div class="set"><div class="t"><b>Also alert for big ones</b><span>Any flyby within 20 LD by an asteroid this size or larger</span></div>' + sw('alertBig', SET.alertBig) + '</div>' +
-      '<div class="set"><div class="t"><b>Big means at least</b><span>NASA uses 140 m for hazardous objects</span></div><select data-sel="bigM"><option value="50">50 m</option><option value="100">100 m</option><option value="140">140 m</option><option value="300">300 m</option><option value="1000">1 km</option></select></div>' +
+      '<div class="set"' + (PRO ? '' : ' data-pro="alerts"') + '><div class="t"><b>Big means at least' + (PRO ? '' : '<span class="pro-tag">PRO</span>') + '</b><span>NASA uses 140 m for hazardous objects</span></div><select data-sel="bigM"' + (PRO ? '' : ' disabled') + '><option value="50">50 m</option><option value="100">100 m</option><option value="140">140 m</option><option value="300">300 m</option><option value="1000">1 km</option></select></div>' +
       (A && A.testAlert ? '<button class="btn wide" style="width:100%;margin-top:8px" id="st-test">Send a test notification</button>' : '') + '</div>' +
+    '<h2 class="sec">Help</h2><div class="card">' +
+      '<div class="set" data-st="tour" style="cursor:pointer;border-top:0"><div class="t"><b>Take the tour</b><span>A quick walk through every tab</span></div><span class="muted">›</span></div>' +
+      '<div class="set" data-st="lic" style="cursor:pointer"><div class="t"><b>Licences and credits</b><span>Data sources and open-source software</span></div><span class="muted">›</span></div></div>' +
     '<h2 class="sec">Data</h2><div class="card">' +
       '<p class="small" style="margin:0 0 10px">All data comes straight from NASA/JPL\'s Center for Near-Earth Object Studies. No account, no tracking, no key. The app only talks to ssd-api.jpl.nasa.gov.</p>' +
       '<dl class="dl">' + dl('Flybys', 'JPL Close Approach Data') + dl('Impact risk', 'JPL Sentry') + dl('Orbits and sizes', 'JPL Small-Body Database') + dl('Fireballs', 'CNEOS fireball reports') + '</dl>' +
       '<button class="btn wide" style="width:100%;margin-top:12px" id="st-clear">Clear saved data</button></div>' +
-    '<p class="small muted" style="text-align:center">Asteroids &amp; Meteors 4.3</p>');
+    '<p class="small muted" style="text-align:center">Asteroids &amp; Meteors ' + (PRO ? 'Pro ' : '') + '5.1</p>');
   var s = $('sheet');
   s.querySelectorAll('[data-sel]').forEach(function (x) { x.value = String(SET[x.dataset.sel]); x.onchange = function () { var k = x.dataset.sel; SET[k] = k === 'units' ? x.value : +x.value; saveSet(); rerender(); }; });
   s.querySelectorAll('[data-sw]').forEach(function (x) { x.onclick = function () { var k = x.dataset.sw; SET[k] = !SET[k]; x.setAttribute('aria-checked', SET[k]); saveSet(); rerender(); if (k === 'alerts' && SET[k] && A && A.askNotify) A.askNotify(); }; });
   if ($('st-test')) $('st-test').onclick = function () { A.testAlert(); };
+  $('st-pro').onclick = function () { setPro(!PRO); };
+  s.querySelectorAll('[data-pro]').forEach(function (x) { x.onclick = function () { openPro(x.dataset.pro); }; });
+  s.querySelectorAll('[data-st]').forEach(function (x) { x.onclick = function () { var k = x.dataset.st; if (k === 'tour') { closeSheet(); if (window.Tour) Tour.start(true); } else if (k === 'pro') openPro(); else openLicences(); }; });
   $('st-clear').onclick = function () { try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('c:') === 0) localStorage.removeItem(k); }); } catch (e) {} toast('Saved data cleared'); refresh(); };
 }
 function rerender() { tickClock(); renderRadar(); renderUp(); if (D.sentry) renderRisk(); }
@@ -1727,8 +1821,16 @@ quietUpdate(false);
 Hist.reset();
 saveSet();
 if (!reduce) loopRadar();
+$('fly-pro-x').onclick = function () { closeFlyby(); };
+$('fly-pro-go').onclick = function () { closeFlyby(); openPro('fly'); };
+if (!PRO) $('sky-cam').insertAdjacentHTML('beforeend', '<span class="pro-tag" style="margin-left:4px">PRO</span>');
+if (!PRO) $('nv-hint').textContent = 'The next flyby in 3D, on its real path: the asteroid\'s real approach direction, speed and miss distance, with Earth lit by the real Sun, the Moon where it really is and the real stars behind. Tap to pause. Pro shows every flyby this week and lets you slide each one with your finger.';
+window.APP = { show: show, openPro: openPro, PRO: PRO, cur: function () { return cur; } };
+if (A && A.setPro) try { A.setPro(PRO); } catch (e) {}
+try { var pm = sessionStorage.getItem('proMsg'); if (pm) { sessionStorage.removeItem('proMsg'); setTimeout(function () { toast(pm); }, 300); } } catch (e) {}
 window.__dbg = { FLY: FLY, flyGeom: flyGeom, openFlyby: openFlyby, D: D, fDist: fDist, fSize: fSize, SET: SET, cadRows: cadRows, posFromEl: posFromEl, planetEl: planetEl, jd: jd, sizeFromH: sizeFromH, show: show, openObject: openObject, Orbit: Orbit, openSettings: openSettings, openGuide: openGuide, pickObject: pickObject };
 })();
 </script>
+<script src="tour.js"></script>
 </body>
 </html>

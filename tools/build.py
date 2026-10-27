@@ -122,36 +122,40 @@ APPS = [
 
  dict(key='asteroids', slug='asteroids-meteors', cls='a-app', badge='b-rock', name='Asteroids & Meteors', store='Near-Earth flybys and meteor showers',
   title='Asteroids & Meteors: Near-Earth Asteroid Tracker App',
-  desc='Every asteroid passing close to Earth on a live radar, NASA impact-risk data, 3D flybys and meteor showers. Free Android app using NASA/JPL data.',
-  category='EducationalApplication', pro=False,
+  desc='Every asteroid passing close to Earth on a live radar, NASA impact-risk data, 3D flybys and meteor showers. Free Android app using NASA/JPL data, with an optional Pro upgrade.',
+  category='EducationalApplication', pro=True,
   pitch="See what's passing Earth this week. Every close approach on a live radar, NASA's real impact-risk list, and a 3D flyby you can ride alongside as a rock skims past the Moon's orbit.",
   feats=[('Radar','A live dial of this week\'s flybys, with the next one counted down.'),
-         ('3D flyby','Follow an asteroid past Earth on its real path, with the true Sun, Moon and stars.'),
+         ('Around Earth','Each flyby in 3D on its real path past Earth, with the true Sun, Moon and stars.'),
          ('Risk',"NASA's Sentry list of objects with any chance of impact, explained plainly."),
          ('Meteors','Showers with real radiants and rates, plus recent fireballs.'),
          ('Sky','Point your phone up to find stars, planets and asteroids.'),
          ('History','A calendar of close approaches from 1900 to 2200.')],
   sources='Data: <b>NASA/JPL</b> Close Approach, <b>Sentry</b>, <b>Small-Body Database</b> &amp; <b>Fireball</b> APIs',
-  pills=[],
+  pills=['Free · Pro upgrade'],
   intro=[
    "Asteroids & Meteors is a near-Earth asteroid tracker. Several asteroids pass between the Earth and the Moon every month, and most are only spotted days before they arrive. This app shows every close approach NASA's Jet Propulsion Laboratory has on record, with how close it comes, how fast it is going and roughly how big it is.",
    "Distances are given in lunar distances (LD), the distance from Earth to the Moon, about 384,400 km. Anything inside 1 LD passes closer than the Moon."],
   sections=[
    ('A radar of this week\'s flybys', [
      "The Radar tab shows the next seven days as a dial around Earth, with each asteroid placed by when and how close it passes. The next one is highlighted with a countdown. Upcoming lists the next 60 days, which you can filter by size and distance."]),
-   ('Ride along with a 3D flyby', [
-     "For each close approach you can watch a 3D flyby: the asteroid follows its real path past Earth, with the Earth turned to the right time, lit from where the Sun really is, and the real stars behind it."]),
+   ('Every flyby in 3D, on its real path', [
+     "Around Earth, at the top of Upcoming, shows the next flyby in 3D: the asteroid comes in from its real direction at its real speed, past an Earth lit from where the Sun really is, with the Moon in place and the real stars behind. A readout counts down to closest approach and gives the range as it changes.",
+     "With Asteroids & Meteors Pro you can step through every flyby of the week and slide each one with your finger, and ride alongside any asteroid in the full 3D flyby, looking forward or back at Earth."]),
    ('Is anything going to hit us?', [
      "The Risk tab shows NASA's Sentry list: every known object with any chance of hitting Earth in the next century, with the Torino and Palermo scale ratings explained in plain words. Almost all of these chances are tiny and drop to zero as more observations come in."]),
    ('Meteor showers and fireballs', [
-     "The Meteors tab shows each meteor shower's radiant, the point in the sky the meteors seem to come from, its peak date and how many meteors an hour to expect. It also lists recent fireballs, the bright meteors that US government sensors detect exploding in the atmosphere."]),
+     "The Meteors tab draws the shower that is active now on your own sky, with meteors streaming from its radiant, the point they seem to come from, at their real speed. It gives the peak date, how many meteors an hour to expect and the best time to watch tonight, and lists recent fireballs, the bright meteors that US government sensors detect exploding in the atmosphere.",
+     "Pro lets you preview any coming shower's peak night on your sky and sends a reminder just before the best time to watch."]),
   ],
-  tiers=None,
+  tiers=(["This week's radar and countdown", 'Every close approach for 60 days, with filters', 'The next flyby in 3D', "NASA's impact-risk list and the history calendar", 'Meteor showers, rates and fireballs', 'Next-flyby widget'],
+         ['Every flyby in 3D, slid with your finger', 'The full 3D flyby ride', 'Camera view of the sky with asteroids marked', 'Meteor peak-night previews and reminders', 'Your own alert distance and size', 'This week and Radar widgets']),
   faq=[
    ('Is an asteroid going to hit Earth?', "No known asteroid larger than about 140 metres has a significant chance of hitting Earth in the next 100 years. The Risk tab shows NASA's Sentry list of the objects that have any chance at all, and almost all of those chances are tiny."),
    ('What is a lunar distance (LD)?', "One lunar distance is the average distance from Earth to the Moon, about 384,400 km. An asteroid that passes at 0.5 LD comes halfway between Earth and the Moon."),
    ('How do you know how big an asteroid is?', "For most asteroids only the brightness is known, so the size is estimated from how much light it reflects. The app shows that range, for example 20 to 45 metres, and the measured size when one exists."),
    ('What is a fireball?', "A fireball is a meteor brighter than any planet. The largest ones are picked up by US government sensors, and NASA/JPL publishes their time, location, speed and energy."),
+   ('What does Asteroids & Meteors Pro add?', "Every flyby of the week in 3D that you can slide with your finger, the full 3D flyby ride, a camera view of the sky with the asteroids marked, meteor peak-night previews and reminders, your own alert distance and size, and two extra home-screen widgets. It is a one-off upgrade with no subscription."),
    ('Where does the data come from?', "From NASA's Jet Propulsion Laboratory: the Close Approach Data, Sentry, Small-Body Database and Fireball services."),
   ],
   data=[('NASA/JPL Close Approach Data','Every asteroid and comet flyby from 1900 to 2200'),('NASA/JPL Sentry','Objects with any chance of impact'),('NASA/JPL Small-Body Database','Orbits and physical data'),('NASA/JPL Fireball data','Bright meteors detected in the atmosphere')]),
@@ -197,7 +201,7 @@ APPS = [
 for a in APPS: a['url'] = f'/{a["slug"]}/'
 
 GENERAL_FAQ = [
- ('Are the apps free?', "Yes, all four are free to download. Solar, Overhead and Sky also have an optional Pro upgrade that unlocks extra features. There are no ads in any of them."),
+ ('Are the apps free?', "Yes, all four are free to download. Each also has an optional Pro upgrade that unlocks extra features. There are no ads in any of them."),
  ('When can I download them?', "The apps are coming to Google Play for Android. An iPhone version of Solar is planned."),
  ('Do I need an account?', "No. Open the app and it works. There is nothing to sign up for."),
  ('Do the apps collect my data?', 'No. There are no analytics, no ads and no tracking. Your location is used on your phone to work out what is above you and is never sent to us. See the <a href="/privacy/">privacy policy</a>.'),

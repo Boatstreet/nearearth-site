@@ -285,7 +285,8 @@ function info() {
       stat(r.alt > 0 ? Math.round(r.alt) + '°' : 'Below', 'radiant ' + (r.alt > 0 ? 'height' : 'horizon') + ', ' + s.con) +
       stat(moonTxt, 'Moon ' + moonSub) + '</div>';
     if (best) h += '<p class="m-best"><b>Best ' + (sc.mode === 'preview' ? 'that night' : 'tonight') + ': ' + api.fTime(best.from) + '–' + api.fTime(best.to) + '</b> with the radiant ' + Math.round(best.alt) + '° up' + (sc.mode === 'preview' ? '' : '. Give your eyes 20 minutes to adjust and look about 45° away from the radiant') + '.</p>';
-    else { var rise = riseAfter(s, now, loc); h += '<p class="m-best">' + (rise ? 'The radiant rises at ' + api.fTime(rise) + ', but not while it\'s dark enough tonight.' : 'The radiant doesn\'t rise from your latitude.') + '</p>'; }
+    if (best && best.from > now + 15 * 60000) h += remindRow(s, best);
+    else if (!best) { var rise = riseAfter(s, now, loc); h += '<p class="m-best">' + (rise ? 'The radiant rises at ' + api.fTime(rise) + ', but not while it\'s dark enough tonight.' : 'The radiant doesn\'t rise from your latitude.') + '</p>'; }
     if (s.par) h += '<div class="m-par"><span>Debris from <b>' + api.esc(s.par) + '</b></span>' + (s.pid ? '<button class="btn" data-mact="parent">Its orbit</button>' : '') + '</div>';
     if (loc.approx) h += locAsk();
     h += '</div>';
@@ -296,12 +297,32 @@ function info() {
   var others = sc.act.filter(function (x) { return x !== s; });
   if (others.length && sc.mode !== 'preview') h += '<h2 class="sec">Also active</h2><div class="card flush"><ul class="list">' + others.map(function (x) { var pk2 = peakNear(x, now); return row(x, n0(zhr(x, now)), 'ZHR now', 'Peak ' + fDate(pk2) + ' · ' + x.v + ' km/s · ' + x.con, 'data-ms="' + x.c + '"'); }).join('') + '</ul></div>';
   var up = SH.filter(function (x) { return !x.day; }).map(function (x) { return { s: x, t: nextPeak(x, now) }; }).filter(function (o) { return o.t > now + DAY / 2; }).sort(function (a, b) { return a.t - b.t; }).slice(0, 6);
-  h += '<h2 class="sec">Coming up<span>Tap to preview the peak night</span></h2><div class="card flush"><ul class="list">' + up.map(function (o) {
+  h += '<h2 class="sec">Coming up<span>' + (api.pro ? 'Tap to preview the peak night' : 'Peak-night previews with Pro') + '</span></h2><div class="card flush"><ul class="list">' + up.map(function (o) {
     var mk = moon(o.t).k; return row(o.s, fDate(o.t).replace(/^\w+ /, ''), rel(o.t), 'ZHR ' + o.s.z + ' · Moon ' + Math.round(mk * 100) + '% lit · ' + o.s.con, 'data-mprev="' + o.s.c + '" data-mt="' + o.t + '"');
   }).join('') + '</ul></div>';
   h += '<h2 class="sec">Latest fireballs<span>NASA/JPL CNEOS</span></h2><div class="card flush"><ul class="list" id="m-fb">' + fbHTML() + '</ul></div>';
   h += '<p class="small muted" style="margin:4px 6px 0">Shower dates, rates and radiants from the International Meteor Organization\'s working list; peak times can vary by several hours. ZHR is what one observer would see under a perfectly dark sky with the radiant overhead, so real counts are lower.</p>';
   $('m-info').innerHTML = h;
+}
+/* reminders (Pro): a notification ten minutes before the best time */
+function remKey(s, best) { return s.c + ':' + new Date(best.from).toISOString().slice(0, 13); }
+function rems() { var r = api.ls('mRem') || {}, n = api.now(), out = {}; Object.keys(r).forEach(function (k) { if (r[k].at > n - DAY) out[k] = r[k]; }); return out; }
+function remindRow(s, best) {
+  var on = !!rems()[remKey(s, best)], at = best.from - 10 * 60000;
+  return '<div class="m-par"><span>' + (on ? 'Reminder set for <b>' + api.fTime(at) + '</b>, ten minutes before the best time.' : 'Get a notification ten minutes before the best time.') + '</span>' +
+    '<button class="btn' + (on ? '' : ' pri') + '" data-mact="remind" data-mk="' + remKey(s, best) + '" data-mat="' + at + '" data-mname="' + api.esc(s.n) + '" data-mbest="' + best.from + '">' +
+    (on ? 'Cancel' : 'Remind me') + (api.pro ? '' : '<span class="pro-tag">PRO</span>') + '</button></div>';
+}
+function toggleRemind(b) {
+  if (!api.pro) { api.openPro('remind'); return; }
+  var r = rems(), k = b.dataset.mk, id = 0; for (var i = 0; i < k.length; i++) id = (id * 31 + k.charCodeAt(i)) % 900;
+  if (r[k]) { if (api.A && api.A.unremind) api.A.unremind(id); delete r[k]; api.ls('mRem', r); api.toast('Reminder cancelled'); }
+  else {
+    var at = +b.dataset.mat, best = +b.dataset.mbest;
+    if (api.A && api.A.remind) { api.A.remind(id, at, b.dataset.mname + ' tonight', 'Best viewing starts at ' + api.fTime(best) + '. Find a dark spot, give your eyes 20 minutes, and look about 45° from the radiant.'); if (api.A.askNotify) api.A.askNotify(); }
+    r[k] = { id: id, at: at }; api.ls('mRem', r); api.toast('Reminder set for ' + api.fTime(at));
+  }
+  info();
 }
 function locAsk() { return '<div class="m-par" style="margin-top:12px"><span class="muted">Showing a typical sky. Set your location for your own times and directions.</span>' + (api.A && api.A.skyLocate ? '<button class="btn pri" data-mact="loc">Use my location</button>' : '') + '</div>'; }
 function row(s, big, small, sub, attr) {
@@ -350,11 +371,13 @@ function bind() {
   document.getElementById('p-meteor').addEventListener('click', function (e) {
     var b = e.target.closest('[data-ms],[data-mprev],[data-mact]'); if (!b) return;
     if (b.dataset.ms) { M.sel = SH.filter(function (s) { return s.c === b.dataset.ms; })[0] || null; M.preview = null; refreshScene(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    else if (b.dataset.mprev && !api.pro) api.openPro('peaks');
     else if (b.dataset.mprev) { M.sel = SH.filter(function (s) { return s.c === b.dataset.mprev; })[0]; M.preview = +b.dataset.mt; refreshScene(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     else if (b.dataset.mact === 'back') { M.sel = null; M.preview = null; refreshScene(); }
     else if (b.dataset.mact === 'parent') { var s = M.sc.s; if (s && s.pid) api.openOrbit(s.pid); }
     else if (b.dataset.mact === 'fb') { M.fbErr = null; $('m-fb').innerHTML = fbHTML(); loadFireballs(true); }
     else if (b.dataset.mact === 'loc') locate(b);
+    else if (b.dataset.mact === 'remind') toggleRemind(b);
   });
 }
 function locate(btn) {

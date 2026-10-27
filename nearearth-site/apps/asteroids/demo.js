@@ -32,7 +32,7 @@
       'sonne:notif': JSON.stringify({ on: false }),
     },
     overhead: { settings: JSON.stringify({ alerts: false }), places: JSON.stringify([PLACE]), placeIdx: '0' },
-    asteroids: { settings: JSON.stringify({ alerts: false }) },
+    asteroids: { settings: JSON.stringify({ alerts: false }), tourDone: '1', pro: 'true' },
     sky: {},
   }[APP] || {};
   try { Object.defineProperty(window, 'localStorage', { value: MemStore(SEED), configurable: true }); } catch (e) { }

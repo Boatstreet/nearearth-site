@@ -2,7 +2,8 @@
 (function () {
   var el = document.getElementById('intro'); if (!el) return;
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (window.__NOINTRO || reduce) { el.remove(); return; }
+  var skip = false; try { skip = sessionStorage.getItem('noIntro'); sessionStorage.removeItem('noIntro'); } catch (e) {}
+  if (window.__NOINTRO || reduce || skip) { el.remove(); return; }
   var cv = el.querySelector('canvas'), g = cv.getContext('2d');
   var W, H, dpr, start = performance.now(), done = false, DUR = 3700;
   function size() { dpr = Math.min(window.devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; }
