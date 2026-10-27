@@ -114,7 +114,7 @@ APPS = [
   faq=[
    ('When can I see the International Space Station?', "The ISS is easiest to see in the hour or two after sunset or before sunrise, when your sky is dark but the station, about 420 km up, is still lit by the Sun. Overhead lists every pass like this for your location and rates how good it will be."),
    ('How accurate are the pass times?', "Passes are calculated with the standard SGP4 model from orbital elements published by CelesTrak, which the app refreshes regularly. With fresh elements, times are typically accurate to within seconds."),
-   ('Which satellites can Overhead track?', "The ISS, China's Tiangong space station, the Hubble Space Telescope and other bright satellites that are easy to see with the naked eye."),
+   ('Which satellites can Overhead track?', "Any of the more than 30,000 satellites and other objects tracked in Earth orbit. Twelve ready-made lists cover space stations, the brightest satellites, new launches, weather, science, Earth-watching, amateur radio, GPS, Galileo, OneWeb, Starlink and geostationary satellites, and you can look up any other by its NORAD catalogue number."),
    ('What does the viewing score mean?', "It is a 0 to 100 rating of how good a pass will look, based on how high it climbs, how bright it will be, how dark the sky is, the Moon and forecast cloud."),
    ('Does Overhead need my camera?', "Only for the Look view in the Sky tab (part of Overhead Pro), which shows where to point your phone. Everything else works without it, and nothing from the camera leaves your phone."),
   ],
@@ -253,11 +253,11 @@ def screens_html(a):
 # Figures counted from the apps' own code and bundled data (Oct 2026). Keep them true when the apps change.
 STATS = {
  'solar': [('21', 'live data feeds from NOAA, NASA and more'), ('208', 'years of sunspot records, back to 1818'), ('8', 'ways to see the Sun, from sunspots to flares'), ('1 min', 'solar wind updates, from 1.5 million km out')],
- 'overhead': [('12', 'satellite families, from space stations to Starlink'), ('10', 'days of passes predicted ahead'), ('30', 'satellites you can follow at once'), ('36', 'constellations drawn on your sky')],
+ 'overhead': [('30,000+', 'satellites and objects in orbit you can track'), ('12', 'ready-made families, from space stations to Starlink'), ('10', 'days of passes predicted ahead'), ('36', 'constellations drawn on your sky')],
  'asteroids': [('300', 'years of flybys, from 1900 to 2200'), ('18', 'meteor showers with real radiants'), ('5,044', 'stars in the pocket sky view'), ('100', "years ahead in NASA's impact watch")],
  'sky': [('5,553', 'stars searched for alien signals'), ('43,623', 'telescope recordings indexed'), ('1,057', 'of those stars close enough to have heard us'), ('16', 'famous signals, solved and unsolved')],
 }
-HOME_STATS = [('21', 'live data feeds'), ('208', 'years of sunspot records'), ('12', 'families of satellites'), ('300', 'years of asteroid flybys'), ('5,553', 'stars searched for signals'), ('0', 'ads, accounts or trackers')]
+HOME_STATS = [('21', 'live data feeds'), ('208', 'years of sunspot records'), ('30,000+', 'satellites and objects you can track'), ('300', 'years of asteroid flybys'), ('5,553', 'stars searched for signals'), ('0', 'ads, accounts or trackers')]
 
 def stats_html(a):
     return '<dl class="stats">' + ''.join(f'<div><dt>{esc(v)}</dt><dd>{esc(t)}</dd></div>' for v, t in STATS[a['key']]) + '</dl>'
@@ -667,7 +667,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'l'
+VER = TODAY.replace('-', '') + 'p'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); privacy(); notfound(); seo_files()
     print('built', OUT)

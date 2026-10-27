@@ -376,3 +376,15 @@ footer .wrap{display:block;padding-block:0}
 .numgrid div{container-type:inline-size;padding-right:0;overflow:hidden}
 .numgrid dt{font-size:clamp(28px,4vw,48px);white-space:nowrap}
 @supports (font-size:1cqi){.numgrid dt{font-size:min(52px,28cqi)}}
+/* the widest figure (30,000+) sets the size for the row */
+@supports (font-size:1cqi){.numgrid dt{font-size:min(52px,21cqi)}}
+.stats div{container-type:inline-size;overflow:hidden}
+.stats dt{white-space:nowrap}
+@supports (font-size:1cqi){.stats dt{font-size:min(28px,17cqi)}}
+/* app stat tiles: two by two so numbers stay large */
+.stats{grid-template-columns:repeat(2,minmax(0,1fr));max-width:560px}
+.stats div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.stats dd{margin:0;flex:1 1 140px}
+@supports (font-size:1cqi){.stats dt{font-size:min(30px,13cqi)}}
+.stats div{display:block}
+.stats dd{margin:6px 0 0}
