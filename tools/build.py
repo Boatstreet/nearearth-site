@@ -45,7 +45,7 @@ APPS = [
   title='Solar: Space Weather, Aurora & Sunspot App for Android',
   desc='Live Sun with numbered sunspots, solar flare and CME alerts, the Kp index, an aurora forecast and eclipses for your location. Free Android app, no account.',
   category='WeatherApplication', pro=True,
-  pitch="Space weather you can actually read. A live view of the Sun with every numbered sunspot region, and a clear warning when a flare or CME is on its way to Earth.",
+  pitch="Space weather you can actually read. Watch the live Sun with every sunspot group numbered, know the moment a flare erupts, and get warned days before a CME reaches Earth.",
   feats=[('Live Sun','NASA SDO imagery with numbered active regions, rotated to the current time.'),
          ('Earth','An animated magnetosphere showing what the solar wind and CMEs are doing to it right now.'),
          ('Aurora tonight','A go, maybe or stay-in score from aurora chance, cloud cover, darkness and the Moon.'),
@@ -86,7 +86,7 @@ APPS = [
   title='Overhead: ISS Tracker & Satellite Pass Times for Android',
   desc='Predicts every visible ISS and satellite pass over you, rates how good each will look and shows where to look. Free Android ISS tracker, no account.',
   category='ReferenceApplication', pro=True,
-  pitch="Never miss the ISS again. Overhead works out every pass from your location, tells you how good it will look, and points your camera to where it will appear.",
+  pitch="Never miss the ISS again. Overhead works out every pass over you, scores how good it will look, and shows you exactly where to look, from space stations to the newest Starlink train.",
   feats=[('Pass predictions','Rise, peak and set times with height and brightness for the ISS and other satellites.'),
          ('Viewing score','Each pass rated 0–100 from height, brightness, darkness, Moon and cloud.'),
          ('Sky & Look','Drag around the sky, or hold up your phone and the camera view marks where to watch.'),
@@ -124,7 +124,7 @@ APPS = [
   title='Asteroids & Meteors: Near-Earth Asteroid Tracker App',
   desc='Every asteroid passing close to Earth on a live radar, NASA impact-risk data, 3D flybys and meteor showers. Free Android app using NASA/JPL data.',
   category='EducationalApplication', pro=False,
-  pitch="See what's passing Earth this week. Every close approach on a live radar, real impact-risk data from NASA, and a 3D flyby you can ride alongside.",
+  pitch="See what's passing Earth this week. Every close approach on a live radar, NASA's real impact-risk list, and a 3D flyby you can ride alongside as a rock skims past the Moon's orbit.",
   feats=[('Radar','A live dial of this week\'s flybys, with the next one counted down.'),
          ('3D flyby','Follow an asteroid past Earth on its real path, with the true Sun, Moon and stars.'),
          ('Risk',"NASA's Sentry list of objects with any chance of impact, explained plainly."),
@@ -160,7 +160,7 @@ APPS = [
   title='Sky: Stargazing & SETI Night Sky App for Android',
   desc="Tonight's stargazing score, a live star map and the stars Breakthrough Listen has searched for alien signals, plus the Wow! signal. Free Android app.",
   category='EducationalApplication', pro=False,
-  pitch="Your night sky, with the search for life running through it. See what's up tonight, then find the stars that radio telescopes have listened to for a signal.",
+  pitch="Your night sky, with the search for life running through it. See if tonight is worth going out, then find the very stars radio telescopes have listened to for a signal.",
   feats=[('Tonight','A live horizon scene with the real Moon, planets and meteors, a 0–100 stargazing score and the best nights ahead.'),
          ('Sky map','A star map that follows your phone, with a slider to wind the sky 12 hours either way.'),
          ('Listen','Over 5,500 stars and 94 galaxies that Breakthrough Listen pointed the Green Bank Telescope at.'),
@@ -246,6 +246,30 @@ def screens_html(a):
   </div>
   <ul class="strip" tabindex="0" aria-label="{n} screens">{items}</ul>
   <div class="wrap"><p class="scr-note">Screens shown with sample data.</p></div>
+</section>
+'''
+
+
+# Figures counted from the apps' own code and bundled data (Oct 2026). Keep them true when the apps change.
+STATS = {
+ 'solar': [('21', 'live data feeds from NOAA, NASA and more'), ('208', 'years of sunspot records, back to 1818'), ('8', 'ways to see the Sun, from sunspots to flares'), ('1 min', 'solar wind updates, from 1.5 million km out')],
+ 'overhead': [('12', 'satellite families, from space stations to Starlink'), ('10', 'days of passes predicted ahead'), ('30', 'satellites you can follow at once'), ('36', 'constellations drawn on your sky')],
+ 'asteroids': [('300', 'years of flybys, from 1900 to 2200'), ('18', 'meteor showers with real radiants'), ('5,044', 'stars in the pocket sky view'), ('100', "years ahead in NASA's impact watch")],
+ 'sky': [('5,553', 'stars searched for alien signals'), ('43,623', 'telescope recordings indexed'), ('1,057', 'of those stars close enough to have heard us'), ('16', 'famous signals, solved and unsolved')],
+}
+HOME_STATS = [('21', 'live data feeds'), ('208', 'years of sunspot records'), ('12', 'families of satellites'), ('300', 'years of asteroid flybys'), ('5,553', 'stars searched for signals'), ('0', 'ads, accounts or trackers')]
+
+def stats_html(a):
+    return '<dl class="stats">' + ''.join(f'<div><dt>{esc(v)}</dt><dd>{esc(t)}</dd></div>' for v, t in STATS[a['key']]) + '</dl>'
+
+def home_stats():
+    cells = ''.join(f'<div><dt>{esc(v)}</dt><dd>{esc(t)}</dd></div>' for v, t in HOME_STATS)
+    return f'''<section class="bignums" aria-labelledby="nums-h">
+  <div class="wrap">
+    <p class="label">By the numbers</p>
+    <h2 id="nums-h" style="margin-top:14px">The whole sky, in your pocket.</h2>
+    <dl class="numgrid">{cells}</dl>
+  </div>
 </section>
 '''
 
@@ -351,6 +375,7 @@ def app_section(a, top=False, flip=False):
         <div><{h} id="{a['slug']}-h">{esc(a['name'])}</{h}><p class="storetitle">{esc(a['store'])}</p></div>
       </div>
       <p class="pitch">{esc(a['pitch'])}</p>
+      {stats_html(a)}
       <ul class="feats">{feats}</ul>
       <p class="sources">{a['sources']}</p>
       <div class="meta"><span class="pill soon">Coming to Google Play</span>{pills}</div>
@@ -470,7 +495,7 @@ def home():
     page = head('Near Space: Space Weather, ISS, Asteroid & Sky Apps',
                 'Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.',
                 '/', '/assets/og-home.jpg', ld)
-    page += nav() + '<main id="main">\n' + hero + NOWBAR + sections + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
+    page += nav() + '<main id="main">\n' + hero + NOWBAR + home_stats() + sections + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
     write('/', page)
 
 # ---------------------------------------------------------------- app pages
@@ -642,7 +667,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'j'
+VER = TODAY.replace('-', '') + 'k'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); privacy(); notfound(); seo_files()
     print('built', OUT)
