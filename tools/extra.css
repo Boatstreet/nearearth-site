@@ -222,3 +222,8 @@ footer .wrap{display:block;padding-block:0}
 .numgrid dt{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,4.4vw,52px);line-height:1;letter-spacing:-.02em;background:linear-gradient(90deg,var(--sun),var(--orbit) 60%,var(--rock));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
 .numgrid div:nth-child(6) dt{background:none;color:var(--ok)}
 .numgrid dd{margin:10px 0 0;color:var(--mute);font-size:15px;line-height:1.35}
+/* keep big numbers inside their column */
+.numgrid{column-gap:24px}
+.numgrid div{container-type:inline-size;padding-right:0;overflow:hidden}
+.numgrid dt{font-size:clamp(28px,4vw,48px);white-space:nowrap}
+@supports (font-size:1cqi){.numgrid dt{font-size:min(52px,28cqi)}}
