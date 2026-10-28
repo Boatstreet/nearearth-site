@@ -2,6 +2,7 @@
 // Static files are served straight from ./nearearth-site; this only runs for paths that are not files:
 //   /api/sky        a small summary of the sky right now, for the home page bar (cached 10 minutes)
 //   /api/proxy?url= read-only pass-through to the public science feeds the app demos use (cached 5 minutes)
+//   /api/news?f=    nasa.gov's public RSS feeds (NASA news releases, JPL news) for Space news (cached 30 minutes)
 // Everything else falls through to the static files (and the 404 page).
 
 const UA = 'nearspace.app (hello@nearspace.app)';
@@ -17,6 +18,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/api/sky') return cached(request, ctx, 600, () => sky());
     if (url.pathname === '/api/proxy') return proxy(request, ctx, url);
+    if (url.pathname === '/api/news') return news(request, ctx, url);
     return env.ASSETS.fetch(request);
   },
 };
@@ -106,5 +108,19 @@ async function proxy(request, ctx, url) {
     } catch (e) {
       return json({ error: 'upstream unreachable' }, 0, 502);
     } finally { clearTimeout(t); }
+  });
+}
+
+// Space news: only these two official feeds, fetched as-is. Parsing and the image-credit rules run in the page (assets/news.js).
+const NEWS_FEEDS = { nasa: 'https://www.nasa.gov/news-release/feed/', jpl: 'https://www.nasa.gov/centers-and-facilities/jpl/feed/' };
+async function news(request, ctx, url) {
+  const f = url.searchParams.get('f'), target = NEWS_FEEDS[f];
+  if (!target) return json({ error: 'unknown feed' }, 0, 400);
+  return cached(request, ctx, 1800, async () => {
+    try {
+      const r = await fetch(target, { headers: { 'user-agent': UA, accept: 'application/rss+xml, application/xml, text/xml' }, cf: { cacheTtl: 1800 } });
+      if (!r.ok) return json({ error: 'nasa.gov HTTP ' + r.status }, 0, 502);
+      return new Response(await r.text(), { headers: { 'content-type': 'application/rss+xml; charset=utf-8', 'cache-control': 'public, max-age=1800' } });
+    } catch (e) { return json({ error: 'nasa.gov unreachable' }, 0, 502); }
   });
 }

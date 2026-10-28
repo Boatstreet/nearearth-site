@@ -321,8 +321,8 @@ def head(title, desc, path, og_img, jsonld, extra=''):
 '''
 
 def nav(current=''):
-    items = [('/solar/', 'Solar', 'solar'), ('/overhead/', 'Overhead', 'overhead'), ('/asteroids-meteors/', 'Asteroids', 'asteroids-meteors'), ('/sky/', 'Sky', 'sky'), ('/guides/', 'Guides', 'guides')]
-    li = ''.join(f'<li{" class=\"opt\"" if s == "guides" else ""}><a href="{h}"{" aria-current=\"page\"" if s == current else ""}>{n}</a></li>' for h, n, s in items)
+    items = [('/solar/', 'Solar', 'solar'), ('/overhead/', 'Overhead', 'overhead'), ('/asteroids-meteors/', 'Asteroids', 'asteroids-meteors'), ('/sky/', 'Sky', 'sky'), ('/news/', 'News', 'news'), ('/guides/', 'Guides', 'guides')]
+    li = ''.join(f'<li{" class=\"opt\"" if s in ("guides", "news") else ""}><a href="{h}"{" aria-current=\"page\"" if s == current else ""}>{n}</a></li>' for h, n, s in items)
     return f'''<nav aria-label="Main">
   <div class="wrap">
     <a class="brand" href="/">{MARK}<span class="bt">{NAME}</span></a>
@@ -342,12 +342,13 @@ def footer():
       </div>
       <div><h2>Apps</h2><ul>{apps}</ul></div>
       <div><h2>Guides</h2><ul>{''.join(f'<li><a href="/guides/{g["slug"]}/">{esc(g["short"])}</a></li>' for g in GUIDES)}</ul></div>
-      <div><h2>More</h2><ul><li><a href="/guides/">All guides</a></li><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
+      <div><h2>More</h2><ul><li><a href="/news/">Space news</a></li><li><a href="/guides/">All guides</a></li><li><a href="/#faq">Questions</a></li><li><a href="/#data">Data sources</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/#contact">Contact</a></li></ul></div>
     </div>
     <div class="fine"><span>© 2026 {NAME}</span><span>Not affiliated with NOAA, NASA, JPL, CelesTrak or Breakthrough Listen.</span></div>
   </div>
 </footer>
 <script src="/assets/site.js?v={VER}" defer></script>
+<script src="/assets/news.js?v={VER}" defer></script>
 </body>
 </html>
 '''
@@ -480,7 +481,8 @@ def home():
             ('CelesTrak', 'Orbital elements for the ISS and tracked satellites', 'o'),
             ('NASA/JPL', 'Close approaches, Sentry impact risk, small-body orbits, fireballs', 'a'),
             ('Breakthrough Listen', 'Public index of Green Bank Telescope SETI observations, 2016–2018, and a sample recording', 'k'),
-            ('Open-Meteo', 'Cloud cover forecasts and place search', 'sok')]
+            ('Open-Meteo', 'Cloud cover forecasts and place search', 'sok'),
+            ('NASA &amp; JPL news', 'Space news headlines from nasa.gov\'s public feeds, also on this site', 'k')]
     names = {'s': 'Solar', 'o': 'Overhead', 'a': 'Asteroids &amp; Meteors', 'k': 'Sky'}
     trs = ''.join(f'<tr><td>{s}</td><td>{d}</td><td><span class="dots">{"".join(f"<i class=\"d-{c}\" title=\"{names[c]}\"></i>" for c in u)}</span></td></tr>' for s, d, u in rows)
     data = f'''<section class="data" id="data" aria-labelledby="data-h">
@@ -499,7 +501,7 @@ def home():
     page = head('Near Space: Space Weather, ISS, Asteroid & Sky Apps',
                 'Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.',
                 '/', '/assets/og-home.jpg', ld)
-    page += nav() + '<main id="main">\n' + hero + NOWBAR + home_stats() + sections + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
+    page += nav() + '<main id="main">\n' + hero + NOWBAR + home_stats() + sections + news_section() + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
     write('/', page)
 
 # ---------------------------------------------------------------- app pages
@@ -611,6 +613,34 @@ def guides_index():
     page += nav('guides') + '<main id="main">\n' + crumbs + intro + guides_section('All guides', hid='all-h') + CONTACT + '</main>\n' + footer()
     write('/guides/', page)
 
+
+# ---------------------------------------------------------------- space news (nasa.gov feeds, Near Sky rules; see assets/news.js)
+NEWS_NOTE = 'From nasa.gov. Near Space is an independent developer and is not affiliated with or endorsed by NASA.'
+def news_section(n=6, lead=False, more=True, hid='news-h', title='Space news', h='h2'):
+    more_link = '<a class="more" href="/news/" style="--acc:var(--orbit)">All space news <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>' if more else ''
+    return f'''<section class="news" id="news" aria-labelledby="{hid}" data-news="{n}" data-filter="all" data-lead="{1 if lead else 0}">
+  <div class="wrap">
+    <div class="news-head">
+      <div><p class="label">Latest from NASA and JPL <span class="nws-fresh"></span></p><{h} id="{hid}" style="margin-top:14px">{title}</{h}></div>
+      <div class="nws-filter" role="group" aria-label="Show news from"><button type="button" data-nf="all" aria-pressed="true">All</button><button type="button" data-nf="nasa" aria-pressed="false">NASA</button><button type="button" data-nf="jpl" aria-pressed="false">JPL</button></div>
+    </div>
+    <div class="nws-list" aria-live="polite"><p class="nws-msg">Loading the latest news from nasa.gov…</p></div>
+    <noscript><p class="nws-msg">Space news needs JavaScript. <a href="https://www.nasa.gov/news/">See NASA news on nasa.gov</a>.</p></noscript>
+    <div class="nws-foot"><p class="nws-src">{esc(NEWS_NOTE)} Headlines and opening paragraphs only; every story links to the full article on nasa.gov. Pictures appear only when credited to NASA or NASA/JPL-Caltech.</p>{more_link}</div>
+  </div>
+</section>
+'''
+
+def news_page():
+    url = '/news/'
+    ld = clean({'@context': 'https://schema.org', '@graph': [ORG, WEBSITE,
+        {'@type': 'WebPage', '@id': SITE + url + '#page', 'url': SITE + url, 'name': 'Space news', 'isPartOf': {'@id': SITE + '/#website'},
+         'breadcrumb': {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': NAME, 'item': SITE + '/'}, {'@type': 'ListItem', 'position': 2, 'name': 'Space news', 'item': SITE + url}]}}]})
+    page = head('Space News: the Latest from NASA and JPL', "Today's space news from NASA and NASA's Jet Propulsion Laboratory: launches, missions, Mars, the Moon and deep space, with links to the full stories on nasa.gov.", url, '/assets/og-home.jpg', ld)
+    crumbs = f'<div class="wrap crumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">{NAME}</a></li><li aria-current="page">Space news</li></ol></nav></div>\n'
+    page += nav('news') + '<main id="main">\n' + crumbs + news_section(n=24, lead=True, more=False, hid='news-h', title='Space news', h='h1') + guides_section('Understand the sky', hid='g-h') + CONTACT + '</main>\n' + footer()
+    write(url, page)
+
 # ---------------------------------------------------------------- privacy
 PRIVACY = [
  ('The short version', ["The Near Space apps (Solar, Overhead, Asteroids &amp; Meteors and Sky) don't have accounts, ads, analytics or tracking. We don't collect, store, sell or share any personal data. What you set up in an app stays on your phone."]),
@@ -622,7 +652,8 @@ PRIVACY = [
  ('Purchases', ["Optional Pro upgrades are sold through Google Play. Google handles the payment, and the app only receives confirmation that the upgrade is unlocked. We never see your payment details."]),
  ('Crash reports', ["If an app crashes, it may keep a short crash log on your phone to help fix the problem. It is only sent to us if you choose to share it, and personal details such as your location are removed first."]),
  ('Children', ["The apps are suitable for all ages and don't collect personal data from anyone, including children."]),
- ('This website', ["nearspace.app doesn't use cookies, analytics or tracking. It is hosted by Cloudflare, which processes basic technical information such as IP addresses to deliver and protect the site. The app demos on the website run in your browser and keep nothing once you close the page."]),
+ ('This website', ["nearspace.app doesn't use cookies, analytics or tracking. It is hosted by Cloudflare, which processes basic technical information such as IP addresses to deliver and protect the site. The app demos on the website run in your browser and keep nothing once you close the page.",
+   "Space news headlines come from nasa.gov's public feeds through our site. When a story has a picture, your browser loads it directly from nasa.gov, which can see your IP address like any website you visit."]),
  ('Changes and contact', [f'If this policy changes, the new version will be posted here with a new date. Questions? Email <a href="mailto:{EMAIL}">{EMAIL}</a>.']),
 ]
 def privacy():
@@ -657,7 +688,7 @@ def notfound():
     open(os.path.join(OUT, '404.html'), 'w').write(page)
 
 def seo_files():
-    urls = ['/'] + [a['url'] for a in APPS] + ['/guides/'] + [f'/guides/{g["slug"]}/' for g in GUIDES] + ['/privacy/']
+    urls = ['/'] + [a['url'] for a in APPS] + ['/news/', '/guides/'] + [f'/guides/{g["slug"]}/' for g in GUIDES] + ['/privacy/']
     pri = {'/': '1.0', '/privacy/': '0.3'}
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         f'  <url><loc>{SITE}{u}</loc><lastmod>{TODAY}</lastmod><priority>{pri.get(u, "0.8")}</priority></url>\n' for u in urls) + '</urlset>\n'
@@ -671,7 +702,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'p'
+VER = TODAY.replace('-', '') + 'r'
 if __name__ == '__main__':
-    css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); privacy(); notfound(); seo_files()
+    css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); news_page(); privacy(); notfound(); seo_files()
     print('built', OUT)
