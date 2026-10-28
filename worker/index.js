@@ -111,7 +111,7 @@ async function proxy(request, ctx, url) {
   });
 }
 
-// Space news: only these two official feeds, fetched as-is. Parsing and the image-credit rules run in the page (assets/news.js).
+// Space news: only these two official feeds. Text only: article bodies and media are stripped here; the page shows headline, date, author and opening paragraph.
 const NEWS_FEEDS = { nasa: 'https://www.nasa.gov/news-release/feed/', jpl: 'https://www.nasa.gov/centers-and-facilities/jpl/feed/' };
 async function news(request, ctx, url) {
   const f = url.searchParams.get('f'), target = NEWS_FEEDS[f];
@@ -120,7 +120,9 @@ async function news(request, ctx, url) {
     try {
       const r = await fetch(target, { headers: { 'user-agent': UA, accept: 'application/rss+xml, application/xml, text/xml' }, cf: { cacheTtl: 1800 } });
       if (!r.ok) return json({ error: 'nasa.gov HTTP ' + r.status }, 0, 502);
-      return new Response(await r.text(), { headers: { 'content-type': 'application/rss+xml; charset=utf-8', 'cache-control': 'public, max-age=1800' } });
+      // text only: drop the full article bodies (where NASA's pictures live) and any media tags before passing the feed on
+      const xml = (await r.text()).replace(/<content:encoded>[\s\S]*?<\/content:encoded>/g, '').replace(/<(media:[a-z]+|enclosure)\b[^>]*\/?>(?:[\s\S]*?<\/\1>)?/g, '');
+      return new Response(xml, { headers: { 'content-type': 'application/rss+xml; charset=utf-8', 'cache-control': 'public, max-age=1800' } });
     } catch (e) { return json({ error: 'nasa.gov unreachable' }, 0, 502); }
   });
 }

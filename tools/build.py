@@ -626,7 +626,7 @@ def news_section(n=6, lead=False, more=True, hid='news-h', title='Space news', h
     </div>
     <div class="nws-list" aria-live="polite"><p class="nws-msg">Loading the latest news from nasa.gov…</p></div>
     <noscript><p class="nws-msg">Space news needs JavaScript. <a href="https://www.nasa.gov/news/">See NASA news on nasa.gov</a>.</p></noscript>
-    <div class="nws-foot"><p class="nws-src">{esc(NEWS_NOTE)} Headlines and opening paragraphs only; every story links to the full article on nasa.gov. Pictures appear only when credited to NASA or NASA/JPL-Caltech.</p>{more_link}</div>
+    <div class="nws-foot"><p class="nws-src">{esc(NEWS_NOTE)} Headlines and opening paragraphs only, with no images; every story links to the full article on nasa.gov.</p>{more_link}</div>
   </div>
 </section>
 '''
@@ -653,7 +653,7 @@ PRIVACY = [
  ('Crash reports', ["If an app crashes, it may keep a short crash log on your phone to help fix the problem. It is only sent to us if you choose to share it, and personal details such as your location are removed first."]),
  ('Children', ["The apps are suitable for all ages and don't collect personal data from anyone, including children."]),
  ('This website', ["nearspace.app doesn't use cookies, analytics or tracking. It is hosted by Cloudflare, which processes basic technical information such as IP addresses to deliver and protect the site. The app demos on the website run in your browser and keep nothing once you close the page.",
-   "Space news headlines come from nasa.gov's public feeds through our site. When a story has a picture, your browser loads it directly from nasa.gov, which can see your IP address like any website you visit."]),
+   "Space news headlines come from nasa.gov's public feeds through our site. Nothing is loaded from nasa.gov in your browser unless you open a story there."]),
  ('Changes and contact', [f'If this policy changes, the new version will be posted here with a new date. Questions? Email <a href="mailto:{EMAIL}">{EMAIL}</a>.']),
 ]
 def privacy():
@@ -702,7 +702,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'r'
+VER = TODAY.replace('-', '') + 's'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); news_page(); privacy(); notfound(); seo_files()
     print('built', OUT)
