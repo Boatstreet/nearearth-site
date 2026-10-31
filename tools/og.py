@@ -31,7 +31,7 @@ STARS = '<svg class="st" viewBox="0 0 1200 630">' + ''.join(f'<circle cx="{_r.un
 PAGES = {'solar': ('Solar', 'Space weather, the aurora and sunspots, live.', 'solar'),
          'overhead': ('Overhead', 'Every ISS and satellite pass over you, rated.', 'overhead'),
          'asteroids-meteors': ('Asteroids &amp; Meteors', 'Every asteroid passing Earth, on a live radar.', 'asteroids'),
-         'sky': ('Sky', 'Stargazing, with the search for alien signals.', 'sky')}
+         'sky': ('Near Sky', 'Stargazing, with the search for alien signals.', 'sky')}
 
 with sync_playwright() as pw:
     b = pw.chromium.launch(); pg = b.new_page(viewport={'width': 1200, 'height': 630})

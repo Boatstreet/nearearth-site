@@ -160,8 +160,8 @@ APPS = [
   ],
   data=[('NASA/JPL Close Approach Data','Every asteroid and comet flyby from 1900 to 2200'),('NASA/JPL Sentry','Objects with any chance of impact'),('NASA/JPL Small-Body Database','Orbits and physical data'),('NASA/JPL Fireball data','Bright meteors detected in the atmosphere')]),
 
- dict(key='sky', slug='sky', cls='k-app', badge='b-seti', name='Sky', store='Night sky & the search for alien signals',
-  title='Sky: Stargazing & SETI Night Sky App for Android',
+ dict(key='sky', slug='sky', cls='k-app', badge='b-seti', name='Near Sky', store='Night sky & the search for alien signals',
+  title='Near Sky: Stargazing & SETI Night Sky App for Android',
   desc="Tonight's stargazing score, a live star map and the stars Breakthrough Listen has searched for alien signals, plus the Wow! signal. Free Android app.",
   category='EducationalApplication', pro=False,
   pitch="Your night sky, with the search for life running through it. See if tonight is worth going out, then find the very stars radio telescopes have listened to for a signal.",
@@ -174,7 +174,7 @@ APPS = [
   sources='Data: <b>Breakthrough Listen</b> open data, <b>NOAA SWPC</b> aurora, <b>Open-Meteo</b> cloud cover',
   pills=['Free · Pro upgrade'],
   intro=[
-   "Sky is a stargazing app with the search for extraterrestrial intelligence (SETI) built in. It tells you how good tonight is for looking up, shows you what is in the sky, and lets you explore the real stars that the Breakthrough Listen project has searched for radio signals from other civilisations.",
+   "Near Sky is a stargazing app with the search for extraterrestrial intelligence (SETI) built in. It tells you how good tonight is for looking up, shows you what is in the sky, and lets you explore the real stars that the Breakthrough Listen project has searched for radio signals from other civilisations.",
    "The SETI side uses Breakthrough Listen's public index of observations made with the 100-metre Green Bank Telescope between 2016 and 2018: over 5,500 stars and 94 nearby galaxies, each matched to its distance and star type."],
   sections=[
    ('Is tonight good for stargazing?', [
@@ -184,17 +184,17 @@ APPS = [
    ('Listen: how the search works', [
      "Each target was observed in pairs with nearby empty sky. A real signal disappears when the telescope looks away, while interference from Earth does not. The app shows how that works with a waterfall plot, the frequency-against-time picture SETI researchers use, and explains why every candidate so far turned out to be human-made."]),
    ('Our radio bubble and famous signals', [
-     "Radio broadcasts strong enough to leak into space began around a century ago, so a bubble about 100 light-years across now carries them. Sky shows the listened-to stars inside it. The Signals tab tells the stories of the Wow! signal, BLC1, pulsars and fast radio bursts, marked solved, likely solved or still unexplained."]),
+     "Radio broadcasts strong enough to leak into space began around a century ago, so a bubble about 100 light-years across now carries them. Near Sky shows the listened-to stars inside it. The Signals tab tells the stories of the Wow! signal, BLC1, pulsars and fast radio bursts, marked solved, likely solved or still unexplained."]),
   ],
   tiers=(["Tonight's stargazing score and darkness timeline", 'The live star map', 'Breakthrough Listen targets and simulations', 'Famous signals and the sky calendar'],
          ['Camera view: hold up your phone to find things', 'Best-night finder and your own alerts', "Jupiter's moons, live", 'Time machine for the sky', 'SETI extras and the signal lab', 'Home-screen widgets']),
   faq=[
    ('What is Breakthrough Listen?', "Breakthrough Listen is the largest scientific search for signs of intelligent life beyond Earth. It uses large radio telescopes, including the Green Bank Telescope in West Virginia, and makes its data public."),
-   ('Has anyone found an alien signal?', "No. Every candidate signal found by Breakthrough Listen so far has been traced to human-made interference. Sky explains how each one is checked and ruled out."),
+   ('Has anyone found an alien signal?', "No. Every candidate signal found by Breakthrough Listen so far has been traced to human-made interference. Near Sky explains how each one is checked and ruled out."),
    ('What was the Wow! signal?', "A strong, narrow radio signal picked up by Ohio State University's Big Ear telescope in August 1977. It lasted about 72 seconds and has never been detected again. Its origin is still debated."),
    ('What is the stargazing score?', "A 0 to 100 rating for tonight at your location, based on the cloud forecast, how dark the sky gets and how much moonlight there is."),
-   ('What does Sky Pro add?', "A camera view that shows what you are pointing at, a best-night finder with your own alerts, Jupiter's moons live, a time machine for the sky, extra SETI tools and home-screen widgets."),
-   ('Does Sky work without an internet connection?', "Mostly. The star catalogue and the Breakthrough Listen data are built into the app. It only goes online for the cloud forecast and the aurora outlook."),
+   ('What does Near Sky Pro add?', "A camera view that shows what you are pointing at, a best-night finder with your own alerts, Jupiter's moons live, a time machine for the sky, extra SETI tools and home-screen widgets."),
+   ('Does Near Sky work without an internet connection?', "Mostly. The star catalogue and the Breakthrough Listen data are built into the app. It only goes online for the cloud forecast and the aurora outlook."),
   ],
   data=[('Breakthrough Listen','Public index of Green Bank Telescope observations, 2016–2018'),('NOAA SWPC','Kp forecast for the aurora chance'),('Open-Meteo','Cloud forecast and temperature')]),
 ]
@@ -321,7 +321,7 @@ def head(title, desc, path, og_img, jsonld, extra=''):
 '''
 
 def nav(current=''):
-    items = [('/solar/', 'Solar', 'solar'), ('/overhead/', 'Overhead', 'overhead'), ('/asteroids-meteors/', 'Asteroids', 'asteroids-meteors'), ('/sky/', 'Sky', 'sky'), ('/news/', 'News', 'news'), ('/guides/', 'Guides', 'guides')]
+    items = [('/solar/', 'Solar', 'solar'), ('/overhead/', 'Overhead', 'overhead'), ('/asteroids-meteors/', 'Asteroids', 'asteroids-meteors'), ('/sky/', 'Near Sky', 'sky'), ('/news/', 'News', 'news'), ('/guides/', 'Guides', 'guides')]
     li = ''.join(f'<li{" class=\"opt\"" if s in ("guides", "news") else ""}><a href="{h}"{" aria-current=\"page\"" if s == current else ""}>{n}</a></li>' for h, n, s in items)
     return f'''<nav aria-label="Main">
   <div class="wrap">
@@ -502,7 +502,7 @@ def home():
             ('Breakthrough Listen', 'Public index of Green Bank Telescope SETI observations, 2016–2018, and a sample recording', 'k'),
             ('Open-Meteo', 'Cloud cover forecasts and place search', 'sok'),
             ('NASA &amp; JPL news', 'Space news headlines from nasa.gov\'s public feeds, also on this site', 'k')]
-    names = {'s': 'Solar', 'o': 'Overhead', 'a': 'Asteroids &amp; Meteors', 'k': 'Sky'}
+    names = {'s': 'Solar', 'o': 'Overhead', 'a': 'Asteroids &amp; Meteors', 'k': 'Near Sky'}
     trs = ''.join(f'<tr><td>{s}</td><td>{d}</td><td><span class="dots">{"".join(f"<i class=\"d-{c}\" title=\"{names[c]}\"></i>" for c in u)}</span></td></tr>' for s, d, u in rows)
     data = f'''<section class="data" id="data" aria-labelledby="data-h">
   <div class="wrap">
@@ -514,11 +514,11 @@ def home():
 </section>
 '''
     ld = clean({'@context': 'https://schema.org', '@graph': [ORG, WEBSITE,
-        {'@type': 'WebPage', '@id': SITE + '/#page', 'url': SITE + '/', 'name': 'Near Space: Space Weather, ISS, Asteroid & Sky Apps', 'isPartOf': {'@id': SITE + '/#website'}, 'about': [{'@id': SITE + a['url'] + '#app'} for a in APPS]},
+        {'@type': 'WebPage', '@id': SITE + '/#page', 'url': SITE + '/', 'name': 'Near Space: Space Weather, ISS, Asteroid & Stargazing Apps', 'isPartOf': {'@id': SITE + '/#website'}, 'about': [{'@id': SITE + a['url'] + '#app'} for a in APPS]},
         {'@type': 'ItemList', 'name': 'Near Space apps', 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': SITE + a['url'], 'name': a['name']} for i, a in enumerate(APPS)]},
         {'@type': 'VideoObject', '@id': SITE + '/#trailer', 'name': 'Near Space trailer', 'description': 'The ISS, satellites, asteroids, meteors, the Sun and the search for signals: everything the four Near Space apps follow, in one minute.', 'thumbnailUrl': SITE + '/media/trailer.webp', 'contentUrl': SITE + '/media/trailer.mp4', 'uploadDate': '2026-10-31', 'duration': 'PT1M2S', 'publisher': {'@id': SITE + '/#org'}},
         *[app_ld(a) for a in APPS], faq_ld(GENERAL_FAQ)]})
-    page = head('Near Space: Space Weather, ISS, Asteroid & Sky Apps',
+    page = head('Near Space: Space Weather, ISS, Asteroid & Stargazing Apps',
                 'Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.',
                 '/', '/assets/og-home.jpg', ld)
     page += nav() + '<main id="main">\n' + hero + NOWBAR + TRAILER + home_stats() + sections + news_section() + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
@@ -663,7 +663,7 @@ def news_page():
 
 # ---------------------------------------------------------------- privacy
 PRIVACY = [
- ('The short version', ["The Near Space apps (Solar, Overhead, Asteroids &amp; Meteors and Sky) don't have accounts, ads, analytics or tracking. We don't collect, store, sell or share any personal data. What you set up in an app stays on your phone."]),
+ ('The short version', ["The Near Space apps (Solar, Overhead, Asteroids &amp; Meteors and Near Sky) don't have accounts, ads, analytics or tracking. We don't collect, store, sell or share any personal data. What you set up in an app stays on your phone."]),
  ('Your location', ["The apps use your location, or a place you search for, to work out what is above you: sunrise and darkness, satellite passes, the aurora chance, the stars overhead. This happens on your phone. Your location is never sent to us.",
    "To get a cloud forecast, an app sends the rounded coordinates of your chosen place to Open-Meteo. Place searches you type are sent to Open-Meteo's geocoding service, and some apps look up the name of a place with BigDataCloud or OpenStreetMap. No other information about you is included."]),
  ('Data the apps download', ["The apps download public science data directly from its sources: NOAA's Space Weather Prediction Center, NASA, NASA's Jet Propulsion Laboratory, CelesTrak, Wikipedia and Wikidata, GFZ Potsdam, SILSO and Open-Meteo. Like any website you visit, these services can see your IP address when your phone asks them for data. Their own privacy policies apply to that. Nothing is sent through our servers."]),
@@ -680,7 +680,7 @@ def privacy():
     secs = ''.join(f'<h2>{t}</h2>' + ''.join(f'<p>{p}</p>' for p in ps) for t, ps in PRIVACY)
     ld = clean({'@context': 'https://schema.org', '@graph': [ORG, WEBSITE, {'@type': 'WebPage', '@id': SITE + '/privacy/#page', 'url': SITE + '/privacy/', 'name': 'Privacy policy', 'isPartOf': {'@id': SITE + '/#website'}, 'dateModified': TODAY,
         'breadcrumb': {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': NAME, 'item': SITE + '/'}, {'@type': 'ListItem', 'position': 2, 'name': 'Privacy policy', 'item': SITE + '/privacy/'}]}}]})
-    page = head('Privacy Policy | Near Space', 'How the Near Space apps (Solar, Overhead, Asteroids & Meteors and Sky) handle your data: no accounts, no ads, no analytics and no tracking.', '/privacy/', '/assets/og-home.jpg', ld)
+    page = head('Privacy Policy | Near Space', 'How the Near Space apps (Solar, Overhead, Asteroids & Meteors and Near Sky) handle your data: no accounts, no ads, no analytics and no tracking.', '/privacy/', '/assets/og-home.jpg', ld)
     d = datetime.date.today().strftime('%-d %B %Y')
     page += nav('privacy') + f'''<main id="main">
 <div class="wrap crumbs"><nav aria-label="Breadcrumb"><ol><li><a href="/">{NAME}</a></li><li aria-current="page">Privacy policy</li></ol></nav></div>
@@ -722,7 +722,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'w'
+VER = TODAY.replace('-', '') + 'x'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); news_page(); privacy(); notfound(); seo_files()
     print('built', OUT)
