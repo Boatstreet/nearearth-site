@@ -450,7 +450,7 @@ TRAILER = '''<section class="trailer" id="trailer" aria-labelledby="trailer-h">
       <p>The station crossing your sky, the satellites behind it, rocks slipping past the Moon, the Sun's storms and the search for signals. Everything the four apps follow, in one minute.</p>
     </div>
     <div class="trailer-frame">
-      <video muted loop playsinline preload="none" poster="/media/trailer.webp" data-src="/media/trailer.mp4?v=3" aria-label="Near Space trailer" width="1280" height="720"></video>
+      <video muted loop playsinline preload="none" poster="/media/trailer.webp" data-src="/media/trailer.mp4?v=4" aria-label="Near Space trailer" width="1280" height="720"></video>
       <button type="button" class="trailer-big" data-tr="sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg><span>Watch with sound</span></button>
       <div class="trailer-ctl">
         <button type="button" data-tr="play" aria-label="Pause the trailer"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
@@ -722,7 +722,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 'v'
+VER = TODAY.replace('-', '') + 'w'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); news_page(); privacy(); notfound(); seo_files()
     print('built', OUT)
