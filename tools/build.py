@@ -442,6 +442,25 @@ NOWBAR = '''<section class="now" id="now" aria-label="The sky right now" hidden>
 </section>
 '''
 
+TRAILER = '''<section class="trailer" id="trailer" aria-labelledby="trailer-h">
+  <div class="wrap">
+    <div class="trailer-copy">
+      <p class="label">Watch the trailer</p>
+      <h2 id="trailer-h" style="margin-top:14px">Look up.</h2>
+      <p>The station crossing your sky, the satellites behind it, rocks slipping past the Moon, the Sun's storms and the search for signals. Everything the four apps follow, in 46 seconds.</p>
+    </div>
+    <div class="trailer-frame">
+      <video muted loop playsinline preload="none" poster="/media/trailer.webp" data-src="/media/trailer.mp4" aria-label="Near Space trailer" width="1280" height="720"></video>
+      <button type="button" class="trailer-big" data-tr="sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg><span>Watch with sound</span></button>
+      <div class="trailer-ctl">
+        <button type="button" data-tr="play" aria-label="Pause the trailer"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+        <button type="button" data-tr="mute" aria-label="Turn sound on" aria-pressed="false"><svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+'''
+
 # ---------------------------------------------------------------- home
 def home():
     hero = f'''<header class="hero" id="top">
@@ -497,11 +516,12 @@ def home():
     ld = clean({'@context': 'https://schema.org', '@graph': [ORG, WEBSITE,
         {'@type': 'WebPage', '@id': SITE + '/#page', 'url': SITE + '/', 'name': 'Near Space: Space Weather, ISS, Asteroid & Sky Apps', 'isPartOf': {'@id': SITE + '/#website'}, 'about': [{'@id': SITE + a['url'] + '#app'} for a in APPS]},
         {'@type': 'ItemList', 'name': 'Near Space apps', 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': SITE + a['url'], 'name': a['name']} for i, a in enumerate(APPS)]},
+        {'@type': 'VideoObject', '@id': SITE + '/#trailer', 'name': 'Near Space trailer', 'description': 'The ISS, satellites, asteroids, meteors, the Sun and the search for signals: everything the four Near Space apps follow, in 46 seconds.', 'thumbnailUrl': SITE + '/media/trailer.webp', 'contentUrl': SITE + '/media/trailer.mp4', 'uploadDate': '2026-10-31', 'duration': 'PT46S', 'publisher': {'@id': SITE + '/#org'}},
         *[app_ld(a) for a in APPS], faq_ld(GENERAL_FAQ)]})
     page = head('Near Space: Space Weather, ISS, Asteroid & Sky Apps',
                 'Four free Android apps for the sky: space weather and aurora alerts, ISS pass times, near-Earth asteroid flybys, and stargazing with SETI. No accounts, no ads.',
                 '/', '/assets/og-home.jpg', ld)
-    page += nav() + '<main id="main">\n' + hero + NOWBAR + home_stats() + sections + news_section() + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
+    page += nav() + '<main id="main">\n' + hero + NOWBAR + TRAILER + home_stats() + sections + news_section() + promise + guides_section() + data + faq_html(GENERAL_FAQ) + CONTACT + '</main>\n' + footer()
     write('/', page)
 
 # ---------------------------------------------------------------- app pages
@@ -702,7 +722,7 @@ def css():
     extra = open(os.path.join(ROOT, 'tools', 'extra.css')).read()
     open(os.path.join(OUT, 'assets', 'site.css'), 'w').write(base + '\n' + extra)
 
-VER = TODAY.replace('-', '') + 's'
+VER = TODAY.replace('-', '') + 't'
 if __name__ == '__main__':
     css(); home(); [app_page(a) for a in APPS]; [guide_page(g) for g in GUIDES]; guides_index(); news_page(); privacy(); notfound(); seo_files()
     print('built', OUT)

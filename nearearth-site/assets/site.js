@@ -51,6 +51,23 @@
     }
   });
 
+  // home trailer: plays muted on a loop while in view; "Watch with sound" restarts it with sound
+  document.querySelectorAll('.trailer').forEach(function(sec){
+    var v=sec.querySelector('video'),pb=sec.querySelector('[data-tr="play"]'),mb=sec.querySelector('[data-tr="mute"]'),userPaused=false;
+    var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function ui(){var on=!v.paused&&!v.ended;if(on)sec.classList.add('started');sec.classList.toggle('paused',!on);sec.classList.toggle('heard',!v.muted);
+      pb.setAttribute('aria-label',on?'Pause the trailer':'Play the trailer');mb.setAttribute('aria-label',v.muted?'Turn sound on':'Turn sound off');mb.setAttribute('aria-pressed',v.muted?'false':'true')}
+    function play(){if(!v.getAttribute('src'))v.src=v.dataset.src;var p=v.play();if(p&&p.catch)p.catch(ui)}
+    ['play','pause','volumechange'].forEach(function(e){v.addEventListener(e,ui)});
+    sec.querySelector('[data-tr="sound"]').addEventListener('click',function(){userPaused=false;v.muted=false;if(v.getAttribute('src'))v.currentTime=0;play()});
+    pb.addEventListener('click',function(){if(v.paused){userPaused=false;play()}else{userPaused=true;v.pause()}});
+    mb.addEventListener('click',function(){v.muted=!v.muted;if(v.paused)play()});
+    v.addEventListener('click',function(){if(v.paused){userPaused=false;play()}else{userPaused=true;v.pause()}});
+    if(window.IntersectionObserver&&!reduce){
+      new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){if(!userPaused)play()}else if(!v.paused)v.pause()})},{threshold:.4}).observe(v);
+    }
+  });
+
   // "The sky right now" bar (home page): /api/sky is served by the site's edge function
   var bar=document.getElementById('now');
   if(bar&&window.fetch){
